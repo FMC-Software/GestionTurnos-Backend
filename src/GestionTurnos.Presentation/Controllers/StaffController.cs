@@ -31,9 +31,9 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [HttpPost]
-        public ActionResult<Staff> CreateUser([FromBody] BusinessRequest user)
+        public ActionResult<Staff> CreateStaffWhitBusiness([FromBody] BusinessRequest user)
         {
-            var newUser = _staffService.CreateUser(user);
+            var newUser = _staffService.CreateStaffWhitBusiness(user);
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
         }
     }

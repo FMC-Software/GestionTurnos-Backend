@@ -47,6 +47,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         public virtual void Update(T entity)
         {
             _context.Set<T>().Update(entity);
+            _context.SaveChanges();
         }
     }
 }

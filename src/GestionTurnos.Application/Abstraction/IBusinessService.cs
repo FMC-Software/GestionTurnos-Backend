@@ -10,8 +10,8 @@ namespace GestionTurnos.Application.Abstraction
 
         Business Create(Business business);
 
-        Business Update(Guid id, string value);
+        void Update(Business value);
 
-        bool Delete (Guid id);
+        void Delete (Guid id);
     }
 }

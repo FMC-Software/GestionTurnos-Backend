@@ -45,7 +45,8 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpDelete("{id}")]
         public ActionResult<bool> Delete(Guid id)
         {
-            return Ok(_businessService.Delete(id));
+            _businessService.Delete(id);
+            return Ok(true);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Domain.Entities;
+using System.Xml.Linq;
 
 namespace GestionTurnos.Application.Services
 {
@@ -11,55 +12,17 @@ namespace GestionTurnos.Application.Services
         {
             _businessRepository = businessRepository;
         }
-        /*
-         public List<Business> GetAll()
-         {
-             return _businesses;
-         }
-
-         public Business Create(Business business)
-         {
-             _businesses.Add(business);
-             return business;
-         }
-
-         public bool Delete(Guid id)
-         {
-             var businessDeleted = _businesses.FirstOrDefault(x => x.Id == id);
-
-             if (businessDeleted is null){
-                 return false;
-             } 
-
-             _businesses.Remove(businessDeleted);
-             return true;
-         }
-
-         public Business GetById(Guid id)
-         {
-             var businessById = _businesses.FirstOrDefault(x => x.Id == id);
-             if(businessById is null)
-             {
-                 throw new NotImplementedException();
-             }
-             return businessById;
-         }
-
-         public Business Update(Guid id, string value)
-         {
-             return new Business();
-         }*/
         public Business Create(Business business)
         {
             _businessRepository.Add(business);
             return business;
         }
 
-        public bool Delete(Guid id)
+        public void Delete(Guid id)
         {
 
             _businessRepository.Delete(id);
-            return true;
+             
         }
 
         public List<Business> GetAll()
@@ -73,9 +36,10 @@ namespace GestionTurnos.Application.Services
             return _businessRepository.GetById(id);
         }
 
-        public void Update(Guid id, string value)
+        public void Update(Business value)
         {
-           _businessRepository.Update(value);
+            var existingClient = _businessRepository.GetById(value.Id) ?? throw new Exception("Empresa no encontrada");
+            _businessRepository.Update(value);
         }
     }
 }

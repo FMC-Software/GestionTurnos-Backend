@@ -32,6 +32,18 @@ namespace GestionTurnos.Application.Services
             return existingClient;
         }
 
+        public Client GetByName(string name)
+        {
+            var existingClient = _clientRepository.GetClientByName(name) ?? throw new Exception("Cliente no encontrado");
+            return existingClient;
+        }
+
+        public Client GetByNameForBusiness(string name, Guid businessId)
+        {
+            var existingClient = _clientRepository.GetClientByNameForBusiness(name,businessId) ?? throw new Exception("Cliente no encontrado");
+            return existingClient;
+        }
+
         public List<Client> GetClientsOfBusiness(Guid businessId)
         {
            return _clientRepository.GetClientsOfBusiness(businessId);
