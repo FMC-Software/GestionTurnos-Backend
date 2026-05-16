@@ -27,7 +27,7 @@ namespace GestionTurnos.Presentation.Controllers
         public ActionResult<Staff> GetById(Guid id)
         {
 
-            return _staffService.GetById(id);
+            return Ok(_staffService.GetById(id));
         }
 
         [HttpPost]
@@ -35,6 +35,21 @@ namespace GestionTurnos.Presentation.Controllers
         {
             var newUser = _staffService.CreateStaffWhitBusiness(user);
             return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
+        }
+
+        [HttpDelete("{id}")]
+        public ActionResult DeleteStaff(Guid id)
+        {
+            _staffService.DeleteStaff(id);
+            return NoContent();
+        }
+
+        // [Authorize(Policy = "Admin")]
+        [HttpPut]
+        public ActionResult<Staff> UpdateStaff([FromBody] Staff user)
+        {
+            var updatedUser = _staffService.UpdateStaff(user);
+            return Ok(updatedUser);
         }
     }
 }

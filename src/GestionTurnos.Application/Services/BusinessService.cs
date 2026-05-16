@@ -30,6 +30,11 @@ namespace GestionTurnos.Application.Services
             return _businessRepository.GetAll();
         }
 
+        public List<Staff> GetAllByBusiness(Guid id_Business)
+        {
+            return _businessRepository.GetAllByBusiness(id_Business);
+        }
+
         public Business GetById(Guid id)
         {
 

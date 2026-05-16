@@ -4,9 +4,9 @@ namespace GestionTurnos.Domain.Entities
 {
     public enum AppointmentStatus
     {
-        Pending,
-        Confirmed,
-        Cancelled
+        Pending, // Apenas se crea el turno
+        Confirmed, // El cliente paso, tomo el sevicio, pago y se fue
+        Cancelled // El cliente cancelo el turno o no se presento
     }
 
     public enum PaymentMethod

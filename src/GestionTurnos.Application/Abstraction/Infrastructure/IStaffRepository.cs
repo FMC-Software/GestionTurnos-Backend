@@ -6,4 +6,5 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     {
 
     }
+
 }

@@ -5,25 +5,20 @@ using System.Collections.Generic;
 namespace GestionTurnos.Domain.Entities
 {
 
-    public enum Rol { Sysadmin,Admin,Profesional}
-    public class Staff : BaseEntity
+    public enum Rol { Sysadmin,
+        Admin, // Se encarga de la administración del sistema.
+        Recepcionista, // Se encarga del cobro, y la gestion de todos los turnos de cualquier profesional(Puede agregar turnos ).
+        Profesional // Se encarga de gestionar sus propios turnos, y de atender a los clientes.
+    }
+    public class Staff : User
     {
         [Required]
         public Guid BusinessId { get; set; }
         public Business Business { get; set; } = null!;
         public Guid? BranchId { get; set; }
         public  Branch? Branch { get; set; } = null;
-
-        [Required, StringLength(100)]
-        public string Name { get; set; } = string.Empty;
-
-        [Required, EmailAddress]
-        public string Email { get; set; } = string.Empty;
-
+      
         public string Password { get; set; } = string.Empty;
-
-        [Phone]
-        public string Phone {  get; set; } = string.Empty;
 
         public string LinkPhoto { get; set; } = string.Empty;
 
