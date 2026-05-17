@@ -1,10 +1,12 @@
 ﻿using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StaffController : ControllerBase
@@ -15,28 +17,36 @@ namespace GestionTurnos.Presentation.Controllers
         {
             _staffService = staffService;
         }
-
+        //[Authorize(Policy = "SysAdmin")]
         [HttpGet]
         public ActionResult<List<Staff>> GetAll()
         {
 
             return Ok(_staffService.GetAll());
         }
-
+        //[Authorize(Policy = "SysAdmin")]
         [HttpGet("{id}")]
         public ActionResult<Staff> GetById(Guid id)
         {
 
             return Ok(_staffService.GetById(id));
         }
-
-        [HttpPost]
-        public ActionResult<Staff> CreateStaffWhitBusiness([FromBody] BusinessRequest user)
+        //[Authorize(Policy = "Admin")]
+        [HttpGet("Business/{businessId}")]
+        public ActionResult<List<Staff>> GetStaffOfBusiness(Guid businessId)
         {
-            var newUser = _staffService.CreateStaffWhitBusiness(user);
-            return CreatedAtAction(nameof(GetById), new { id = newUser.Id }, newUser);
+
+            return Ok(_staffService.GetStaffOfBusiness(businessId));
+        }
+        //[Authorize(Policy = "Admin")]
+        [HttpPost]
+        public ActionResult<Staff> CreateStaff([FromBody] StaffRequest Staff)
+        {
+           return Ok(_staffService.CreateStaff(Staff, Staff.BusinessId));
+
         }
 
+        //[Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
         public ActionResult DeleteStaff(Guid id)
         {
@@ -44,11 +54,11 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
-        // [Authorize(Policy = "Admin")]
-        [HttpPut]
-        public ActionResult<Staff> UpdateStaff([FromBody] Staff user)
+        //[Authorize(Policy = "Admin")]
+        [HttpPut("{id}")]
+        public ActionResult<Staff> UpdateStaff([FromBody] StaffRequest Staff, Guid id)
         {
-            var updatedUser = _staffService.UpdateStaff(user);
+            var updatedUser = _staffService.UpdateStaff(Staff, id);
             return Ok(updatedUser);
         }
     }

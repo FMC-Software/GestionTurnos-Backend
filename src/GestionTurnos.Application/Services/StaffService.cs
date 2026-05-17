@@ -25,22 +25,6 @@ namespace GestionTurnos.Application.Services
              return newStaff;
          }
 
-        public Staff CreateStaffWhitBusiness(StaffRequest request)
-        {
-            var newBusiness = new Business
-            {
-                Id = Guid.NewGuid(),
-                Name = $"{request.Name} - {request.BusinessCategory}",
-                Url = $"http://www.{request.Name.Replace(" ", "")}.FCMTurniFy.com"
-            };
-
-            var newStaff = request.ToStaff(newBusiness);
-                
-            _staffRepository.Add(newStaff);
-
-            return newStaff;
-        }
-
 
         public void DeleteStaff(Guid id)
          {
@@ -58,8 +42,13 @@ namespace GestionTurnos.Application.Services
 
             return existingStaff;
          }
-        
-         public Staff UpdateStaff(StaffRequest staff, Guid idStaff)
+
+        public List<Staff> GetStaffOfBusiness(Guid id_business)
+        {
+            return _staffRepository.GetStaffOfBusiness(id_business);
+        }
+
+        public Staff UpdateStaff(StaffRequest staff, Guid idStaff)
          {
             var existingStaff = _staffRepository.GetById(idStaff) ?? throw new Exception("Usuario no encontrado");
 

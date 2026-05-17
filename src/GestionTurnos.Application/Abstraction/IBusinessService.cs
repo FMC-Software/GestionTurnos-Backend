@@ -14,7 +14,7 @@ namespace GestionTurnos.Application.Abstraction
 
         void Delete (Guid id);
 
-        public List<Staff> GetAllByBusiness(Guid id_Business);
+        public List<Business> GetAllByBusiness(Guid id_Business);
        
     }
 }

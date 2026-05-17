@@ -9,9 +9,9 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
         }
 
-        public List<Staff> GetAllByBusiness(Guid id_Business)
+        public List<Business> GetAllByBusiness(Guid id_Business)
         {
-            return _context.Staffs.Where(s => s.BusinessId == id_Business && !s.IsDeleted).ToList();
+            return _dbSet.Where(s => s.Id == id_Business && !s.IsDeleted).ToList();
         }
     }
 }

@@ -9,10 +9,5 @@ namespace GestionTurnos.Application.Response
     {
         public string Token { get; set; }
 
-        public string StaffName { get; set; }
-
-        public Rol Rol { get; set; }
-        public Guid BusinessId { get; set; } = Guid.Empty;
-
     }
 }
