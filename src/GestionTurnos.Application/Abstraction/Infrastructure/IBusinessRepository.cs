@@ -5,6 +5,6 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IBusinessRepository : IBaseRepository<Business>
     {
-        List<Staff> GetAllByBusiness(Guid id_Business);
+        List<Business> GetAllByBusiness(Guid id_Business);
     }
 }

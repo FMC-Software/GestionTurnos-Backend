@@ -20,5 +20,12 @@ namespace GestionTurnos.Presentation.Controllers
             
             return Ok(_clientService.GetAll());
         }
+
+        [HttpGet("Business/{businessId}")]
+        public ActionResult<List<Client>> GetClientsOfBusiness(Guid businessId)
+        {
+
+            return Ok(_clientService.GetClientsOfBusiness(businessId));
+        }
     }
 }

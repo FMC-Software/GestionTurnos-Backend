@@ -17,10 +17,13 @@ namespace GestionTurnos.Infrastructure.ExternalServices
     {
         private readonly IStaffRepository _staffRepository;
         private readonly IConfiguration _configuration;
-        public AuthService(IStaffRepository staffRepository, IConfiguration configuration)
+        private readonly IBranchRepository _branchRepository;
+
+        public AuthService(IStaffRepository staffRepository, IConfiguration configuration, IBranchRepository branchRepository)
         {
             _staffRepository = staffRepository;
             _configuration = configuration;
+            _branchRepository = branchRepository;
         }
 
         //Registro de un nuevo negocio y su staff asociado y devuelvo un token JWT para el nuevo staff registrado.
@@ -32,8 +35,8 @@ namespace GestionTurnos.Infrastructure.ExternalServices
                 throw new Exception("El correo electrónico ya está registrado.");
             }
 
-            // creo 
-
+            // Al momento de registrar un nuevo negocio, se crea automáticamente un nuevo staff asociado a ese negocio con el rol de admin
+            // y una branch principal con la dirección y teléfono proporcionados en el request.
             var newBusiness = new Business
             {
                 Id = Guid.NewGuid(),
@@ -41,8 +44,18 @@ namespace GestionTurnos.Infrastructure.ExternalServices
                 Url = $"http://www.{request.Name.Replace(" ", "")}.FCMTurniFy.com"
             };
 
-            var newStaff = request.ToRegisterNewBusinessAndStaff(newBusiness);
+            var newBranch = new Branch
+            {
+                Id = Guid.NewGuid(),
+                Address = request.Address,
+                Phone = request.BranchPhone,
+                BusinessId = newBusiness.Id,
+                City= request.City,
+                Business = newBusiness
+            };
 
+            var newStaff = request.ToRegisterNewBusinessAndStaff(newBusiness);
+            _branchRepository.Add(newBranch);
             _staffRepository.Add(newStaff);
 
             return new AuthResponse

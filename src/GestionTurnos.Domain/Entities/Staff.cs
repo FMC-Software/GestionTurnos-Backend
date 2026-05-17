@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
+using BCrypt.Net;
 
 namespace GestionTurnos.Domain.Entities
 {
@@ -17,9 +18,12 @@ namespace GestionTurnos.Domain.Entities
         public Business Business { get; set; } = null!;
         public Guid? BranchId { get; set; }
         public  Branch? Branch { get; set; } = null;
-      
-        public string Password { get; set; } = string.Empty;
 
+        private string _password = string.Empty;
+
+        public string Password {
+            get => _password; set => _password = BCrypt.Net.BCrypt.HashPassword(value); 
+        }
         public string LinkPhoto { get; set; } = string.Empty;
 
         public Rol Rol { get; set; }

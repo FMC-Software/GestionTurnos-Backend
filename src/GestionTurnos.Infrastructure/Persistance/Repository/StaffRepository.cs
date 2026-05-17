@@ -8,7 +8,12 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             public StaffRepository(FMCTurnosDbContext context) : base(context)
             {
             }
+
+        public List<Staff> GetStaffOfBusiness(Guid id_business)
+        {
+            return _dbSet.Where(s => s.BusinessId == id_business).ToList();
         }
+    }
        
     
 }

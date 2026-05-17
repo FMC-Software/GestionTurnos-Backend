@@ -16,13 +16,17 @@ namespace GestionTurnos.Application.Request
         public required string Password { get; set; } = string.Empty;
 
         [Phone]
-        public required string Phone { get; set; } = string.Empty;
+        public required string AdminPhone { get; set; } = string.Empty;
         public string? LinkPhoto { get; set; } = string.Empty;
 
         public Rol Rol { get; set; }
 
-        [Required]
-        public string BusinessCategory { get; set; } = string.Empty;
+        public required string BusinessCategory { get; set; } = string.Empty;
 
+        public required string Address { get; set; } = string.Empty;
+        public required string City { get; set; } = string.Empty;
+
+        [Phone]
+        public required string BranchPhone { get; set; }
     }
 }

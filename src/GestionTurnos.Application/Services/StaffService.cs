@@ -42,8 +42,13 @@ namespace GestionTurnos.Application.Services
 
             return existingStaff;
          }
-        
-         public Staff UpdateStaff(StaffRequest staff, Guid idStaff)
+
+        public List<Staff> GetStaffOfBusiness(Guid id_business)
+        {
+            return _staffRepository.GetStaffOfBusiness(id_business);
+        }
+
+        public Staff UpdateStaff(StaffRequest staff, Guid idStaff)
          {
             var existingStaff = _staffRepository.GetById(idStaff) ?? throw new Exception("Usuario no encontrado");
 

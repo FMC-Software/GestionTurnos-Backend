@@ -17,7 +17,7 @@ namespace GestionTurnos.Application.Mapper
                 Name = authRequest.Name,
                 Email = authRequest.Email,
                 Password = authRequest.Password,
-                Phone = authRequest.Phone,
+                Phone = authRequest.AdminPhone,
                 Rol = authRequest.Rol,
                 LinkPhoto = authRequest.LinkPhoto,
                 BusinessId = newBusiness.Id,

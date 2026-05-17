@@ -9,11 +9,14 @@ namespace GestionTurnos.Application.Abstraction
     {
         public List<Staff> GetAll();
         public Staff GetById(Guid id);
+        
+        public List<Staff> GetStaffOfBusiness(Guid businessId);
 
         public Staff CreateStaff(StaffRequest request, Guid Id_Business); 
 
         public Staff UpdateStaff(StaffRequest staff, Guid idStaff);
         public void DeleteStaff(Guid id);
+
 
     }
 }
