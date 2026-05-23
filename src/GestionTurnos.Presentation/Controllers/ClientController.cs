@@ -18,14 +18,14 @@ namespace GestionTurnos.Presentation.Controllers
         {
             _clientService = clientService;
         }
-        [Authorize(Policy = Policies.Sysadmin)]
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet]
         public ActionResult<List<Client>> GetAllClients()
         {
             
             return Ok(_clientService.GetAll());
         }
-        [Authorize(Policy = Policies.Sysadmin)]
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet("Business/{businessId}")]
         public ActionResult<List<Client>> GetClientsOfBusiness(Guid businessId)
         {

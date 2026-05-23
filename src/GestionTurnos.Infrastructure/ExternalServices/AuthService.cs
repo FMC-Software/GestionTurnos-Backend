@@ -1,5 +1,6 @@
 ﻿using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Abstraction.Infrastructure.Auth;
+using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Mapper;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -17,31 +18,32 @@ namespace GestionTurnos.Infrastructure.ExternalServices
     {
         private readonly IStaffRepository _staffRepository;
         private readonly IConfiguration _configuration;
-        private readonly IBranchRepository _branchRepository;
+        
 
-        public AuthService(IStaffRepository staffRepository, IConfiguration configuration, IBranchRepository branchRepository)
+        public AuthService(IStaffRepository staffRepository, IConfiguration configuration)
         {
             _staffRepository = staffRepository;
             _configuration = configuration;
-            _branchRepository = branchRepository;
         }
 
         //Registro de un nuevo negocio y su staff asociado y devuelvo un token JWT para el nuevo staff registrado.
-        public AuthResponse? SignUp(SignUpRequest request)
+        public AuthResponse? SignUp(SignUpRequest request) // Ahora el rol admin se asigna automáticamente en el backm, no se recibe por request ya q es peligroso.
         {
-            //validemos que el correo electrónico no esté registrado en la base de datos
             bool emailExists = _staffRepository.GetAll().Any(s => s.Email == request.Email);
             if (emailExists) {
-                throw new Exception("El correo electrónico ya está registrado.");
+               throw new ConflictException("El correo electrónico ya está registrado.");
             }
 
             // Al momento de registrar un nuevo negocio, se crea automáticamente un nuevo staff asociado a ese negocio con el rol de admin
             // y una branch principal con la dirección y teléfono proporcionados en el request.
+
             var newBusiness = new Business
             {
                 Id = Guid.NewGuid(),
                 Name = $"{request.Name} - {request.BusinessCategory}",
-                Url = $"http://www.{request.Name.Replace(" ", "")}.FCMTurniFy.com"
+                Url = $"http://www.{request.Name.Replace(" ", "")}.FCMTurniFy.com",
+                TypeBusiness = Enum.Parse<TypeBusiness>(request.BusinessCategory, ignoreCase: true)
+
             };
 
             var newBranch = new Branch
@@ -54,8 +56,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
                 Business = newBusiness
             };
 
-            var newStaff = request.ToRegisterNewBusinessAndStaff(newBusiness);
-            _branchRepository.Add(newBranch);
+            var newStaff = request.ToRegisterNewBusinessAndStaff(newBusiness, newBranch);
             _staffRepository.Add(newStaff);
 
             return new AuthResponse

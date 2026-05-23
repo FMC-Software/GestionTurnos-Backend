@@ -9,7 +9,7 @@ namespace GestionTurnos.Application.Mapper
     public static class AuthMapper
     {
 
-        public static Staff ToRegisterNewBusinessAndStaff(this  SignUpRequest authRequest, Business newBusiness)
+        public static Staff ToRegisterNewBusinessAndStaff(this  SignUpRequest authRequest, Business newBusiness, Branch newBranch)
         {
             return new Staff
             {
@@ -18,10 +18,12 @@ namespace GestionTurnos.Application.Mapper
                 Email = authRequest.Email,
                 Password = authRequest.Password,
                 Phone = authRequest.AdminPhone,
-                Rol = authRequest.Rol,
+                Rol = Rol.Admin,
                 LinkPhoto = authRequest.LinkPhoto,
                 BusinessId = newBusiness.Id,
-                Business = newBusiness
+                Business = newBusiness,
+                BranchId = newBranch.Id,
+                Branch = newBranch
             };
         }
     }

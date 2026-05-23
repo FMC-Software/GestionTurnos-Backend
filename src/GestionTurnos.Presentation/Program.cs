@@ -15,7 +15,7 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 
-// Que empresa tendra el SYSADMIN OSEA NOSOTROS, NO TIENE SENTIDOOOOOOOOOOOOOOOO !!!!!!! Y Q PLAN TENDRIAMOS? Respuesta: Plan gratis
+
 builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
@@ -36,7 +36,6 @@ builder.Services.AddDbContext<FMCTurnosDbContext>(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(Policies.Sysadmin, policy => policy.RequireClaim(ClaimTypes.Role, "Sysadmin"));
     options.AddPolicy(Policies.Admin, policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
     options.AddPolicy(Policies.Recepcionista, policy => policy.RequireClaim(ClaimTypes.Role, "Recepcionista"));
     options.AddPolicy(Policies.Profesional, policy => policy.RequireClaim(ClaimTypes.Role, "Profesional"));

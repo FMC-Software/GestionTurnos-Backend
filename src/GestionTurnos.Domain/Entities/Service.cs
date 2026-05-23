@@ -16,7 +16,7 @@ namespace GestionTurnos.Domain.Entities
 
         public string Description { get; set; } = string.Empty;
 
-        public DateTime Duration { get; set; }
+        public int Duration { get; set; }
 
         public double Price { get; set; }
 

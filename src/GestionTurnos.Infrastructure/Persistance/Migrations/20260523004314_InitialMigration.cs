@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace GestionTurnos.Infrastructure.Persistance.Migrations
+namespace GestionTurnos.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class DeleteForeignKey : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

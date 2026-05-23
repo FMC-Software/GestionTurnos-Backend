@@ -18,14 +18,14 @@ namespace GestionTurnos.Presentation.Controllers
         {
             _businessService = businessService;
         }
-        [Authorize(Policy = Policies.Sysadmin)]
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet]
         public ActionResult<Business> GetAll()
         {
 
             return Ok(_businessService.GetAll());
         }
-        [Authorize(Policy = Policies.Sysadmin)]
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet("{id}")]
         public ActionResult<Business> GetById(Guid id)
         {
@@ -38,12 +38,18 @@ namespace GestionTurnos.Presentation.Controllers
         {
             return Ok(true);
         }
-        
+
         [HttpDelete("{id}")]
         public ActionResult<bool> Delete(Guid id)
         {
             _businessService.Delete(id);
             return Ok(true);
         }
+
+        /*[HttpPatch("{id}")]
+        public ActionResult<bool> UpdatePlanBusines(Guid id, [FromBody] string value)
+        {
+            return Ok(true);
+        }*/
     }
-}
+    }
