@@ -5,9 +5,11 @@ using GestionTurnos.Application.Services;
 using GestionTurnos.Infrastructure.ExternalServices;
 using GestionTurnos.Infrastructure.Persistance;
 using GestionTurnos.Infrastructure.Persistance.Repository;
+using GestionTurnos.Presentation.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +33,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<FMCTurnosDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(Policies.Admin, policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    options.AddPolicy(Policies.Recepcionista, policy => policy.RequireClaim(ClaimTypes.Role, "Recepcionista"));
+    options.AddPolicy(Policies.Profesional, policy => policy.RequireClaim(ClaimTypes.Role, "Profesional"));
+});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options => {
            options.TokenValidationParameters = new TokenValidationParameters
@@ -39,12 +48,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
                ValidateIssuer = true,
-               ValidIssuer = "GestionTurnos",
+               ValidIssuer = builder.Configuration["Jwt:Issuer"],
                ValidateAudience = true,
-               ValidAudience = "GestionTurnosClients",
-               ValidateLifetime = true   // rechaza tokens vencidos
+               ValidAudience = builder.Configuration["Jwt:Audience"],
+               ValidateLifetime = true,   // rechaza tokens vencidos
+               RoleClaimType = "role"
            };
        });
+    
+
 var app = builder.Build();
 
 
@@ -56,6 +68,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication(); 
 app.UseAuthorization();
 
 app.MapControllers();

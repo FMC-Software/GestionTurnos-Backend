@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace GestionTurnos.Infrastructure.Persistance.Migrations
+namespace GestionTurnos.Infrastructure.Migrations
 {
     [DbContext(typeof(FMCTurnosDbContext))]
-    [Migration("20260517211131_AddStringMenuAndStringPhone")]
-    partial class AddStringMenuAndStringPhone
+    [Migration("20260523004314_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -248,30 +248,29 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                     b.Property<Guid>("BranchId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("DaysClosedOfWeek")
+                    b.Property<string>("DayOfWeek")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeleteDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("EndTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double>("IntervalHour")
-                        .HasColumnType("float");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("SlotDurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<DateTime>("UpdateDateTime")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
 
                     b.ToTable("Schedules");
                 });
@@ -296,8 +295,8 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Duration")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("Duration")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -330,8 +329,8 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)");
+                        .HasMaxLength(13)
+                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -353,7 +352,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("User");
+                    b.ToTable("Users");
 
                     b.HasDiscriminator<string>("Discriminator").HasValue("User");
 
@@ -370,14 +369,9 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                     b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BusinessId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasIndex("BusinessId");
 
-                    b.HasIndex("BusinessId1");
-
-                    b.ToTable("User", t =>
+                    b.ToTable("Users", t =>
                         {
                             t.Property("BusinessId")
                                 .HasColumnName("Client_BusinessId");
@@ -390,7 +384,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                 {
                     b.HasBaseType("GestionTurnos.Domain.Entities.User");
 
-                    b.Property<Guid?>("BranchId")
+                    b.Property<Guid>("BranchId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BusinessId")
@@ -412,7 +406,24 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
 
                     b.HasIndex("BusinessId");
 
+                    b.ToTable("Users", t =>
+                        {
+                            t.Property("Password")
+                                .HasColumnName("Staff_Password");
+                        });
+
                     b.HasDiscriminator().HasValue("Staff");
+                });
+
+            modelBuilder.Entity("GestionTurnos.Domain.Entities.SysAdminUser", b =>
+                {
+                    b.HasBaseType("GestionTurnos.Domain.Entities.User");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasDiscriminator().HasValue("SysAdminUser");
                 });
 
             modelBuilder.Entity("GestionTurnos.Domain.Entities.Appointment", b =>
@@ -472,17 +483,6 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                     b.Navigation("Plan");
                 });
 
-            modelBuilder.Entity("GestionTurnos.Domain.Entities.Schedule", b =>
-                {
-                    b.HasOne("GestionTurnos.Domain.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-                });
-
             modelBuilder.Entity("GestionTurnos.Domain.Entities.Service", b =>
                 {
                     b.HasOne("GestionTurnos.Domain.Entities.Business", "Business")
@@ -497,14 +497,10 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
             modelBuilder.Entity("GestionTurnos.Domain.Entities.Client", b =>
                 {
                     b.HasOne("GestionTurnos.Domain.Entities.Business", "Business")
-                        .WithMany()
+                        .WithMany("Clients")
                         .HasForeignKey("BusinessId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
-
-                    b.HasOne("GestionTurnos.Domain.Entities.Business", null)
-                        .WithMany("Clients")
-                        .HasForeignKey("BusinessId1");
 
                     b.Navigation("Business");
                 });
@@ -513,7 +509,9 @@ namespace GestionTurnos.Infrastructure.Persistance.Migrations
                 {
                     b.HasOne("GestionTurnos.Domain.Entities.Branch", "Branch")
                         .WithMany()
-                        .HasForeignKey("BranchId");
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("GestionTurnos.Domain.Entities.Business", "Business")
                         .WithMany()

@@ -8,12 +8,12 @@ namespace GestionTurnos.Domain.Entities
 {
     public class Schedule : BaseEntity
     {
-        [Required]
-        public Branch Branch { get; set; } = null!;
-
-        public string? DaysClosedOfWeek { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public double IntervalHour { get; set; }
+            public Guid Id { get; set; }
+            public Guid BranchId { get; set; } // FK a Branch
+            public DayOfWeek DayOfWeek { get; set; } // Enum de C# (0 = Domingo, 1 = Lunes...)
+            public TimeSpan StartTime { get; set; } // Ej: 08:00:00
+            public TimeSpan EndTime { get; set; }   // Ej: 18:00:00
+            public int SlotDurationMinutes { get; set; } // Ej: 30
+                                                         // ... campos de auditoría (IsDeleted, etc.)
     }
 }
