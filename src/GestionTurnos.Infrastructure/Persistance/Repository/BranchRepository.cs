@@ -10,7 +10,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
         }
 
-        public override List<Branch> GetAll()
+        public override List<Branch> GetAllGlobal()
         {
             return _context.Branches
                 .Where(x => !x.IsDeleted)

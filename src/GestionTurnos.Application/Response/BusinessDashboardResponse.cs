@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace GestionTurnos.Application.Response
 {
@@ -25,6 +25,7 @@ namespace GestionTurnos.Application.Response
 
         [Phone]
         public string Phone { get; set; } = string.Empty;
+        public string? City { get; set; }
     }
 
     public class ServiceResponse

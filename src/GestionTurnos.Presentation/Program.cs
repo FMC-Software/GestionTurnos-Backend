@@ -32,6 +32,8 @@ builder.Services.AddScoped<IBusinessSubscriptionRepository,BusinessSubscriptionR
 
 builder.Services.AddScoped<IBusinessService, BusinessService>(); 
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IBranchService, BranchService>();
+builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IPlanService, PlanService>();
 builder.Services.AddScoped<IBusinessSubscriptionService, BusinessSubscriptionService>();
 
