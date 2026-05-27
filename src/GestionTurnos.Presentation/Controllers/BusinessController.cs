@@ -24,14 +24,8 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet("global")]
         public ActionResult<List<Business>> GetAllGlobal()
         {
-            try
-            {
             return Ok(_businessService.GetAllGlobal());
-            }
-            catch(Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
 
@@ -40,18 +34,10 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet("MyBusiness")] 
         public ActionResult<BusinessDashboardResponse> GetMyBusinessWithEcosystem()
         {
-            try
-            {
+
                 var businessEcosystem = _businessService.GetBusinessEcosystem();
                 return Ok(businessEcosystem);
-            }catch(ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-            return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+ 
         }
 
         [Authorize(Roles = Policies.Admin)]
@@ -65,19 +51,10 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpDelete("/MyBusiness/Delete")]
         public ActionResult<bool> Delete()
         {
-            try
-            {
+
                 _businessService.Delete();
                 return Ok(true);
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
     }
 }

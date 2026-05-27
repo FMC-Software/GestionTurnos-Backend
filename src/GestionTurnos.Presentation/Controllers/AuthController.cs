@@ -21,35 +21,17 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpPost("Signup")]
         public ActionResult<AuthResponse> Authenticate([FromBody] SignUpRequest credentials)
         {
-            try
-            {
+
                 return Ok(_authService.SignUp(credentials));
-            }
-            catch (ConflictException ex)
-            {
-                return Conflict(ex.Message); 
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         [HttpPost("Signin")]
         public ActionResult<AuthResponse> Authorize([FromBody] SignInRequest credentials)
         {
-            try
-            {
+
+            
                 return Ok(_authService.SignIn(credentials));
-            }
-            catch (ConflictException ex) 
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
         }
 
     }
