@@ -29,12 +29,12 @@ namespace GestionTurnos.Application.Mapper
                 TotalCost = appointment.TotalCost
             };
         }
-        public static Appointment ToEntity(this AppointmentRequest request)
+        public static Appointment ToEntity(this AppointmentRequest request, Guid clientId)
         {
             return new Appointment
             {
                 StaffId = request.StaffId,
-                ClientId = request.ClientId,
+                ClientId = clientId,
                 ServiceId = request.ServiceId,
 
                 Day = request.Day,

@@ -33,20 +33,24 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .FirstOrDefault(a => a.Id == id && !a.IsDeleted);
         }
 
-        public bool ExistsOverlappingAppointment(Guid staffId, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
+        public bool ExistsOverlappingAppointment(Guid staffId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
         {
+            var date = day.Date;
             return _dbSet.Any(a => !a.IsDeleted &&
                                    a.Id != excludeAppointmentId &&
                                    a.StaffId == staffId &&
+                                   a.Day.Date == date &&
                                    a.StartTime < endTime &&
                                    a.EndTime > startTime);
         }
 
-        public bool ExistsOverlappingAppointmentForClient(Guid clientId, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
+        public bool ExistsOverlappingAppointmentForClient(Guid clientId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
         {
+            var date = day.Date;
             return _dbSet.Any(a => !a.IsDeleted &&
                                    a.Id != excludeAppointmentId &&
                                    a.ClientId == clientId &&
+                                   a.Day.Date == date &&
                                    a.StartTime < endTime &&
                                    a.EndTime > startTime);
         }
