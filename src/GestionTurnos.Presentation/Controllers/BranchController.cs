@@ -20,6 +20,7 @@ namespace GestionTurnos.Presentation.Controllers
             _branchService = branchService;
         }
 
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet]
         public ActionResult<List<BranchResponse>> GetAll()
         {
@@ -37,7 +38,7 @@ namespace GestionTurnos.Presentation.Controllers
                 return StatusCode(500, "Ocurrió un error inesperado.");
             }
         }
-
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet("{id}")]
         public ActionResult<BranchResponse> GetById([FromRoute] Guid id)
         {
@@ -54,6 +55,15 @@ namespace GestionTurnos.Presentation.Controllers
             {
                 return StatusCode(500, "Ocurrió un error inesperado.");
             }
+        }
+        [AllowAnonymous]
+        [HttpGet("InfoBranch/{idBusiness}/{idBranch}")]
+        public ActionResult<BranchResponse> GetInfoBranch([FromRoute] Guid idBusiness, [FromRoute] Guid idBranch)
+        {
+            
+                var branch = _branchService.GetInfoBranch(idBusiness, idBranch);
+                return Ok(branch);
+           
         }
 
         [Authorize(Policy = Policies.Admin)]

@@ -10,5 +10,9 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure.Auth
     {
         AuthResponse? SignUp(SignUpRequest request);
         AuthResponse? SignIn(SignInRequest request);
+
+        public void ForgotPassword(string request);
+
+        public void ResetPassword(string request, string token);
     }
 }

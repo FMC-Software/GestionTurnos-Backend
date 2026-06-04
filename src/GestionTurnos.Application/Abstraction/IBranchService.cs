@@ -11,5 +11,11 @@ namespace GestionTurnos.Application.Abstraction
         BranchResponse CreateBranch(CreateBranchRequest request);
         BranchResponse UpdateBranch(CreateBranchRequest request, Guid id);
         void DeleteBranch(Guid id);
+
+        public Branch CreateInitialBranch(SignUpRequest request, Business newBusiness);
+
+        public InfoBranchResponse GetInfoBranch(Guid idBusiness, Guid idBranch);
+
+
     }
 }

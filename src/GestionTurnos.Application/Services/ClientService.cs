@@ -19,7 +19,9 @@ namespace GestionTurnos.Application.Services
 
         public ClientsResponse CreateClient(ClientRequest request)
         {
-          
+            var clientExisting = _clientRepository.GetClientByEmail(request.Email) ?? null;
+               if(clientExisting is not null) return clientExisting.ToResponse();
+
             var client = request.ToEntity(); // Mapper
 
             _clientRepository.Add(client);

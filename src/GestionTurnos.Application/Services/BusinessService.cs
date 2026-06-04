@@ -38,6 +38,11 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public Business GetById(Guid id)
+        {
+            var business = _businessRepository.GetById(id) ?? throw new ConflictException("Empresa no encontrada.");
+            return business;
+        }   
         public BusinessDashboardResponse GetBusinessEcosystem()
         {
             var business = _businessRepository.GetBusinessWithEcosystem()

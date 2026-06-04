@@ -18,9 +18,9 @@ public class BusinessRepository : BaseRepository<Business>, IBusinessRepository
     {
         var currentTenantId = _tenantProvider.GetBusinessId();
 
-        return _dbSet.Include(b => b.Branches)
-                      .Include(b => b.Services)
-                      .Include(b => b.Clients)
+        return _dbSet.Include(b => b.Branches.Where(br => br.IsDeleted != true))
+                      .Include(b => b.Services.Where(s => s.IsDeleted != true))
+                      .Include(b => b.Clients.Where(c => c.IsDeleted != true))
                       .FirstOrDefault(b => b.Id == currentTenantId && !b.IsDeleted);
     }
 

@@ -20,18 +20,24 @@ namespace GestionTurnos.Presentation.Controllers
             _clientService = clientService;
         }
 
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet]
         public ActionResult<List<ClientsResponse>> GetAll()
         {
             return Ok(_clientService.GetClientsOfCurrentBusiness());
         }
 
+
+        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.Recepcionista)]
         [HttpGet("{id}")]
         public ActionResult<ClientsResponse> GetById([FromRoute] Guid id)
         {
             return Ok(_clientService.GetById(id));
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.Recepcionista)]
         [HttpGet("search")]
         public ActionResult<ClientsResponse> GetByName([FromQuery] string name)
         {
@@ -45,6 +51,8 @@ namespace GestionTurnos.Presentation.Controllers
             return CreatedAtAction(nameof(GetById), new { id = newClient.Id }, newClient);
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.Recepcionista)]
         [HttpPut("{id}")]
         public ActionResult Update([FromBody] ClientRequest request, [FromRoute] Guid id)
         {
@@ -52,6 +60,8 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.Recepcionista)]
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] Guid id)
         {

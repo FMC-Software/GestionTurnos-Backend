@@ -15,6 +15,16 @@ namespace GestionTurnos.Domain.Entities
         public string Address { get; set; } = string.Empty;
         public string? Phone { get; set; }
         public string? City { get; set; }
+
+        public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+
+        // Una sucursal tiene muchos empleados (Staff)
+        public ICollection<Staff> Staff { get; set; } = new List<Staff>();
+
+        // Una sucursal ofrece muchos servicios
+        // (Si es Many-to-Many directo en EF Core, se declara así. 
+        // Si usas una tabla intermedia manual, acá iría la colección a esa tabla intermedia).
+        public ICollection<Service> Services { get; set; } = new List<Service>();
     }
 
 }

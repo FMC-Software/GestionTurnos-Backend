@@ -9,5 +9,7 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     {
         //bool CreateBranch(Branch branch);
         List<Branch> GetByBusinessId(Guid businessId);
+
+        Branch? GetInfoBranch(Guid businessId, Guid branchId);
     }
 }

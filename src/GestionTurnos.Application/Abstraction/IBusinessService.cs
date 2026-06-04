@@ -14,5 +14,7 @@ namespace GestionTurnos.Application.Abstraction
         BusinessDashboardResponse GetBusinessEcosystem();
 
         void Update(BusinessUpdateRequest value);
+
+        Business GetById(Guid id);
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class BusinessController : ControllerBase
@@ -20,7 +21,7 @@ namespace GestionTurnos.Presentation.Controllers
             _businessService = businessService;
         }
 
-        
+        [Authorize(Policy = "SysAdmin")]
         [HttpGet("global")]
         public ActionResult<List<Business>> GetAllGlobal()
         {
@@ -30,7 +31,7 @@ namespace GestionTurnos.Presentation.Controllers
 
 
 
-
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet("MyBusiness")] 
         public ActionResult<BusinessDashboardResponse> GetMyBusinessWithEcosystem()
         {
@@ -40,14 +41,15 @@ namespace GestionTurnos.Presentation.Controllers
  
         }
 
-        [Authorize(Roles = Policies.Admin)]
+        [Authorize(Policy = Policies.Admin)]
         [HttpPut("/MyBusiness/Update")]
         public ActionResult UpdateMyBusiness([FromBody] BusinessUpdateRequest request)
         {
             _businessService.Update(request);
             return NoContent();
         }
-
+        
+        [Authorize(Policy = Policies.Admin)]
         [HttpDelete("/MyBusiness/Delete")]
         public ActionResult<bool> Delete()
         {

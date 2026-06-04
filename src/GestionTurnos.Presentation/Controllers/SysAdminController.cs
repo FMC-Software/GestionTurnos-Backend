@@ -20,14 +20,16 @@ namespace GestionTurnos.Presentation.Controllers
         {
             _staffService = staffService;
         }
-  
+
+        [Authorize(Policy = "SysAdmin")]
         [HttpGet]
         public ActionResult<List<GlobalStaffResponse>> GetAll()
         {
 
             return Ok(_staffService.GetStaffOfCurrentBusiness());
         }
-
+        
+        [Authorize(Policy = "SysAdmin")]
         [HttpGet("{id}")]
         public ActionResult<GlobalStaffResponse> GetById(Guid id)
         {
@@ -35,7 +37,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(_staffService.GetById(id));
         }
 
-       
+        [Authorize(Policy = "SysAdmin")]
         [HttpPut("{id}")]
         public ActionResult<Staff> UpdateStaff([FromBody] StaffRequest Staff, [FromRoute] Guid id)
         {

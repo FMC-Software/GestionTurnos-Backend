@@ -1,5 +1,6 @@
 ﻿using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Response;
+using GestionTurnos.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,26 +11,45 @@ namespace GestionTurnos.Application.Services
     {
         public EmailMessage BuildExpiredEmail(string email, string businessName)
         {
-            var EmailExpiredPlan = new EmailMessage
+            return new EmailMessage
             {
                 To = email,
-                Subject = $"{businessName} - Subscription Expired",
-                Body = "Your free plan has expired. Please renew your subscription to continue using our services."
+                Subject = $"{businessName} - Suscripción Vencida",
+                Body = "Te informamos que tu suscripción ha vencido. Para seguir utilizando la plataforma, por favor renueva tu plan."
             };
-
-            return EmailExpiredPlan;
         }
 
         public EmailMessage BuildVencimientoEmail(string email, string businessName, int daysLeft)
         {
-            var EmailExpiredPlan = new EmailMessage
+            return new EmailMessage
             {
                 To = email,
-                Subject = $"{businessName} - Subscription Renewal Notice",
-                Body = $"Your free plan will expire soon. Please renew your subscription. It expires in {daysLeft} days."
+                Subject = $"{businessName} - Próximo Vencimiento de Suscripción",
+                Body = $"Te informamos que tu suscripción vencerá en {daysLeft} días. Para evitar interrupciones en el servicio, te recomendamos renovarla antes de la fecha de vencimiento."
             };
+        }
 
-            return EmailExpiredPlan;
+        public EmailMessage BuildResetPassword(User user, string token)
+        {
+            return new EmailMessage
+            {
+                To = user.Email,
+                Subject = "Restablecimiento de Contraseña",
+                Body = $@"Hola {user.Name},
+
+                        Hemos recibido una solicitud para restablecer la contraseña de tu cuenta.
+
+                        Para crear una nueva contraseña, haz clic en el siguiente enlace:
+
+                        https://www.FCMTurniFy.com/reset-password?token={token}
+
+                        Por motivos de seguridad, este enlace tiene una validez limitada y solo puede utilizarse una vez.
+
+                        Si no solicitaste el restablecimiento de tu contraseña, puedes ignorar este correo. Tu cuenta permanecerá segura y no se realizará ningún cambio.
+
+                        Atentamente,
+                        Equipo de FCM TurniFy"
+            };
         }
     }
 }
