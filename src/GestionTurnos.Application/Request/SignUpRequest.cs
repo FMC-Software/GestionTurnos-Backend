@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Domain.Entities;
+using GestionTurnos.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

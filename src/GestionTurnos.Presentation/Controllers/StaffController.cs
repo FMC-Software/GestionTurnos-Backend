@@ -24,14 +24,22 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet("Business/Staffs")]
         public ActionResult<List<StaffsResponse>> GetStaffOfBusiness()
         {
-            return Ok(_staffService.GetStaffOfCurrentBusiness());
-        }
 
+            try
+            {
+                var staffs = _staffService.GetStaffOfCurrentBusiness();
+                return Ok(staffs);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Ocurrió un error inesperado y no se pudo obtener la lista de personal.");
+            }
+        }
         [Authorize(Policy = Policies.Admin)]
         [HttpPost]
-        public ActionResult<StaffsResponse> CreateStaff([FromBody] StaffRequest Staff)
+        public ActionResult<StaffsResponse> CreateStaff([FromBody] StaffRequest user)
         {
-            return Ok(_staffService.CreateStaff(Staff));
+            return Ok(_staffService.CreateStaff(user));
         }
 
         [Authorize(Policy = Policies.Admin)]
@@ -42,11 +50,12 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.Admin)]
+        // [Authorize(Policy = "Admin")]
         [HttpPut("{id}")]
-        public ActionResult<Staff> UpdateStaff([FromBody] StaffRequest Staff, [FromRoute] Guid id)
+        public ActionResult<StaffsResponse> UpdateStaff([FromBody] StaffRequest user, [FromRoute] Guid id)
         {
-            return Ok(_staffService.UpdateStaff(Staff, id));
+            var updatedUser = _staffService.UpdateStaff(user, id);
+            return Ok(updatedUser);
         }
     }
 }

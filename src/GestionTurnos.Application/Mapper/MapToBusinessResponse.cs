@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Domain.Entities;
+using GestionTurnos.Domain.Entities;
 using GestionTurnos.Application.Response;
 
 namespace GestionTurnos.Application.Mapper

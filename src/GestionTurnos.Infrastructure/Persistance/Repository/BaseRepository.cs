@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
@@ -55,6 +55,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
 
         public virtual void Update(T entity)
         {
+            entity.UpdateDateTime = DateTime.UtcNow;
             _dbSet.Update(entity);
             SaveChanges();
         }

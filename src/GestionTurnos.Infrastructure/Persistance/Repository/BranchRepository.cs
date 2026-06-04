@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;

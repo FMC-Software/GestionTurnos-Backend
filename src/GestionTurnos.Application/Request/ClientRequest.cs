@@ -1,11 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace GestionTurnos.Application.Request
 {
     public class ClientRequest
     {
         
-     
         public required string Name { get; set; } = string.Empty;
 
         
@@ -15,5 +14,8 @@ namespace GestionTurnos.Application.Request
 
 
         public required string Phone { get; set; } = string.Empty;
+
+        public required string BirthDay { get; set; } = string.Empty;
+       
     }
 }

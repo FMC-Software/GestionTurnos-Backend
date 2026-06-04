@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Abstraction.Infrastructure.Auth;
 using GestionTurnos.Application.Exceptions;
@@ -62,11 +62,19 @@ namespace GestionTurnos.Infrastructure.ExternalServices
                 //throw new BadRequestException($"La categoría de negocio '{request.BusinessCategory}' no es válida.");
             }
 
-            if(request.Plan == null)
+            if(request.Plan == null || request.Plan.Id == Guid.Empty)
             {
-                request.Plan = _planRepository.GetAllGlobal().FirstOrDefault(p => p.Name == "Free Plan");
+                request.Plan = _planRepository.GetAllGlobal().FirstOrDefault(p => p.Name == "Free Plan")
+                    ?? _planRepository.GetAllGlobal().FirstOrDefault(); // Agarra el primero si no hay "Free Plan"
+                    
+                if (request.Plan == null) 
+                    throw new ConflictException("No hay ningún plan cargado en la base de datos.");
             }
-
+            else
+            {
+                request.Plan = _planRepository.GetAllGlobal().FirstOrDefault(p => p.Id == request.Plan.Id)
+                    ?? throw new ConflictException("El plan especificado no existe.");
+            }
 
             var newBusiness = new Business
             {
@@ -97,7 +105,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             return new AuthResponse
             {
                 
-                Token = GenerarToken(newStaff.Id, newStaff.Name, newStaff.Rol, newBusiness.Id),
+                Token = GenerarToken(newStaff.Id, newStaff.Name, newStaff.Rol, newBusiness.Id, newBranch.Id),
             };
         }
 
@@ -117,7 +125,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             return new AuthResponse
             {
                 
-                Token = GenerarToken(user.Id, user.Name, user.Rol, user.BusinessId),
+                Token = GenerarToken(user.Id, user.Name, user.Rol, user.BusinessId, user.BranchId),
             };
         }
 
@@ -188,7 +196,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
         }
 
 
-        private string GenerarToken(Guid userId, string nameStaff, Rol? rol, Guid? businessId)
+        private string GenerarToken(Guid userId, string nameStaff, Rol? rol, Guid? businessId, Guid? branchId = null)
         {
             string key = _configuration["Jwt:Key"]!;
             string issuer = _configuration["Jwt:Issuer"]!;
@@ -198,7 +206,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            
+
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()), 
@@ -213,6 +221,11 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             if (businessId.HasValue && businessId.Value != Guid.Empty)
             {
                 claims.Add(new Claim("BusinessId", businessId.Value.ToString()));
+            }
+
+            if (branchId.HasValue && branchId.Value != Guid.Empty)
+            {
+                claims.Add(new Claim("BranchId", branchId.Value.ToString()));
             }
 
             var token = new JwtSecurityToken(
