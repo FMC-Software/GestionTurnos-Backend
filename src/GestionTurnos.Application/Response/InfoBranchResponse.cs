@@ -15,7 +15,7 @@ namespace GestionTurnos.Application.Response
 
         // 🔥 Agregamos las listas con la información del "ecosistema" de la sucursal
         public List<StaffsResponse> Staff { get; set; } = new();
-        public List<ServiceResponse> Services { get; set; } = new();
+        public List<ServiceBusinessResponse> Services { get; set; } = new();
         public List<ScheduleResponse> Schedules { get; set; } = new();
     }
 }

@@ -30,7 +30,6 @@ namespace GestionTurnos.Application.Services
 
             schedule.EndTime = request.EndTime ?? schedule.EndTime;
             schedule.StartTime = request.StartTime ?? schedule.StartTime;
-
             schedule.IsDeleted = request.IsDeleted ?? schedule.IsDeleted;
             _scheduleRepository.Update(schedule);
         }
