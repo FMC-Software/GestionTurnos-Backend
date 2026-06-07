@@ -1,9 +1,6 @@
 ﻿using GestionTurnos.Application.Abstraction.Infrastructure.External_Interface;
 using GestionTurnos.Application.Response;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Net.Http.Json;
 
 namespace GestionTurnos.Infrastructure.ExternalServices
@@ -24,7 +21,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
         {
             var dolarData = await _httpClient.GetFromJsonAsync<DolarResponseDto>("v1/dolares/oficial")
              ?? throw new Exception("La respuesta de la API vino vacía.");
-
+ 
             return dolarData.Venta;
 
         }

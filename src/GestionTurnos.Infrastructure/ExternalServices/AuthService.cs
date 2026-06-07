@@ -69,7 +69,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             }
 
             
-            if (!Enum.TryParse<TypeBusiness>(request.BusinessCategory, ignoreCase: true, out var typeBusinessParsed))
+            if (!Enum.TryParse<TypeBusiness>(request.BusinessCategory, ignoreCase: true, out var typeBusinessParsed)) // MICAEL ARREGLA ESTO+
             {
                 //throw new BadRequestException($"La categoría de negocio '{request.BusinessCategory}' no es válida.");
             }
@@ -153,8 +153,6 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
            var emailMessage = _emailContentBuilder.BuildResetPassword(user,Token);
 
-
-            // Aquí deberías enviar el correo utilizando tu servicio de email
             _emailService.SendEmailAsync(emailMessage);
  
         }
