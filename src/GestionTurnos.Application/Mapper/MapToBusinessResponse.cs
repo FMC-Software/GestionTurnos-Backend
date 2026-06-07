@@ -13,9 +13,7 @@ namespace GestionTurnos.Application.Mapper
                 Name = business.Name,
                 Url = business.Url,
                 LogoUrl = business.UrlLogo ?? string.Empty,
-                Branches = business.Branches.Select(b => b.ToResponse()).ToList(),
-                Services = business.Services.Select(s => s.ToResponse()).ToList(),
-                Clients = business.Clients.Select(c => ClientMapper.ToResponse(c)).ToList()
+
             };
         }
 

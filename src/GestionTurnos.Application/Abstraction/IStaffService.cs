@@ -14,5 +14,7 @@ namespace GestionTurnos.Application.Abstraction
         List<GlobalStaffResponse> GetAllGlobal();
 
         Staff GetByEmail(string email);
+
+        Staff GetByEmailGlobal(string email);
     }
 }

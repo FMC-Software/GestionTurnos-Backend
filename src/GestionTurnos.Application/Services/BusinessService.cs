@@ -11,12 +11,15 @@ namespace GestionTurnos.Application.Services
     public class BusinessService : IBusinessService
     {
         private readonly IBusinessRepository _businessRepository;
+        private readonly IStaffService _staffService;
         private readonly ITenantProvider _tenantProvider;
 
-        public BusinessService(IBusinessRepository businessRepository, ITenantProvider tenantProvider)
+        public BusinessService(IBusinessRepository businessRepository, ITenantProvider tenantProvider, IStaffService staffService)
         {
+
             _businessRepository = businessRepository;
             _tenantProvider = tenantProvider;
+            _staffService = staffService;
         }
 
         public Business Create(Business business)
@@ -45,9 +48,9 @@ namespace GestionTurnos.Application.Services
         }
         public BusinessDashboardResponse GetBusinessEcosystem()
         {
-            var business = _businessRepository.GetBusinessWithEcosystem()
+            var business = _businessRepository.GetById(_tenantProvider.GetBusinessId() ?? Guid.Empty)
                 ?? throw new ConflictException("No se encontró la configuración de su empresa.");
-
+          
             return business.ToResponse();
         }
 

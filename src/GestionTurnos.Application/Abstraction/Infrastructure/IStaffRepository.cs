@@ -8,6 +8,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Staff GetByEmail(string email);
 
+        public Staff GetByEmailGlobal(string email);
+
     }
 
 }

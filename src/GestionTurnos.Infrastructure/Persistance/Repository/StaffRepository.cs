@@ -22,7 +22,11 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
 
         public Staff GetByEmail(string email)
         {
-            return _dbSet.FirstOrDefault(s => s.Email == email  && !s.IsDeleted);
+            return _dbSet.FirstOrDefault(s => s.Email == email && s.BusinessId == _tenantProvider.GetBusinessId() && !s.IsDeleted);
+        }
+        public Staff GetByEmailGlobal(string email)
+        {
+            return _dbSet.FirstOrDefault(s => s.Email == email && !s.IsDeleted);
         }
     }
        

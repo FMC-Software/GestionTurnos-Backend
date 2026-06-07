@@ -21,7 +21,7 @@ namespace GestionTurnos.Application.Services
 
         public StaffsResponse CreateStaff(StaffRequest request)
         {
-            var existingStaff = _staffRepository.GetAll().FirstOrDefault(s => s.Email == request.Email);
+            var existingStaff = _staffRepository.GetByEmail(request.Email);
             if (existingStaff != null)
             {
                 throw new ConflictException("Ya existe un usuario con ese correo electrónico.");
@@ -84,6 +84,13 @@ namespace GestionTurnos.Application.Services
         {
             var staff = _staffRepository.GetByEmail(email) ?? null;
             
+            return staff;
+        }
+
+        public Staff GetByEmailGlobal(string email)
+        {
+            var staff = _staffRepository.GetByEmailGlobal(email) ?? null;
+
             return staff;
         }
     }

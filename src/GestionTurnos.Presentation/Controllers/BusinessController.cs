@@ -23,7 +23,7 @@ namespace GestionTurnos.Presentation.Controllers
 
         [Authorize(Policy = "SysAdmin")]
         [HttpGet("global")]
-        public ActionResult<List<Business>> GetAllGlobal()
+        public ActionResult<List<BusinessDashboardResponse>> GetAllGlobal()
         {
             return Ok(_businessService.GetAllGlobal());
 

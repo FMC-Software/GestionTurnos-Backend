@@ -95,7 +95,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         public AuthResponse? SignIn(SignInRequest request)
         {
-            var user = _staffService.GetByEmail(request.Email);
+            var user = _staffService.GetByEmailGlobal(request.Email);
 
             var sysAdmin = _sysAdminService.GetByEmail(request.Email);
 
@@ -143,7 +143,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         public void ForgotPassword(string request)
         {
-            var user = _staffRepository.GetAllGlobal().FirstOrDefault(s => s.Email == request);
+            var user = _staffService.GetByEmailGlobal(request);
             if (user == null)
             {
                 throw new ConflictException("No se encontró un usuario con ese correo electrónico.");

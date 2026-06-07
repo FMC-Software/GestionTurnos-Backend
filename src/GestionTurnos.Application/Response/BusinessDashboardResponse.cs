@@ -1,3 +1,4 @@
+using GestionTurnos.Domain.Entities;
 using System.ComponentModel.DataAnnotations;
 
 namespace GestionTurnos.Application.Response
@@ -10,11 +11,8 @@ namespace GestionTurnos.Application.Response
         public string Url { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
 
+        public TypeBusiness Category { get; set; }
 
-        // Ecosistema completo del comercio
-        public List<BranchResponse> Branches { get; set; } = new();
-        public List<ServiceResponse> Services { get; set; } = new();
-        public List<ClientsResponse> Clients { get; set; } = new();
     }
 
     public class BranchResponse

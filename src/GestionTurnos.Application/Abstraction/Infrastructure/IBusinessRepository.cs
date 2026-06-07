@@ -5,6 +5,5 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IBusinessRepository : IBaseRepository<Business>
     {
-        Business? GetBusinessWithEcosystem();
     }
 }
