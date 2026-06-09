@@ -11,10 +11,12 @@ namespace GestionTurnos.Application.Services
     public class PlanService : IPlanService
     {
         private readonly IPlanRepository _planRepository;
+        private readonly IBusinessSubscriptionRepository _subscriptions;
 
-        public PlanService(IPlanRepository planRepository)
+        public PlanService(IPlanRepository planRepository, IBusinessSubscriptionRepository subscriptions)
         {
             _planRepository = planRepository;
+            _subscriptions = subscriptions;
         }
 
         public List<PlanResponse> GetAll()
@@ -34,9 +36,25 @@ namespace GestionTurnos.Application.Services
 
         public PlanResponse Create(PlanRequest request)
         {
+            bool planExist = _planRepository
+                .GetAllGlobal()
+                .Any(p =>
+                    string.Equals(
+                            p.Name.Trim(),
+                            request.Name.Trim(),
+                            StringComparison.OrdinalIgnoreCase));
+
+            if (planExist)
+            {
+                throw new ConflictException($"Ya existe un plan con el nombre '{request.Name}'");
+            }
+
             var newPlan = request.ToPlan();
+
             _planRepository.Add(newPlan);
+
             return newPlan.ToPlanResponse();
+
         }
 
         public PlanResponse Update(PlanRequest request, Guid id)
@@ -44,7 +62,22 @@ namespace GestionTurnos.Application.Services
             var existingPlan = _planRepository.GetById(id)
                 ?? throw new ConflictException("Plan no encontrado.");
 
+            bool duplicatedPlan = _planRepository
+                .GetAllGlobal()
+                .Any(p =>
+                    p.Id != id &&
+                    string.Equals(
+                        p.Name.Trim(),
+                        request.Name.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
+
+            if(duplicatedPlan) 
+            {
+                throw new ConflictException($"Ya existe un plan con el nombre '{request.Name}'");
+            }
+
             existingPlan.UpdateFromRequest(request);
+
             _planRepository.Update(existingPlan);
 
             return existingPlan.ToPlanResponse();
@@ -54,6 +87,23 @@ namespace GestionTurnos.Application.Services
         {
             var plan = _planRepository.GetById(id)
                 ?? throw new ConflictException("Plan no encontrado.");
+
+            if (string.Equals(
+                plan.Name,
+                "Free Plan",
+                StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ConflictException("No se puede eliminar el plan por defecto");
+            }
+
+            bool hasSubscriptions = _subscriptions
+                    .GetAllGlobal()
+                    .Any(s => s.PlanId == id);
+
+            if (hasSubscriptions) 
+            { 
+                throw new ConflictException("No se puede eliminar un plan que esta siendo utilizado.");
+            }
 
             _planRepository.Delete(id);
         }
