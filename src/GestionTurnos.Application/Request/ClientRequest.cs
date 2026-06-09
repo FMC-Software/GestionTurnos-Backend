@@ -5,17 +5,14 @@ namespace GestionTurnos.Application.Request
     public class ClientRequest
     {
         
-        public required string Name { get; set; } = string.Empty;
-
-        
-        [EmailAddress]
+        public  string? Name { get; set; } = string.Empty;
     
-        public required string Email { get; set; } = string.Empty;
+        public  string? Email { get; set; } = string.Empty;
 
 
-        public required string Phone { get; set; } = string.Empty;
+        public  string? Phone { get; set; } = string.Empty;
 
-        public required string BirthDay { get; set; } = string.Empty;
+        public  string? BirthDay { get; set; } = string.Empty;
        
     }
 }

@@ -27,7 +27,7 @@ namespace GestionTurnos.Infrastructure.BackgroundServices
                 }
 
                 // Esperar 24 horas (puedes bajarlo a 1 minuto para hacer pruebas)
-                await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+                await Task.Delay(TimeSpan.FromHours(0.1), stoppingToken);
             }
         }
     }

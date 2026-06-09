@@ -36,6 +36,11 @@ namespace GestionTurnos.Presentation.Controllers
             return  Ok(Services);
         }
 
-
+        [HttpPut("{id}")]
+        public IActionResult UpdateService(ServiceRequest request, [FromRoute] Guid id)
+        {
+            _serviceService.UpdateService(request, id);
+            return Ok();
+        }
     }
 }

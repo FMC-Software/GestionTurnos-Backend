@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GestionTurnos.Application.Abstraction.Infrastructure.External_Interface
 {
-    public interface IDolarPriceService
+    public interface IDolarService
     {
         Task<decimal> CurrentDolarPrice();
     }

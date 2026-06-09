@@ -44,12 +44,20 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
-        
+
         public static void UpdateFromDto(this Client entity, ClientRequest request)
         {
-            entity.Name = request.Name;
-            entity.Email = request.Email;
-            entity.Phone = request.Phone;
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                entity.Name = request.Name;
+
+            if (!string.IsNullOrWhiteSpace(request.Email))
+                entity.Email = request.Email;
+
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+                entity.Phone = request.Phone;
+            if(!string.IsNullOrWhiteSpace(request.BirthDay))   
+                entity.BirthDay = DateTime.Parse(request.BirthDay);
+
         }
     }
 }

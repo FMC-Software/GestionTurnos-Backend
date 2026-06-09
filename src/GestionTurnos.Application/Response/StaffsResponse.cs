@@ -4,7 +4,7 @@ namespace GestionTurnos.Application.Response
 {
     public class StaffsResponse
     {
-        public Guid IdStaff { get; set; }
+        public Guid Id { get; set; }
         public string StaffName { get; set; } = string.Empty;
         public string StaffEmail { get; set; } = string.Empty;
         public string StaffLinkPhoto { get; set; } = string.Empty;

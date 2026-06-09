@@ -25,7 +25,7 @@ namespace GestionTurnos.Application.Mapper
         {
             return new StaffsResponse
             {
-                IdStaff = entity.Id,
+                Id = entity.Id,
                 StaffName = entity.Name,
                 StaffEmail = entity.Email,
                 StaffPhone = entity.Phone,
@@ -40,7 +40,7 @@ namespace GestionTurnos.Application.Mapper
         {
             return new GlobalStaffResponse
             {
-                IdStaff = entity.Id,
+                Id = entity.Id,
                 StaffName = entity.Name,
                 StaffEmail = entity.Email,
                 StaffPhone = entity.Phone,

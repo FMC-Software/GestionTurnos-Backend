@@ -50,8 +50,7 @@ namespace GestionTurnos.Presentation.Controllers
             return CreatedAtAction(nameof(GetById), new { id = newClient.Id }, newClient);
         }
 
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.Recepcionista)]
+        [Authorize(Policy = "AdminOrRecepcionista")]
         [HttpPut("{id}")]
         public ActionResult Update([FromBody] ClientRequest request, [FromRoute] Guid id)
         {
@@ -59,8 +58,7 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = Policies.Admin)]
-        [Authorize(Policy = Policies.Recepcionista)]
+        [Authorize(Policy = "AdminOrRecepcionista")]
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] Guid id)
         {

@@ -12,9 +12,9 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IServiceRepository _serviceRepository;
         private readonly ITenantProvider _tenantProvider;
-        private readonly IDolarPriceService _dolarPriceService;
+        private readonly IDolarService _dolarPriceService;
 
-        public ServiceService(IServiceRepository serviceRepository, ITenantProvider tenantProvider, IDolarPriceService dolarPriceService)
+        public ServiceService(IServiceRepository serviceRepository, ITenantProvider tenantProvider, IDolarService dolarPriceService)
         {
             _serviceRepository = serviceRepository;
             _tenantProvider = tenantProvider;

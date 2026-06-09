@@ -52,7 +52,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailContentBuilder, EmailContentBuilder>();
-
+builder.Services.AddScoped<IDolarService, DolarService>();
 
 builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddScoped<SubscriptionProcessor>();
@@ -70,8 +70,10 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy(Policies.Recepcionista, policy => policy.RequireClaim(ClaimTypes.Role, "Recepcionista"));
     options.AddPolicy(Policies.Profesional, policy => policy.RequireClaim(ClaimTypes.Role, "Profesional"));
     options.AddPolicy(Policies.SysAdmin, policy => policy.RequireClaim(ClaimTypes.Role, "SysAdmin"));
-    options.AddPolicy(Policies.AdminOrRecepcionista, policy =>
-    policy.RequireClaim(ClaimTypes.Role, "Admin", "Recepcionista"));
+    options.AddPolicy(Policies.SysAdminOrAdminOrRecepcionista, policy =>
+    policy.RequireClaim(ClaimTypes.Role, "SysAdmin","Admin", "Recepcionista"));
+    options.AddPolicy(Policies.SysAdminOrAdmin, policy =>
+    policy.RequireClaim(ClaimTypes.Role, "SysAdmin", "Admin"));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>
@@ -90,10 +92,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            };
        });
 
-builder.Services.AddHttpClient<IDolarPriceService, DolarPriceService>(DolarApp =>
+builder.Services.AddHttpClient("DolarApi", client =>
 {
-    DolarApp.BaseAddress = new Uri(builder.Configuration["DolarHoy:Base_URL"]!);
+    client.BaseAddress = new Uri(builder.Configuration[
+"DolarHoy:Base_URL"]!);
 });
+
 
 builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 {
@@ -114,7 +118,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-app.UseCors("ReactPolicy");
+app.UseCors("ReactPolicy"); // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();

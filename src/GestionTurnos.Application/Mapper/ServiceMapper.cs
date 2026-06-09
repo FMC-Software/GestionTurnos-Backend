@@ -21,11 +21,21 @@ namespace GestionTurnos.Application.Mapper
 
         public static void UpdateFromRequest(this Service service, ServiceRequest request)
         {
-            service.Name = request.Name;
-            service.Categoria = request.Categoria;
-            service.Description = request.Description;
-            service.Duration = request.Duration;
-            service.Price = request.Price;
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                service.Name = request.Name;
+
+            if (!string.IsNullOrWhiteSpace(request.Categoria))
+                service.Categoria = request.Categoria;
+
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                service.Description = request.Description;
+
+            if (request.Duration > 0)
+                service.Duration = request.Duration;
+
+            if (request.Price > 0)
+                service.Price = request.Price;
+
             service.UpdateDateTime = DateTime.UtcNow;
         }
 

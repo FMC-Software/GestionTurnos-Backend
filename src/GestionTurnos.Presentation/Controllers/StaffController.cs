@@ -28,14 +28,14 @@ namespace GestionTurnos.Presentation.Controllers
                 return Ok(staffs);
 
         }
-        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPost]
         public ActionResult<StaffsResponse> CreateStaff([FromBody] StaffRequest user)
         {
             return Ok(_staffService.CreateStaff(user));
         }
 
-        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpDelete("{id}")]
         public ActionResult DeleteStaff([FromRoute] Guid id)
         {
@@ -43,7 +43,7 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
-        // [Authorize(Policy = "Admin")]
+         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPut("{id}")]
         public ActionResult<StaffsResponse> UpdateStaff([FromBody] StaffRequest user, [FromRoute] Guid id)
         {
