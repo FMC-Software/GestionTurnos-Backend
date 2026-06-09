@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
-    [Authorize(Policy = Policies.SysAdmin)]
+    [Authorize(Policy = Policies.Admin)] // Cambie a Admin para testeo, volver a poner SysAdmin
     [Route("api/[controller]")]
     [ApiController]
     public class PlanController : ControllerBase
