@@ -11,18 +11,34 @@ namespace GestionTurnos.Application.Services
     public class ClientService : IClientService
     {
         private readonly IClientRepository _clientRepository;
+        private readonly ITenantProvider _tenantProvider;
 
-        public ClientService(IClientRepository clientRepository)
+        public ClientService(IClientRepository clientRepository, ITenantProvider tenantProvider)
         {
             _clientRepository = clientRepository;
+            _tenantProvider = tenantProvider;
         }
 
-        public ClientsResponse CreateClient(ClientRequest request)
+        public ClientsResponse CreateClient(ClientRequest request, Guid? businessId = null)
         {
+            //Si el cliente ya existe, lo retornamos sin crear uno nuevo
             var clientExisting = _clientRepository.GetClientByEmail(request.Email) ?? null;
                if(clientExisting is not null) return clientExisting.ToResponse();
 
+            //Si el cliente no existe, lo creamos
             var client = request.ToEntity(); // Mapper
+
+            // Si llega un businessId, lo asignamos(Esto si lo hace el client propio). Si no, lo obtenemos del tenant provider (Esto si lo hace un admin o un empleado).
+
+            client.BusinessId = businessId ?? _tenantProvider.GetBusinessId() 
+                ?? throw new ConflictException("No se encontró la empresa.");
+                
+            if (DateTime.TryParse(request.BirthDay, out DateTime parsedDate))
+            {
+                client.BirthDay = parsedDate;
+            }
+            
+            client.UpdateDateTime = DateTime.UtcNow;
 
             _clientRepository.Add(client);
 

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
-    [Authorize]
+    [Authorize] 
     [Route("api/[controller]")]
     [ApiController]
     public class AppointmentController : ControllerBase
@@ -32,16 +32,9 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
-        [HttpGet("my-branch")]// solo para Recepcionistas, el service no deja que el profesional los obtenga.
+        [HttpGet("my-branch")]
         public ActionResult GetMyBranchAppointments() {
             var appointments = _appointmentService.GetAppointmentsOfMyBranch();
-            return Ok(appointments);
-        }
-
-        [Authorize(Policy = Policies.Profesional)]
-        [HttpGet("my-appointments")]
-        public ActionResult GetMyAppointments() {
-            var appointments = _appointmentService.GetMyAppointments();
             return Ok(appointments);
         }
 
@@ -59,7 +52,6 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public ActionResult Post([FromBody] AppointmentRequest request)
         {

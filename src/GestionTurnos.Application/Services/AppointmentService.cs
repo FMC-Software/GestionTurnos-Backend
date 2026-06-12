@@ -11,16 +11,18 @@ namespace GestionTurnos.Application.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        private readonly IClientRepository _clientRepository;
+        //private readonly IClientRepository _clientRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IClientService _clientService;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientRepository clientRepository, IStaffRepository staffRepository, ITenantProvider tenantProvider)
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider)
         {
             _appointmentRepository = appointmentRepository;
-            _clientRepository = clientRepository;
+            //_clientRepository = clientRepository;
             _staffRepository = staffRepository;
             _tenantProvider = tenantProvider;
+            _clientService = clientService;
         }
 
         public List<GlobalAppointmentResponse> GetAllGlobal()
@@ -113,24 +115,17 @@ namespace GestionTurnos.Application.Services
             var service = _appointmentRepository.GetServiceById(request.ServiceId)
                 ?? throw new Exception("El servicio no fue encontrado.");
 
-            // 3. Busco cliente por email. Si no existe, se crea.
-            var client = _clientRepository.GetClientByEmail(request.ClientEmail);
-
-            if (client == null)
+            // 3. Busco o creo el cliente delegando a ClientService
+            var clientDto = new ClientRequest
             {
-                client = new Client
-                {
-                    Name = request.ClientName,
-                    Email = request.ClientEmail,
-                    Phone = request.ClientPhone,
-                    BirthDay = request.ClientBirthDay,
-                    BusinessId = staff.BusinessId,
-                    UpdateDateTime = DateTime.UtcNow
-                };
-                _clientRepository.Add(client);
-            }
+                Name = request.ClientName,
+                Email = request.ClientEmail,
+                Phone = request.ClientPhone,
+                BirthDay = request.ClientBirthDay.ToString("yyyy-MM-dd")
+            };
 
-            var clientId = client.Id;
+            var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
+            var clientId = clientResponse.Id;
 
             // 4. Verifico solapamiento de horarios
             var endTime = request.StartTime.TimeOfDay.Add(TimeSpan.FromHours(1));
@@ -164,23 +159,17 @@ namespace GestionTurnos.Application.Services
             var staff = _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
-            // Resolver el cliente por email (find or create)
-            var client = _clientRepository.GetClientByEmail(request.ClientEmail);
-            if (client == null)
+            // Resolver el cliente por email (find or create) delegando a ClientService
+            var clientDto = new ClientRequest
             {
-                client = new Client
-                {
-                    Name = request.ClientName,
-                    Email = request.ClientEmail,
-                    Phone = request.ClientPhone,
-                    BirthDay = request.ClientBirthDay,
-                    BusinessId = staff.BusinessId,
-                    UpdateDateTime = DateTime.UtcNow
-                };
-                _clientRepository.Add(client);
-            }
+                Name = request.ClientName,
+                Email = request.ClientEmail,
+                Phone = request.ClientPhone,
+                BirthDay = request.ClientBirthDay.ToString("yyyy-MM-dd")
+            };
 
-            var clientId = client.Id;
+            var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
+            var clientId = clientResponse.Id;
             var endTime = request.StartTime.TimeOfDay.Add(TimeSpan.FromHours(1));
 
             if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime.TimeOfDay, endTime, id))

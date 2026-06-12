@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
 
@@ -6,7 +6,7 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface IClientService 
     {
-        ClientsResponse CreateClient(ClientRequest request);
+        ClientsResponse CreateClient(ClientRequest request, Guid? businessId = null);
 
         List<ClientsResponse> GetClientsOfCurrentBusiness();
 

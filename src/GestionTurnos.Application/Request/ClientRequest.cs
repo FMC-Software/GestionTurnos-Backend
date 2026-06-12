@@ -13,6 +13,6 @@ namespace GestionTurnos.Application.Request
         public  string? Phone { get; set; } = string.Empty;
 
         public  string? BirthDay { get; set; } = string.Empty;
-       
+
     }
 }
