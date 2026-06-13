@@ -21,5 +21,6 @@ namespace GestionTurnos.Application.Abstraction
 
         ClientsResponse GetById(Guid id);
 
+
     }
 }

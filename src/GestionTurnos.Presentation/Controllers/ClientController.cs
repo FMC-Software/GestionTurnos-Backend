@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
-    [Authorize(Policy = "AdminOrRecepcionista")]
+    [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
 
     [Route("api/[controller]")]
     [ApiController]
@@ -20,7 +20,7 @@ namespace GestionTurnos.Presentation.Controllers
             _clientService = clientService;
         }
 
-        [Authorize(Policy = "AdminOrRecepcionista")]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
 
         [HttpGet]
         public ActionResult<List<ClientsResponse>> GetAll()
@@ -29,14 +29,14 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
 
-        [Authorize(Policy = "AdminOrRecepcionista")]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpGet("{id}")]
         public ActionResult<ClientsResponse> GetById([FromRoute] Guid id)
         {
             return Ok(_clientService.GetById(id));
         }
 
-        [Authorize(Policy = "AdminOrRecepcionista")]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpGet("search")]
         public ActionResult<ClientsResponse> GetByName([FromQuery] string name)
         {
@@ -50,7 +50,7 @@ namespace GestionTurnos.Presentation.Controllers
             return CreatedAtAction(nameof(GetById), new { id = newClient.Id }, newClient);
         }
 
-        [Authorize(Policy = "AdminOrRecepcionista")]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpPut("{id}")]
         public ActionResult Update([FromBody] ClientRequest request, [FromRoute] Guid id)
         {
@@ -58,7 +58,7 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
-        [Authorize(Policy = "AdminOrRecepcionista")]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] Guid id)
         {

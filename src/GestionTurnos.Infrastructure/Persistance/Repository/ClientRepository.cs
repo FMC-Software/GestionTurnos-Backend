@@ -1,4 +1,5 @@
 ﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -30,6 +31,16 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                            .Where(x => !x.IsDeleted)
                            .Include(x => x.Business) 
                            .ToList();
+        }
+
+        public List<Client> GetAll()
+        {
+            var businessId = _tenantProvider.GetBusinessId();
+            if (businessId == null)
+            {
+                throw new ConflictException("No se encontró la empresa.");
+            }
+            return _dbSet.Where(x => x.BusinessId == businessId && !x.IsDeleted).ToList();
         }
     }
 }

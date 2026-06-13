@@ -101,7 +101,7 @@ namespace GestionTurnos.Application.Services
                     StartTime = new TimeSpan(9, 0, 0),
                     EndTime = new TimeSpan(18, 0, 0),
                     
-                    IsDeleted = (i != 0 && i != 6)
+                    IsDeleted = (i != 0 && i != 5)
                 });
             }
             return newBranch;

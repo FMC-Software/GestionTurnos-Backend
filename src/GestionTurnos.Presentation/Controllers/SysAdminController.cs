@@ -26,7 +26,7 @@ namespace GestionTurnos.Presentation.Controllers
         public ActionResult<List<GlobalStaffResponse>> GetAll()
         {
 
-            return Ok(_staffService.GetStaffOfCurrentBusiness());
+            return Ok(_staffService.GetAllGlobal());
         }
 
         [Authorize(Policy = "SysAdmin")]

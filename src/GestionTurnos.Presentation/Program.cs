@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +75,8 @@ builder.Services.AddAuthorization(options =>
     policy.RequireClaim(ClaimTypes.Role, "SysAdmin","Admin", "Recepcionista"));
     options.AddPolicy(Policies.SysAdminOrAdmin, policy =>
     policy.RequireClaim(ClaimTypes.Role, "SysAdmin", "Admin"));
+    options.AddPolicy(Policies.AdminOrRecepcionista, policy =>
+    policy.RequireClaim(ClaimTypes.Role, "Recepcionista", "Admin"));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>
@@ -97,7 +100,11 @@ builder.Services.AddHttpClient("DolarApi", client =>
     client.BaseAddress = new Uri(builder.Configuration[
 "DolarHoy:Base_URL"]!);
 });
-
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 {

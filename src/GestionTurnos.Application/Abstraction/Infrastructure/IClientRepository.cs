@@ -8,6 +8,7 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
         Client? GetClientByName(string name);
         Client? GetClientByEmail(string email);
 
-        
+        List<Client> GetAll();
+
     }
 }

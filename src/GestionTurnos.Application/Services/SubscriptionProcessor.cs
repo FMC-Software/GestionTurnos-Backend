@@ -20,20 +20,22 @@ public class SubscriptionProcessor
     public async Task ExecuteAsync()
     {
         var activeSubs = await _subRepo.GetActiveSubscriptionsAsync();
-      
+
 
         foreach (var sub in activeSubs)
         {
-            var businessAdmin = _staffRepo.GetAllGlobal().FirstOrDefault(s => s.BusinessId == sub.Business.Id);
-            // Lógica: Si faltan 3 días o menos
+            var businessAdmin = _staffRepo.GetAllGlobal()
+                .FirstOrDefault(s => s.BusinessId == sub.Business.Id && s.Rol == Rol.Admin);
+
+            if (businessAdmin == null)
+                continue; // salta esta suscripción, sigue con las demás
+
             if (sub.EndDate <= DateTime.UtcNow.AddDays(3) && sub.EndDate > DateTime.UtcNow)
             {
-               
-                var email = _emailBuilder.BuildVencimientoEmail(businessAdmin.Email , sub.Business.Name, 3);
+                var email = _emailBuilder.BuildVencimientoEmail(businessAdmin.Email, sub.Business.Name, 3);
                 await _emailService.SendEmailAsync(email);
             }
 
-            // Lógica: Si ya venció
             if (sub.EndDate <= DateTime.UtcNow)
             {
                 sub.Status = Status.Expired;

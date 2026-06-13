@@ -47,7 +47,7 @@ namespace GestionTurnos.Application.Services
 
         public List<ClientsResponse> GetClientsOfCurrentBusiness()
         {
-            var clients = _clientRepository.GetAllGlobal();
+            var clients = _clientRepository.GetAll();
             return clients.Select(c => c.ToResponse()).ToList();
         }
 

@@ -16,6 +16,7 @@ namespace GestionTurnos.Application.Request
         public required string Password { get; set; } = string.Empty;
 
         [Phone]
+        [RegularExpression(@"^\+54(9)?[0-9]{10}$", ErrorMessage = "Debe ser un número argentino válido (ej: +5493415551234).")]
         public required string AdminPhone { get; set; } = string.Empty;
         public string? LinkPhoto { get; set; } = string.Empty;
 
@@ -25,6 +26,7 @@ namespace GestionTurnos.Application.Request
         public required string City { get; set; } = string.Empty;
 
         [Phone]
+        [RegularExpression(@"^\+54(9)?[0-9]{10}$", ErrorMessage = "Debe ser un número argentino válido (ej: +5493415551234).")]
         public required string BranchPhone { get; set; }
 
         public Plan? Plan { get; set; } = null;
