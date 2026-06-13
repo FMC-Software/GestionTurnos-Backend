@@ -52,6 +52,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public ActionResult Post([FromBody] AppointmentRequest request)
         {

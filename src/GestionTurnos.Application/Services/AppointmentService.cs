@@ -11,18 +11,17 @@ namespace GestionTurnos.Application.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        //private readonly IClientRepository _clientRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IClientService _clientService;
-
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider)
+        private readonly IEmailContentBuilder _emailContentBuilder;
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider, IEmailContentBuilder emailContentBuilder)
         {
             _appointmentRepository = appointmentRepository;
-            //_clientRepository = clientRepository;
             _staffRepository = staffRepository;
             _tenantProvider = tenantProvider;
             _clientService = clientService;
+            _emailContentBuilder = emailContentBuilder;
         }
 
         public List<GlobalAppointmentResponse> GetAllGlobal()
