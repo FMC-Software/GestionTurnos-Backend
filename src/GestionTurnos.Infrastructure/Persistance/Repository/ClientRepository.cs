@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
@@ -18,9 +18,10 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return _dbSet.FirstOrDefault(x => x.Name.Contains(name) && x.BusinessId == _tenantProvider.GetBusinessId() && !x.IsDeleted);
         }
 
-        public Client? GetClientByEmail(string email)
+        public Client? GetClientByEmail(string email, Guid? businessId = null)
         {
-            return _dbSet.FirstOrDefault(x => x.Email == email && x.BusinessId == _tenantProvider.GetBusinessId() && !x.IsDeleted);
+            var bId = businessId ?? _tenantProvider.GetBusinessId();
+            return _dbSet.FirstOrDefault(x => x.Email == email && x.BusinessId == bId && !x.IsDeleted);
         }
 
 

@@ -28,6 +28,15 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             return _dbSet.FirstOrDefault(s => s.Email == email && !s.IsDeleted);
         }
+
+        public override Staff? GetById(Guid id)
+        {
+            return _dbSet
+                .Include(s => s.Business)
+                .Include(s => s.Branch)
+                .FirstOrDefault(s => s.Id == id && !s.IsDeleted);
+        }
+        
     }
        
     

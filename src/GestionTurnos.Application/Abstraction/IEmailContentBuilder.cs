@@ -11,7 +11,7 @@ namespace GestionTurnos.Application.Abstraction
     {
         EmailMessage BuildVencimientoEmail(string email, string businessName, int daysLeft);
         EmailMessage BuildExpiredEmail(string email, string businessName);
-
         EmailMessage BuildResetPassword(User user, string token);
+        EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName,string businessName,string branchAddress, DateTime day, TimeSpan time);
     }
 }

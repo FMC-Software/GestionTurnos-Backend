@@ -51,5 +51,25 @@ namespace GestionTurnos.Application.Services
                         Equipo de FCM TurniFy"
             };
         }
+        public EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName, string businessName, string branchAddress, DateTime day, TimeSpan time)
+        {
+            string formattedDate = day.ToString("dd/MM/yyyy");
+            string formattedTime = time.ToString(@"hh\:mm");
+            return new EmailMessage
+            {
+                To = clientEmail,
+                Subject = $"{businessName} - Confirmación de turno en {businessName}",
+                Body = $@"Hola {clientName},
+                        Te confirmamos que tu turno en {businessName} ha sido reservado exitosamente.
+                        Detalles de tu turno:
+                        - Negocio: {businessName}
+                        - Dirección: {branchAddress}
+                        - Fecha: {formattedDate}
+                        - Hora: {formattedTime}
+                        Si necesitas modificar o cancelar tu turno, por favor contáctanos con anticipación.
+                        ¡Gracias por elegirnos!
+                        "
+            };
+        }
     }
 }

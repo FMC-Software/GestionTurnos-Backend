@@ -22,7 +22,7 @@ namespace GestionTurnos.Application.Services
         public ClientsResponse CreateClient(ClientRequest request, Guid? businessId = null)
         {
             //Si el cliente ya existe, lo retornamos sin crear uno nuevo
-            var clientExisting = _clientRepository.GetClientByEmail(request.Email) ?? null;
+            var clientExisting = _clientRepository.GetClientByEmail(request.Email, businessId) ?? null;
                if(clientExisting is not null) return clientExisting.ToResponse();
 
             //Si el cliente no existe, lo creamos

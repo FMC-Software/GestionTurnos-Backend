@@ -11,18 +11,19 @@ namespace GestionTurnos.Application.Services
     public class AppointmentService : IAppointmentService
     {
         private readonly IAppointmentRepository _appointmentRepository;
-        //private readonly IClientRepository _clientRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IClientService _clientService;
-
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider)
+        private readonly IAppointmentNotificationService _appointmentNotificationService;
+        //private readonly IEmailContentBuilder _emailContentBuilder;
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService)
         {
             _appointmentRepository = appointmentRepository;
-            //_clientRepository = clientRepository;
             _staffRepository = staffRepository;
             _tenantProvider = tenantProvider;
             _clientService = clientService;
+            _appointmentNotificationService = appointmentNotificationService;
+            //_emailContentBuilder = emailContentBuilder;
         }
 
         public List<GlobalAppointmentResponse> GetAllGlobal()
@@ -147,6 +148,11 @@ namespace GestionTurnos.Application.Services
             var fullyLoaded = _appointmentRepository.GetById(appointmentCreated.Id) 
                 ?? throw new Exception("Error al cargar el turno creado.");
 
+            //ACA se manda el email para avisar TURNO
+            Task.Run(() => _appointmentNotificationService.SendAppointmentConfirmationAsync(request, staff.Business.Name,
+                staff.Branch.Address));
+
+            //
             return fullyLoaded.ToResponse();
         }
 
