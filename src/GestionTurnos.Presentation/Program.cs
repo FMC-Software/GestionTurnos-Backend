@@ -21,7 +21,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+}); ;
 
 builder.Services.AddOpenApi();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
@@ -101,11 +104,7 @@ builder.Services.AddHttpClient("DolarApi", client =>
     client.BaseAddress = new Uri(builder.Configuration[
 "DolarHoy:Base_URL"]!);
 });
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-    });
+
 
 builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 {

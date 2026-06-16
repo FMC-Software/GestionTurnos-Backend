@@ -62,6 +62,11 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         public AuthResponse? SignUp(SignUpRequest request)
         {
+            if (!string.IsNullOrEmpty(request.Email))
+            {
+                request.Email = request.Email.ToLowerInvariant().Trim();
+            }
+
             bool emailExists = _staffService.GetByEmailGlobal(request.Email) != null;
             if (emailExists)
             {

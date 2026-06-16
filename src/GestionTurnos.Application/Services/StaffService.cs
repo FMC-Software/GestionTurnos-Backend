@@ -29,7 +29,9 @@ namespace GestionTurnos.Application.Services
             var AdminExisting = _staffRepository.GetAll().Any(s => s.Rol == Rol.Admin && request.Rol == Rol.Admin); //No anda arreglalo
             if (AdminExisting)
             {
-                throw new ConflictException("Cada negocio solo puede tener un Admin ");
+                var adminExisting = _staffRepository.GetAll().Any(s => s.Rol == Rol.Admin);
+                if (adminExisting)
+                    throw new ConflictException("Cada negocio solo puede tener un Admin.");
             }
             var IdBusiness = _tenantProvider.GetBusinessId()
                 ?? Guid.Empty;
