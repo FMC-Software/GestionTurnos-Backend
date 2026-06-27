@@ -63,7 +63,7 @@ builder.Services.AddScoped<IDolarService, DolarService>();
 builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddScoped<SubscriptionProcessor>();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DBConnectionString");
 
 builder.Services.AddHttpContextAccessor();
 
