@@ -71,6 +71,8 @@ jobs:
 
       - name: Update database with EF Core migrations
         run: dotnet ef database update --project src/GestionTurnos.Infrastructure/GestionTurnos.Infrastructure.csproj --startup-project src/GestionTurnos.Presentation/GestionTurnos.Presentation.csproj
+        env:
+            ASPNETCORE_ENVIRONMENT: Production
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp

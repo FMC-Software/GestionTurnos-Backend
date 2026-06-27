@@ -131,6 +131,8 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
 app.UseAuthentication();
 app.UseAuthorization();
 
