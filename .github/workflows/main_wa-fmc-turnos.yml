@@ -68,8 +68,9 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_533536A8F1E74A9F919DEEFA84590CC3 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FD333AEC637545FDB7FCB127E3BC503E }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AEE2626FD080409ABAC18D49351FFAD5 }}
+
       - name: Set DB Connection string in Azure Web App settings
-        run: az webapp config appsettings set --resource-group "fmc_turnos" --name "wa-fmc-turnos" settings 'ConnectionStrings__DBConnectionString=${{ secrets.DBCONNECTIONSTRING }}'
+        run: az webapp config appsettings set --resource-group "fmc_turnos" --name "wa-fmc-turnos" --settings 'ConnectionStrings__DBConnectionString=${{ secrets.DBCONNECTIONSTRING }}'
        
       - name: Install dotnet-ef tool
         run: dotnet tool install --global dotnet-ef --version 10.*
