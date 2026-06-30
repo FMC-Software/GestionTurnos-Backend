@@ -50,7 +50,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
 
         public virtual T? GetById(Guid id)
         {
-            return _dbSet.FirstOrDefault(x=>x.Id == id);
+            return _dbSet.FirstOrDefault(x=>x.Id == id && !x.IsDeleted);
         }
 
         public virtual void Update(T entity)
