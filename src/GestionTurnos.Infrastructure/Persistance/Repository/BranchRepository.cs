@@ -35,7 +35,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .Include(b => b.Staff.Where(s => !s.IsDeleted))
                 
                 .Include(b => b.Services.Where(s => !s.IsDeleted))
-                .FirstOrDefault(b => b.Id == branchId  && !b.IsDeleted);
+                .FirstOrDefault(b => b.Id == branchId && !b.IsDeleted);
         }
     }
 }
