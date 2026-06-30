@@ -55,9 +55,23 @@ namespace GestionTurnos.Application.Services
                         request.Name.Trim(),
                         StringComparison.OrdinalIgnoreCase));
 
+            bool branchAdrressDuplicated = _branchRepository
+                .GetByBusinessId(businessId)
+                .Any(b => 
+                    string.Equals(
+                        b.Address.Trim(),
+                        request.Address.Trim(),
+                        StringComparison.OrdinalIgnoreCase));
+        
+
             if (branchExist)
             {
                 throw new ConflictException("Ya existe una sucursal con ese nombre");
+            }
+
+            if (branchAdrressDuplicated)
+            {
+                throw new ConflictException("Ya tienes una sucursal con esa direccion.");
             }
 
             var newBranch = request.ToBranch(businessId);

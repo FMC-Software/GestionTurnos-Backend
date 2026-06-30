@@ -50,8 +50,10 @@ builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IBusinessSubscriptionService, BusinessSubscriptionService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISysAdminService, SysAdminService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
-
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -61,7 +63,7 @@ builder.Services.AddScoped<IDolarService, DolarService>();
 builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddScoped<SubscriptionProcessor>();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DBConnectionString");
 
 builder.Services.AddHttpContextAccessor();
 
@@ -128,6 +130,8 @@ app.UseCors("ReactPolicy"); // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
 
 app.UseAuthentication();
 app.UseAuthorization();

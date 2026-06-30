@@ -33,5 +33,22 @@ namespace GestionTurnos.Application.Response
         public decimal Price { get; set; }
         public int DurationMinutes { get; set; }
     }
+
+    public class DashboardResponse
+    {
+        public int AppointmentsToday { get; set; }
+        public int AppointmentsThisWeek { get; set; }
+        public int PendingAppointments { get; set; }
+        public int ConfirmedAppointments { get; set; }
+        public int CancelledAppointments { get; set; }
+        public int TotalClients { get; set; }
+        public int TotalStaff {  get; set; }
+        public int TotalBranches { get; set; }
+        public int TotalServices { get; set; }
+        public decimal RevenueThisMonth { get; set; }
+        public string? MostRequestedService { get; set; }
+        public string CurrentPlan { get; set; } = string.Empty;
+        public string SubscriptionStatus {  get; set; } = string.Empty;
+    }
 }
 

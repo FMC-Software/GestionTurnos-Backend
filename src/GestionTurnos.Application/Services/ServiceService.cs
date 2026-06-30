@@ -54,7 +54,10 @@ namespace GestionTurnos.Application.Services
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            var newService = request.ToService(businessId);
+            ValidateService(request, businessId);
+        
+
+        var newService = request.ToService(businessId);
 
             _serviceRepository.Add(newService);
 
@@ -63,8 +66,13 @@ namespace GestionTurnos.Application.Services
 
         public ServiceBusinessResponse UpdateService(ServiceRequest request, Guid id)
         {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontro la empresa");
+
             var existingService = _serviceRepository.GetById(id)
                 ?? throw new ConflictException("Servicio no encontrado.");
+
+            ValidateService(request, businessId, id);
 
             existingService.UpdateFromRequest(request);
 
@@ -79,6 +87,29 @@ namespace GestionTurnos.Application.Services
                 ?? throw new ConflictException("Servicio no encontrado.");
 
             _serviceRepository.Delete(id);
+        }
+
+        private void ValidateService(ServiceRequest request, Guid businessId, Guid? excludeId = null)
+        {
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                throw new ConflictException("Debe ingresar un nombre");
+            }
+
+            if (request.Price <= 0)
+            {
+                throw new ConflictException("El precio debe ser mayor a 0");
+            }
+
+            if (request.Duration <= 0)
+            {
+                throw new ConflictException("La duracion del servicio debe ser mayor a 0");
+            }
+
+            if(_serviceRepository.ExistByName(businessId, request.Name, excludeId))
+            {
+                throw new ConflictException("Ya existe un servicio con ese nombre");
+            }
         }
     }
 }

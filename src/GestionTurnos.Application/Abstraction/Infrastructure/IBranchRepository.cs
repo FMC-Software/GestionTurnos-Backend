@@ -7,7 +7,7 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IBranchRepository : IBaseRepository<Branch>
     {
-        //bool CreateBranch(Branch branch);
+        
         List<Branch> GetByBusinessId(Guid businessId);
 
         Branch? GetInfoBranch( Guid branchId);
