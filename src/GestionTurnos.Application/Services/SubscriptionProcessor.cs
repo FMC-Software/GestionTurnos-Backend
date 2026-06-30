@@ -30,7 +30,10 @@ public class SubscriptionProcessor
             if (businessAdmin == null)
                 continue; // salta esta suscripción, sigue con las demás
 
-            if (sub.EndDate <= DateTime.UtcNow.AddDays(3) && sub.EndDate > DateTime.UtcNow)
+            if (sub.EndDate.AddDays(1) < DateTime.UtcNow)
+                continue;
+
+            if (sub.EndDate <= DateTime.UtcNow.AddDays(3) && sub.EndDate > DateTime.UtcNow )
             {
                 var email = _emailBuilder.BuildVencimientoEmail(businessAdmin.Email, sub.Business.Name, 3);
                 await _emailService.SendEmailAsync(email);
