@@ -78,6 +78,19 @@ namespace GestionTurnos.Application.Services
 
             _branchRepository.Add(newBranch);
 
+            for (int i = 0; i < 7; i++)
+            {
+                _scheduleService.CreateSchedule(new ScheduleRequest
+                {
+                    BranchId = newBranch.Id,
+                    Day = (DayOfWeek)i,
+                    StartTime = new TimeSpan(9, 0, 0),
+                    EndTime = new TimeSpan(18, 0, 0),
+
+                    IsDeleted = (i != 0 && i != 5)
+                });
+            }
+
             return newBranch.ToBranchResponse();
         }
 

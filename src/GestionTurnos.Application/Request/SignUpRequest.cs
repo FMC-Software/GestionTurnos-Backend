@@ -12,7 +12,7 @@ namespace GestionTurnos.Application.Request
 
         [EmailAddress]
         public required string Email { get; set; } = string.Empty;
-
+        [MinLength(3, ErrorMessage = "La contraseña debe ser mayor a 3 dígitos")]
         public required string Password { get; set; } = string.Empty;
 
         [Phone]

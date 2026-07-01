@@ -27,10 +27,10 @@ namespace GestionTurnos.Application.Services
             _appointmentNotificationService = appointmentNotificationService;
         }
 
-        /// <summary>
+
         /// Valida que el turno caiga dentro del horario de atención de la sucursal
         /// y devuelve el endTime calculado a partir del SlotDurationMinutes del schedule.
-        /// </summary>
+       
         private TimeSpan ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime)
         {
             var dayOfWeek = day.DayOfWeek;

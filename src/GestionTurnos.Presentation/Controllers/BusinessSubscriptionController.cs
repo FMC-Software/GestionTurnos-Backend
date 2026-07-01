@@ -30,15 +30,10 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet]
         public ActionResult<List<BusinessSubscriptionResponse>> GetAll()
         {
-            try
-            {
+
                 var subscriptions = _subscriptionService.GetAll();
                 return Ok(subscriptions);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         //Retorna una suscripcion a traves del Id del Business
@@ -46,19 +41,10 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet("{id}")]
         public ActionResult<BusinessSubscriptionResponse> GetById([FromRoute] Guid id)
         {
-            try
-            {
+
                 var subscription = _subscriptionService.GetById(id);
                 return Ok(subscription);
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+ 
         }
 
 
@@ -69,19 +55,10 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpPost]
         public ActionResult<BusinessSubscriptionResponse> Create([FromBody] BusinessSubscriptionRequest request)
         {
-            try
-            {
+
                 var newSubscription = _subscriptionService.Create(request);
                 return CreatedAtAction(nameof(GetById), new { id = newSubscription.Id }, newSubscription);
-            }
-            catch (ConflictException ex)
-            {
-                return StatusCode(409, ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         // Cambiar el estado de una suscripcion
@@ -91,19 +68,11 @@ namespace GestionTurnos.Presentation.Controllers
             [FromRoute] Guid id,
             [FromBody] UpdateSubscriptionStatusRequest request)
         {
-            try
-            {
+            
+            
                 var updated = _subscriptionService.UpdateStatus(id, request.Status);
                 return Ok(updated);
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         //Desactiva una suscripcion 
@@ -111,41 +80,24 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpDelete("{id}")]
         public ActionResult Delete([FromRoute] Guid id)
         {
-            try
-            {
+
                 _subscriptionService.Delete(id);
                 return NoContent();
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("my")]
         public ActionResult<BusinessSubscriptionResponse> GetMy()
         {
-            try
-            {
+
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
                 var subscription = _subscriptionService.GetCurrentSubscription(businessId);
 
                 return Ok(subscription);
-            }catch(ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrio un error inesperado");
-            }
+
         }
 
         //Retorna el historial del negocio
@@ -153,42 +105,27 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet("my/history")]
         public ActionResult<List<BusinessSubscriptionResponse>> GetMyHistory()
         {
-            try
-            {
+
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontró el negocio en el token.");
 
                 var subscriptions = _subscriptionService.GetByBusinessId(businessId);
                 return Ok(subscriptions);
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Ocurrió un error inesperado.");
-            }
+
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpPut("my/renew")]
         public IActionResult Renew()
         {
-            try
-            {
+  
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
                 _subscriptionService.RenewSubscription(businessId);
 
                 return NoContent();
-            }
-            catch (ConflictException ex)
-            {
-                return Conflict(ex.Message);
 
-            } 
         
         }
 
@@ -196,20 +133,14 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpPut("my/change-plan/{planId}")]
         public IActionResult ChangePlan([FromRoute] Guid planId)
         {
-            try
-            {
+
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
                 _subscriptionService.ChangePlan(businessId, planId);
 
                 return NoContent();
-            }
-            catch (ConflictException ex) 
-            {
-                return Conflict(ex.Message);
-            }
-     
+         
 
         }
 
