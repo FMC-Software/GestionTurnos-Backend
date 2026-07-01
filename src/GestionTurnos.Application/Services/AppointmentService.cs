@@ -12,18 +12,40 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IStaffRepository _staffRepository;
+        private readonly IScheduleRepository _scheduleRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IClientService _clientService;
         private readonly IAppointmentNotificationService _appointmentNotificationService;
-        //private readonly IEmailContentBuilder _emailContentBuilder;
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService)
+
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, IScheduleRepository scheduleRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService)
         {
             _appointmentRepository = appointmentRepository;
             _staffRepository = staffRepository;
+            _scheduleRepository = scheduleRepository;
             _tenantProvider = tenantProvider;
             _clientService = clientService;
             _appointmentNotificationService = appointmentNotificationService;
-            //_emailContentBuilder = emailContentBuilder;
+        }
+
+        /// <summary>
+        /// Valida que el turno caiga dentro del horario de atención de la sucursal
+        /// y devuelve el endTime calculado a partir del SlotDurationMinutes del schedule.
+        /// </summary>
+        private TimeSpan ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime)
+        {
+            var dayOfWeek = day.DayOfWeek;
+
+            var schedule = _scheduleRepository.GetByBranchIdAndDay(branchId, dayOfWeek)
+                ?? throw new ConflictException("La sucursal no atiende el día seleccionado.");
+
+            var endTime = startTime.Add(TimeSpan.FromMinutes(schedule.SlotDurationMinutes));
+
+            if (startTime < schedule.StartTime || endTime > schedule.EndTime)
+            {
+                throw new ConflictException($"El horario del turno está fuera del horario de atención de la sucursal ({schedule.StartTime:hh\\:mm} - {schedule.EndTime:hh\\:mm}).");
+            }
+
+            return endTime;
         }
 
         public List<GlobalAppointmentResponse> GetAllGlobal()
@@ -147,8 +169,8 @@ namespace GestionTurnos.Application.Services
             var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
             var clientId = clientResponse.Id;
 
-            // 4. Verifico solapamiento de horarios
-            var endTime = request.StartTime.TimeOfDay.Add(TimeSpan.FromHours(1));
+            // 4. Valido que el turno caiga dentro del horario de la sucursal y calculo endTime
+            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime.TimeOfDay);
 
             if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime.TimeOfDay, endTime))
             {
@@ -195,7 +217,7 @@ namespace GestionTurnos.Application.Services
 
             var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
             var clientId = clientResponse.Id;
-            var endTime = request.StartTime.TimeOfDay.Add(TimeSpan.FromHours(1));
+            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime.TimeOfDay);
 
             if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime.TimeOfDay, endTime, id))
             {

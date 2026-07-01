@@ -18,12 +18,13 @@ namespace GestionTurnos.Presentation.Controllers
             _appointmentService = appointmentService;
         }
 
-        //[HttpGet("global")]
-        //public ActionResult GetAllGlobal()
-        //{
-        //    var appointments = _appointmentService.GetAllGlobal();
-        //    return Ok(appointments);
-        //}
+        [Authorize(Policy = Policies.SysAdmin)]
+        [HttpGet("global")]
+        public ActionResult GetAllGlobal()
+        {
+            var appointments = _appointmentService.GetAllGlobal();
+            return Ok(appointments);
+        }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpGet]
@@ -32,6 +33,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Recepcionista)]
         [HttpGet("my-branch")]
         public ActionResult GetMyBranchAppointments() {
             var appointments = _appointmentService.GetAppointmentsOfMyBranch();
@@ -44,6 +46,7 @@ namespace GestionTurnos.Presentation.Controllers
             var appointments = _appointmentService.GetAppointmentsByBranch(branchId);
             return Ok(appointments);
         }
+
 
         [HttpGet("{id}")]
         public ActionResult GetById(Guid id)
@@ -60,6 +63,8 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
+
+
         [HttpPut("{id}")]
         public ActionResult Update(Guid id, [FromBody] AppointmentRequest request)
         {
@@ -67,6 +72,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPatch("{id}/status")]
         public ActionResult UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request)
         {
@@ -74,6 +80,8 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
+
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid id)
         {

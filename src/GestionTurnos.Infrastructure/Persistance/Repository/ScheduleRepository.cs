@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
 using System;
@@ -11,6 +11,14 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
     {
         public ScheduleRepository(FMCTurnosDbContext context) : base(context)
         {
+        }
+
+        public Schedule? GetByBranchIdAndDay(Guid branchId, DayOfWeek dayOfWeek)
+        {
+            return _dbSet.FirstOrDefault(s => 
+                s.BranchId == branchId && 
+                s.DayOfWeek == dayOfWeek && 
+                !s.IsDeleted);
         }
     }
 }
