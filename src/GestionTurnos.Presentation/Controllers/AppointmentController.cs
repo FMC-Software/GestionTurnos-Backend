@@ -40,6 +40,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Profesional)]
+        [HttpGet("my-appointments")]
+        public ActionResult GetMyAppointments() {
+            var appointments = _appointmentService.GetMyAppointments();
+            return Ok(appointments);
+        }
+
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("branch/{branchId}")]
         public ActionResult GetByBranch(Guid branchId) {
@@ -47,7 +54,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
-
+        [Authorize(Policy = Policies.SysAdmin)]
         [HttpGet("{id}")]
         public ActionResult GetById(Guid id)
         {
@@ -72,7 +79,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
-        [Authorize(Policy = Policies.SysAdminOrAdmin)]
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpPatch("{id}/status")]
         public ActionResult UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request)
         {

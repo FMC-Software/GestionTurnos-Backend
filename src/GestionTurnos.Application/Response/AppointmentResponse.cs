@@ -8,9 +8,9 @@ namespace GestionTurnos.Application.Response
         public string StaffName { get; set; } = string.Empty;
         public string ServiceName { get; set; } = string.Empty;
 
-        public DateTime Day { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public string Day { get; set; } = string.Empty;
+        public string StartTime { get; set; } = string.Empty;
+        public string EndTime { get; set; } = string.Empty;
 
         public string? Observation { get; set; }
 

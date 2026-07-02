@@ -16,10 +16,9 @@ namespace GestionTurnos.Application.Mapper
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,
 
-                Day = appointment.Day,
-                // Combina la fecha (Day) con el TimeSpan para obtener DateTime
-                StartTime = appointment.Day.Date + appointment.StartTime,
-                EndTime = appointment.Day.Date + appointment.EndTime,
+                Day = appointment.Day.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
 
                 Observation = appointment.Observation,
 
@@ -40,9 +39,9 @@ namespace GestionTurnos.Application.Mapper
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,
 
-                Day = appointment.Day,
-                StartTime = appointment.Day.Date + appointment.StartTime,
-                EndTime = appointment.Day.Date + appointment.EndTime,
+                Day = appointment.Day.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
 
                 Observation = appointment.Observation,
 
@@ -55,7 +54,7 @@ namespace GestionTurnos.Application.Mapper
                 BusinessName = appointment.Staff.Business != null ? appointment.Staff.Business.Name : "Desconocido"
             };
         }
-        public static Appointment ToEntity(this AppointmentRequest request, Guid clientId, decimal totalCost)
+        public static Appointment ToEntity(this AppointmentRequest request, Guid clientId, decimal totalCost, TimeSpan endTime)
         {
             return new Appointment
             {
@@ -64,7 +63,7 @@ namespace GestionTurnos.Application.Mapper
                 ServiceId = request.ServiceId,
 
                 Day = request.Day,
-                StartTime = request.StartTime.TimeOfDay,
+                StartTime = request.StartTime,
 
                 Observation = request.Observation,
 
@@ -72,7 +71,7 @@ namespace GestionTurnos.Application.Mapper
 
                 Status = AppointmentStatus.Pending,
 
-                EndTime = request.StartTime.AddHours(1).TimeOfDay,
+                EndTime = endTime,
 
                 TotalCost = totalCost
             };

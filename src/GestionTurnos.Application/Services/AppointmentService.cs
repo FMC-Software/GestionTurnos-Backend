@@ -26,19 +26,16 @@ namespace GestionTurnos.Application.Services
             _clientService = clientService;
             _appointmentNotificationService = appointmentNotificationService;
         }
-
-        /// <summary>
-        /// Valida que el turno caiga dentro del horario de atención de la sucursal
-        /// y devuelve el endTime calculado a partir del SlotDurationMinutes del schedule.
-        /// </summary>
-        private TimeSpan ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime)
+        /// Valida que el turno caiga dentro del horario de atencion de la sucursal
+        /// y devuelve el endTime calculado a partir de la duración del servicio.
+        private TimeSpan ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime, int serviceDurationMinutes)
         {
             var dayOfWeek = day.DayOfWeek;
 
             var schedule = _scheduleRepository.GetByBranchIdAndDay(branchId, dayOfWeek)
                 ?? throw new ConflictException("La sucursal no atiende el día seleccionado.");
 
-            var endTime = startTime.Add(TimeSpan.FromMinutes(schedule.SlotDurationMinutes));
+            var endTime = startTime.Add(TimeSpan.FromMinutes(serviceDurationMinutes));
 
             if (startTime < schedule.StartTime || endTime > schedule.EndTime)
             {
@@ -170,20 +167,20 @@ namespace GestionTurnos.Application.Services
             var clientId = clientResponse.Id;
 
             // 4. Valido que el turno caiga dentro del horario de la sucursal y calculo endTime
-            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime.TimeOfDay);
+            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
 
-            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime.TimeOfDay, endTime))
+            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
             {
                 throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
             }
 
-            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime.TimeOfDay, endTime))
+            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
             {
                 throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
             }
 
-            // 5. Crear el turno usando el precio real del servicio
-            var appointment = request.ToEntity(clientId, service.Price);
+            // 5. Crear el turno usando el precio real del servicio y el horario final calculado
+            var appointment = request.ToEntity(clientId, service.Price, endTime);
             var appointmentCreated = _appointmentRepository.Add(appointment);
 
             var fullyLoaded = _appointmentRepository.GetById(appointmentCreated.Id) 
@@ -217,14 +214,19 @@ namespace GestionTurnos.Application.Services
 
             var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
             var clientId = clientResponse.Id;
-            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime.TimeOfDay);
 
-            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime.TimeOfDay, endTime, id))
+            // Obtener el servicio para sacar su duración
+            var service = _appointmentRepository.GetServiceById(request.ServiceId)
+                ?? throw new Exception("El servicio no fue encontrado.");
+
+            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
+
+            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
             {
                 throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
             }
 
-            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime.TimeOfDay, endTime, id))
+            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
             {
                 throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
             }
@@ -233,7 +235,7 @@ namespace GestionTurnos.Application.Services
             existing.ClientId = clientId;
             existing.ServiceId = request.ServiceId;
             existing.Day = request.Day;
-            existing.StartTime = request.StartTime.TimeOfDay;
+            existing.StartTime = request.StartTime;
             existing.EndTime = endTime;
             existing.Observation = request.Observation;
             existing.Payment = request.Payment;

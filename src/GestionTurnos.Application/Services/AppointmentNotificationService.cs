@@ -30,7 +30,7 @@ namespace GestionTurnos.Application.Services
                     businessName,
                     branchName,
                     request.Day,
-                    request.StartTime.TimeOfDay
+                    request.StartTime
                 );
 
                 await _emailService.SendEmailAsync(emailMessage);

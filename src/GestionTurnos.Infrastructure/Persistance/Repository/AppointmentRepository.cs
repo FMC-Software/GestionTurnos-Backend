@@ -86,6 +86,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             var date = day.Date;
             return _dbSet.Any(a => !a.IsDeleted &&
+                                   a.Status != AppointmentStatus.Cancelled &&
                                    a.Id != excludeAppointmentId &&
                                    a.StaffId == staffId &&
                                    a.Day.Date == date &&
@@ -97,6 +98,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             var date = day.Date;
             return _dbSet.Any(a => !a.IsDeleted &&
+                                   a.Status != AppointmentStatus.Cancelled &&
                                    a.Id != excludeAppointmentId &&
                                    a.ClientId == clientId &&
                                    a.Day.Date == date &&

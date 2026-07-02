@@ -9,7 +9,7 @@ namespace GestionTurnos.Application.Request
         public Guid BranchId { get; set; }
         public Guid ServiceId { get; set; }
         public DateTime Day { get; set; }
-        public DateTime StartTime { get; set; }
+        public TimeSpan StartTime { get; set; }
         public string? Observation { get; set; }
         public PaymentMethod Payment { get; set; }
 
