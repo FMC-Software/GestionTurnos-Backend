@@ -11,17 +11,29 @@ namespace GestionTurnos.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Users_Branches_BranchId1",
-                table: "Users");
+            // Verificar si la constraint existe antes de dropearla
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_Users_Branches_BranchId1' AND parent_object_id = OBJECT_ID('Users'))
+                BEGIN
+                    ALTER TABLE [Users] DROP CONSTRAINT [FK_Users_Branches_BranchId1];
+                END
+            ");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Users_BranchId1",
-                table: "Users");
+            // Verificar si el índice existe antes de dropearlo
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = 'IX_Users_BranchId1' AND object_id = OBJECT_ID('Users'))
+                BEGIN
+                    DROP INDEX [IX_Users_BranchId1] ON [Users];
+                END
+            ");
 
-            migrationBuilder.DropColumn(
-                name: "BranchId1",
-                table: "Users");
+            // Verificar si la columna existe antes de dropearla
+            migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Users') AND name = 'BranchId1')
+                BEGIN
+                    ALTER TABLE [Users] DROP COLUMN [BranchId1];
+                END
+            ");
         }
 
         /// <inheritdoc />
