@@ -1,5 +1,4 @@
 ﻿using GestionTurnos.Application.Abstraction;
-using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Presentation.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -23,20 +22,8 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet]
         public ActionResult<DashboardResponse> GetDashboard()
         {
-            try
-            {
-                var dashboard = _dashboardService.GetDashboard();
-
-                return Ok(dashboard);
-            }
-            catch (ConflictException ex)
-            {
-                return NotFound(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "error interno del servidor");
-            }
+            var dashboard = _dashboardService.GetDashboard();
+            return Ok(dashboard);
         }
     }
 }
