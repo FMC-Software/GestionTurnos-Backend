@@ -37,6 +37,14 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToList();
         }
 
+        public Staff? GetAdminOfCurrentBusiness()
+        {
+            return _dbSet.FirstOrDefault(s =>
+                s.BusinessId == _tenantProvider.GetBusinessId()
+                && s.Rol == Rol.Admin
+                && !s.IsDeleted);
+        }
+
         public override Staff? GetById(Guid id)
         {
             return _dbSet

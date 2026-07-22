@@ -76,6 +76,13 @@ namespace GestionTurnos.Application.Services
             _staffRepository.Delete(id);
         }
 
+        public StaffsResponse GetAdminOfCurrentBusiness()
+        {
+            var admin = _staffRepository.GetAdminOfCurrentBusiness()
+                ?? throw new KeyNotFoundException("No se encontró un administrador para esta empresa.");
+            return admin.ToResponse();
+        }
+
         public List<GlobalStaffResponse> GetAllGlobal()
         {
             var globalList = _staffRepository.GetAllGlobal();

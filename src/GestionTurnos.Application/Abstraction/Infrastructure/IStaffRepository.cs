@@ -10,6 +10,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Staff GetByEmailGlobal(string email);
 
+        Staff? GetAdminOfCurrentBusiness();
+
     }
 
 }

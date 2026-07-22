@@ -28,6 +28,14 @@ namespace GestionTurnos.Presentation.Controllers
                 return Ok(staffs);
 
         }
+        [Authorize(Policy = Policies.Admin)]
+        [HttpGet("Business/Admin")]
+        public ActionResult<StaffsResponse> GetAdminOfBusiness()
+        {
+            var admin = _staffService.GetAdminOfCurrentBusiness();
+            return Ok(admin);
+        }
+
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPost]
         public ActionResult<StaffsResponse> CreateStaff([FromBody] StaffRequest user)

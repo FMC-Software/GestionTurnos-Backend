@@ -9,6 +9,8 @@ namespace GestionTurnos.Application.Abstraction
         List<AppointmentResponse> GetAppointmentsOfMyBranch();
         List<AppointmentResponse> GetMyAppointments();
         List<AppointmentResponse> GetAppointmentsByBranch(Guid branchId);
+        List<AppointmentResponse> GetAppointmentsByDay(DateTime day, Guid? branchId);
+        List<AppointmentResponse> GetMyBranchAppointmentsByDay(DateTime day);
         List<GlobalAppointmentResponse> GetAllGlobal();
         AppointmentResponse CreateAppointment(AppointmentRequest request);
         AppointmentResponse GetById(Guid id);

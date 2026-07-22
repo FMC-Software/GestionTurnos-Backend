@@ -11,6 +11,8 @@ namespace GestionTurnos.Application.Abstraction
         StaffsResponse CreateStaff(StaffRequest request);
         StaffsResponse UpdateStaff(StaffRequest staff, Guid idStaff);
         void DeleteStaff(Guid id);
+        StaffsResponse GetAdminOfCurrentBusiness();
+
         List<GlobalStaffResponse> GetAllGlobal();
 
         Staff GetByEmail(string email);

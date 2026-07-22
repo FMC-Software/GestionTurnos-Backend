@@ -65,6 +65,28 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToList();
         }
 
+        public List<Appointment> GetByBusinessIdAndDay(Guid businessId, DateTime day)
+        {
+            var date = day.Date;
+            return _dbSet
+                .Include(a => a.Client)
+                .Include(a => a.Staff)
+                .Include(a => a.Service)
+                .Where(a => !a.IsDeleted && a.Staff.BusinessId == businessId && a.Day.Date == date)
+                .ToList();
+        }
+
+        public List<Appointment> GetByBranchIdAndDay(Guid branchId, Guid businessId, DateTime day)
+        {
+            var date = day.Date;
+            return _dbSet
+                .Include(a => a.Client)
+                .Include(a => a.Staff)
+                .Include(a => a.Service)
+                .Where(a => !a.IsDeleted && a.Staff.BranchId == branchId && a.Staff.BusinessId == businessId && a.Day.Date == date)
+                .ToList();
+        }
+
         public override Appointment? GetById(Guid id)
         {
             return _dbSet

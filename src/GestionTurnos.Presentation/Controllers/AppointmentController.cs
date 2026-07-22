@@ -54,6 +54,20 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [HttpGet("by-date")]
+        public ActionResult GetByDate([FromQuery] DateTime day, [FromQuery] Guid? branchId) {
+            var appointments = _appointmentService.GetAppointmentsByDay(day, branchId);
+            return Ok(appointments);
+        }
+
+        [Authorize(Policy = Policies.Recepcionista)]
+        [HttpGet("my-branch/by-date")]
+        public ActionResult GetMyBranchByDate([FromQuery] DateTime day) {
+            var appointments = _appointmentService.GetMyBranchAppointmentsByDay(day);
+            return Ok(appointments);
+        }
+
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpGet("{id}")]
         public ActionResult GetById(Guid id)
