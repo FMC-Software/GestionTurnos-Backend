@@ -13,35 +13,35 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             _tenantProvider = tenantProvider;
         }
-        public Client? GetClientByName(string name)
+        public async Task<Client?> GetClientByName(string name)
         {
-            return _dbSet.FirstOrDefault(x => x.Name.Contains(name) && x.BusinessId == _tenantProvider.GetBusinessId() && !x.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(x => x.Name.Contains(name) && x.BusinessId == _tenantProvider.GetBusinessId() && !x.IsDeleted);
         }
 
-        public Client? GetClientByEmail(string email, Guid? businessId = null)
+        public async Task<Client?> GetClientByEmail(string email, Guid? businessId = null)
         {
             var bId = businessId ?? _tenantProvider.GetBusinessId();
-            return _dbSet.FirstOrDefault(x => x.Email == email && x.BusinessId == bId && !x.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(x => x.Email == email && x.BusinessId == bId && !x.IsDeleted);
         }
 
 
-        public override List<Client> GetAllGlobal()
+        public override async Task<List<Client>> GetAllGlobal()
         {
-            return _context.Clients
-                           .IgnoreQueryFilters() 
+            return await _context.Clients
+                           .IgnoreQueryFilters()
                            .Where(x => !x.IsDeleted)
-                           .Include(x => x.Business) 
-                           .ToList();
+                           .Include(x => x.Business)
+                           .ToListAsync();
         }
 
-        public List<Client> GetAll()
+        public async Task<List<Client>> GetAll()
         {
             var businessId = _tenantProvider.GetBusinessId();
             if (businessId == null)
             {
                 throw new ConflictException("No se encontró la empresa.");
             }
-            return _dbSet.Where(x => x.BusinessId == businessId && !x.IsDeleted).ToList();
+            return await _dbSet.Where(x => x.BusinessId == businessId && !x.IsDeleted).ToListAsync();
         }
     }
 }

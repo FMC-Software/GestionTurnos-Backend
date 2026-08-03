@@ -19,53 +19,55 @@ namespace GestionTurnos.Application.Services
             _planService = planService;
         }
 
-        private BusinessSubscription GetCurrentSubscriptionEntity(Guid businessId)
+        private async Task<BusinessSubscription> GetCurrentSubscriptionEntity(Guid businessId)
         {
-            return _subscriptionRepository
+            return await _subscriptionRepository
                 .GetCurrentSubscription(businessId)
                 ?? throw new ConflictException("El negocio no posee una suscripcion activa");
         }
 
-        public List<BusinessSubscriptionResponse> GetAll()
+        public async Task<List<BusinessSubscriptionResponse>> GetAll()
         {
-            return _subscriptionRepository.GetAllWithDetails()
+            var subscriptions = await _subscriptionRepository.GetAllWithDetails();
+            return subscriptions
                 .Select(s => s.ToBusinessSubscriptionResponse())
                 .ToList();
         }
 
-        public BusinessSubscriptionResponse GetById(Guid id)
+        public async Task<BusinessSubscriptionResponse> GetById(Guid id)
         {
-            var subscription = _subscriptionRepository.GetByIdWithDetails(id)
+            var subscription = await _subscriptionRepository.GetByIdWithDetails(id)
                 ?? throw new ConflictException("Suscripción no encontrada.");
 
             return subscription.ToBusinessSubscriptionResponse();
         }
 
-        public List<BusinessSubscriptionResponse> GetByBusinessId(Guid businessId)
+        public async Task<List<BusinessSubscriptionResponse>> GetByBusinessId(Guid businessId)
         {
-            return _subscriptionRepository.GetByBusinessId(businessId)
+            var subscriptions = await _subscriptionRepository.GetByBusinessId(businessId);
+            return subscriptions
                 .Select(s => s.ToBusinessSubscriptionResponse())
                 .ToList();
         }
 
-        public BusinessSubscriptionResponse Create(BusinessSubscriptionRequest request)
+        public async Task<BusinessSubscriptionResponse> Create(BusinessSubscriptionRequest request)
         {
             var newSubscription = request.ToBusinessSubscription();
-            _subscriptionRepository.Add(newSubscription);
+            await _subscriptionRepository.Add(newSubscription);
 
             // Reload with details so the response has Business/Plan names
-            var created = _subscriptionRepository.GetByIdWithDetails(newSubscription.Id)
+            var created = await _subscriptionRepository.GetByIdWithDetails(newSubscription.Id)
                 ?? throw new ConflictException("Error al obtener la suscripción creada.");
 
             return created.ToBusinessSubscriptionResponse();
         }
 
-        public BusinessSubscriptionResponse UpdateStatus(Guid id, string status)
+        public async Task<BusinessSubscriptionResponse> UpdateStatus(Guid id, string status)
         {
             if (!Enum.TryParse<Status>(status, ignoreCase: true, out var parsedStatus))
                 throw new ConflictException($"Estado inválido: '{status}'. Los valores permitidos son: {string.Join(", ", Enum.GetNames<Status>())}.");
 
-            var subscription = _subscriptionRepository.GetByIdWithDetails(id)
+            var subscription = await _subscriptionRepository.GetByIdWithDetails(id)
                 ?? throw new ConflictException("Suscripción no encontrada.");
 
             if (parsedStatus == Status.Expired)
@@ -75,21 +77,21 @@ namespace GestionTurnos.Application.Services
 
             subscription.Status = parsedStatus;
 
-            _subscriptionRepository.Update(subscription);
+            await _subscriptionRepository.Update(subscription);
 
             return subscription.ToBusinessSubscriptionResponse();
         }
 
-        public void Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            var subscription = _subscriptionRepository.GetById(id)
+            var subscription = await _subscriptionRepository.GetById(id)
                 ?? throw new ConflictException("Suscripción no encontrada.");
 
-            _subscriptionRepository.Delete(id);
+            await _subscriptionRepository.Delete(id);
         }
 
 
-        public void InitialBusinessSubscription(Plan plan, Business newBusiness)
+        public async Task InitialBusinessSubscription(Plan plan, Business newBusiness)
         {
             var BusinessSubscription = new BusinessSubscription
             {
@@ -102,18 +104,19 @@ namespace GestionTurnos.Application.Services
                 EndDate = DateTime.UtcNow + TimeSpan.FromDays(plan.DurationDays),
                 Status = Status.Active
             };
-            _subscriptionRepository.Add(BusinessSubscription);
+            await _subscriptionRepository.Add(BusinessSubscription);
         }
 
 
-        public BusinessSubscriptionResponse GetCurrentSubscription(Guid businessId)
+        public async Task<BusinessSubscriptionResponse> GetCurrentSubscription(Guid businessId)
         {
-            return GetCurrentSubscriptionEntity(businessId).ToBusinessSubscriptionResponse();
+            var subscription = await GetCurrentSubscriptionEntity(businessId);
+            return subscription.ToBusinessSubscriptionResponse();
         }
 
-        public void RenewSubscription(Guid businessId)
+        public async Task RenewSubscription(Guid businessId)
         {
-            var subscription = _subscriptionRepository
+            var subscription = await _subscriptionRepository
                 .GetLatestByBusinessId(businessId)
                 ?? throw new ConflictException("El negocio no posee suscripciones");
 
@@ -140,16 +143,16 @@ namespace GestionTurnos.Application.Services
 
             subscription.Status = Status.Active;
 
-            _subscriptionRepository.Update(subscription);
+            await _subscriptionRepository.Update(subscription);
         }
 
-        public void ChangePlan(Guid businessId, Guid newPlanId)
+        public async Task ChangePlan(Guid businessId, Guid newPlanId)
         {
-            var currentSubscription = _subscriptionRepository
+            var currentSubscription = await _subscriptionRepository
                 .GetLatestByBusinessId(businessId)
                 ?? throw new NotFoundException("El negocio no posee suscripciones");
 
-            var newPlan = _planService.GetActivePlan(newPlanId);
+            var newPlan = await _planService.GetActivePlan(newPlanId);
 
             if(currentSubscription.PlanId == newPlan.Id)
             {
@@ -158,7 +161,7 @@ namespace GestionTurnos.Application.Services
 
             currentSubscription.Status = Status.Inactive;
 
-            _subscriptionRepository.Update(currentSubscription);
+            await _subscriptionRepository.Update(currentSubscription);
 
             var newSubscription = new BusinessSubscription
             {
@@ -169,8 +172,8 @@ namespace GestionTurnos.Application.Services
                 Status = Status.Active
             };
 
-            _subscriptionRepository.Add(newSubscription);
-            
+            await _subscriptionRepository.Add(newSubscription);
+
         }
     }
 }

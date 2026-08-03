@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -23,38 +23,38 @@ namespace GestionTurnos.Presentation.Controllers
 
         [Authorize(Policy = "SysAdmin")]
         [HttpGet("global")]
-        public ActionResult<List<BusinessDashboardResponse>> GetAllGlobal()
+        public async Task<ActionResult<List<BusinessDashboardResponse>>> GetAllGlobal()
         {
-            return Ok(_businessService.GetAllGlobal());
+            return Ok(await _businessService.GetAllGlobal());
 
         }
 
 
 
         [Authorize(Policy = Policies.Admin)]
-        [HttpGet("MyBusiness")] 
-        public ActionResult<BusinessDashboardResponse> GetMyBusinessWithEcosystem()
+        [HttpGet("MyBusiness")]
+        public async Task<ActionResult<BusinessDashboardResponse>> GetMyBusinessWithEcosystem()
         {
 
-                var businessEcosystem = _businessService.GetBusinessEcosystem();
+                var businessEcosystem = await _businessService.GetBusinessEcosystem();
                 return Ok(businessEcosystem);
- 
+
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpPut("MyBusiness/Update")]
-        public ActionResult UpdateMyBusiness([FromBody] BusinessUpdateRequest request)
+        public async Task<ActionResult> UpdateMyBusiness([FromBody] BusinessUpdateRequest request)
         {
-            _businessService.Update(request);
+            await _businessService.Update(request);
             return NoContent();
         }
-        
+
         [Authorize(Policy = Policies.Admin)]
         [HttpDelete("MyBusiness/Delete")]
-        public ActionResult<bool> Delete()
+        public async Task<ActionResult<bool>> Delete()
         {
 
-                _businessService.Delete();
+                await _businessService.Delete();
                 return Ok(true);
 
         }

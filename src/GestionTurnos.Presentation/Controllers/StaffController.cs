@@ -22,32 +22,32 @@ namespace GestionTurnos.Presentation.Controllers
 
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("Business/Staffs")]
-        public ActionResult<List<StaffsResponse>> GetStaffOfBusiness()
+        public async Task<ActionResult<List<StaffsResponse>>> GetStaffOfBusiness()
         {
-                var staffs = _staffService.GetStaffOfCurrentBusiness();
+                var staffs = await _staffService.GetStaffOfCurrentBusiness();
                 return Ok(staffs);
 
         }
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPost]
-        public ActionResult<StaffsResponse> CreateStaff([FromBody] StaffRequest user)
+        public async Task<ActionResult<StaffsResponse>> CreateStaff([FromBody] StaffRequest user)
         {
-            return Ok(_staffService.CreateStaff(user));
+            return Ok(await _staffService.CreateStaff(user));
         }
 
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpDelete("{id}")]
-        public ActionResult DeleteStaff([FromRoute] Guid id)
+        public async Task<ActionResult> DeleteStaff([FromRoute] Guid id)
         {
-            _staffService.DeleteStaff(id);
+            await _staffService.DeleteStaff(id);
             return NoContent();
         }
 
          [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPut("{id}")]
-        public ActionResult<StaffsResponse> UpdateStaff([FromBody] StaffRequest user, [FromRoute] Guid id)
+        public async Task<ActionResult<StaffsResponse>> UpdateStaff([FromBody] StaffRequest user, [FromRoute] Guid id)
         {
-            var updatedUser = _staffService.UpdateStaff(user, id);
+            var updatedUser = await _staffService.UpdateStaff(user, id);
             return Ok(updatedUser);
         }
     }

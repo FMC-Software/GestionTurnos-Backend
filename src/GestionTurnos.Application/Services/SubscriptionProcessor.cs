@@ -22,9 +22,11 @@ public class SubscriptionProcessor
         var activeSubs = await _subRepo.GetActiveSubscriptionsAsync();
 
 
+        var allStaff = await _staffRepo.GetAllGlobal();
+
         foreach (var sub in activeSubs)
         {
-            var businessAdmin = _staffRepo.GetAllGlobal()
+            var businessAdmin = allStaff
                 .FirstOrDefault(s => s.BusinessId == sub.Business.Id && s.Rol == Rol.Admin);
 
             if (businessAdmin == null)

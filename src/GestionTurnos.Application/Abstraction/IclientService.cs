@@ -4,22 +4,22 @@ using GestionTurnos.Domain.Entities;
 
 namespace GestionTurnos.Application.Abstraction
 {
-    public interface IClientService 
+    public interface IClientService
     {
-        ClientsResponse CreateClient(ClientRequest request, Guid? businessId = null);
+        Task<ClientsResponse> CreateClient(ClientRequest request, Guid? businessId = null);
 
-        List<ClientsResponse> GetClientsOfCurrentBusiness();
+        Task<List<ClientsResponse>> GetClientsOfCurrentBusiness();
 
-        void UpdateClient(ClientRequest request, Guid id);
+        Task UpdateClient(ClientRequest request, Guid id);
 
-        void DeleteClient(Guid id);
+        Task DeleteClient(Guid id);
 
-        List<GlobalClientResponse> GetAllGlobal();
-        ClientsResponse GetByName(string name);
+        Task<List<GlobalClientResponse>> GetAllGlobal();
+        Task<ClientsResponse> GetByName(string name);
 
-        ClientsResponse GetByEmail(string email);
+        Task<ClientsResponse> GetByEmail(string email);
 
-        ClientsResponse GetById(Guid id);
+        Task<ClientsResponse> GetById(Guid id);
 
 
     }

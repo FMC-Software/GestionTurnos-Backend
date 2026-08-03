@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Presentation.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -20,9 +20,9 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [HttpGet]
-        public ActionResult<DashboardResponse> GetDashboard()
+        public async Task<ActionResult<DashboardResponse>> GetDashboard()
         {
-            var dashboard = _dashboardService.GetDashboard();
+            var dashboard = await _dashboardService.GetDashboard();
             return Ok(dashboard);
         }
     }

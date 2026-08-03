@@ -7,6 +7,6 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IScheduleRepository : IBaseRepository<Schedule>
     {
-        Schedule? GetByBranchIdAndDay(Guid branchId, DayOfWeek dayOfWeek);
+        Task<Schedule?> GetByBranchIdAndDay(Guid branchId, DayOfWeek dayOfWeek);
     }
 }

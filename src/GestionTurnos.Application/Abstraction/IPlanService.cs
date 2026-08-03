@@ -6,14 +6,14 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface IPlanService
     {
-        List<PlanResponse> GetAll();
-        PlanResponse GetById(Guid id);
-        PlanResponse Create(PlanRequest request);
-        PlanResponse Update(PlanRequest request, Guid id);
-        void Delete(Guid id);
+        Task<List<PlanResponse>> GetAll();
+        Task<PlanResponse> GetById(Guid id);
+        Task<PlanResponse> Create(PlanRequest request);
+        Task<PlanResponse> Update(PlanRequest request, Guid id);
+        Task Delete(Guid id);
 
-        Plan GetPlanOrDefault(Guid? planId);
+        Task<Plan> GetPlanOrDefault(Guid? planId);
 
-        Plan GetActivePlan(Guid PlanId);
+        Task<Plan> GetActivePlan(Guid PlanId);
     }
 }

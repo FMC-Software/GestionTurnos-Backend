@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -13,39 +13,39 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 _tenantProvider = tenantProvider;
             }
 
-        public List<Staff> GetAll()
+        public async Task<List<Staff>> GetAll()
         {
-            return _dbSet.Where(s =>s.BusinessId == _tenantProvider.GetBusinessId() && !s.IsDeleted)
+            return await _dbSet.Where(s =>s.BusinessId == _tenantProvider.GetBusinessId() && !s.IsDeleted)
                 .Include(s => s.Branch)
-                .ToList();
+                .ToListAsync();
         }
 
-        public Staff GetByEmail(string email)
+        public async Task<Staff?> GetByEmail(string email)
         {
-            return _dbSet.FirstOrDefault(s => s.Email == email && s.BusinessId == _tenantProvider.GetBusinessId() && !s.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && s.BusinessId == _tenantProvider.GetBusinessId() && !s.IsDeleted);
         }
-        public Staff GetByEmailGlobal(string email)
+        public async Task<Staff?> GetByEmailGlobal(string email)
         {
-            return _dbSet.FirstOrDefault(s => s.Email == email && !s.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && !s.IsDeleted);
         }
 
-        public override List<Staff> GetAllGlobal()
+        public override async Task<List<Staff>> GetAllGlobal()
         {
-            return _dbSet.Where(s => !s.IsDeleted)
+            return await _dbSet.Where(s => !s.IsDeleted)
                 .Include(s => s.Branch)
                 .Include(s => s.Business)
-                .ToList();
+                .ToListAsync();
         }
 
-        public override Staff? GetById(Guid id)
+        public override async Task<Staff?> GetById(Guid id)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(s => s.Business)
                 .Include(s => s.Branch)
-                .FirstOrDefault(s => s.Id == id && !s.IsDeleted);
+                .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
         }
-        
+
     }
-       
-    
+
+
 }

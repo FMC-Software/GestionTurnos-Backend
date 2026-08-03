@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GestionTurnos.Infrastructure.Persistance.Repository
 {
-    
+
     public class BaseRepository<T> : IBaseRepository<T> where T : BaseEntity
     {
         protected readonly FMCTurnosDbContext _context;
@@ -18,16 +18,16 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             _context = context;
             _dbSet = context.Set<T>();
         }
-        public virtual T Add(T entity)
+        public virtual async Task<T> Add(T entity)
         {
             _dbSet.Add(entity);
-            SaveChanges();
+            await SaveChanges();
             return entity;
         }
 
-        public virtual void Delete(Guid id)
+        public virtual async Task Delete(Guid id)
         {
-            var EntityUpdate = _dbSet.FirstOrDefault(x => x.Id == id);
+            var EntityUpdate = await _dbSet.FirstOrDefaultAsync(x => x.Id == id);
             if (EntityUpdate.IsDeleted == true)
             {
                 throw new ConflictException("El registro ya se encuentra eliminado.");
@@ -38,33 +38,33 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 EntityUpdate.DeleteDateTime = DateTime.UtcNow;
                 EntityUpdate.UpdateDateTime = DateTime.UtcNow;
                 _dbSet.Update(EntityUpdate);
-                SaveChanges();
+                await SaveChanges();
             }
-           
+
         }
 
-        public virtual List<T> GetAllGlobal()
+        public virtual async Task<List<T>> GetAllGlobal()
         {
-            return _dbSet.Where(x => !x.IsDeleted).ToList();
+            return await _dbSet.Where(x => !x.IsDeleted).ToListAsync();
         }
 
-        public virtual T? GetById(Guid id)
+        public virtual async Task<T?> GetById(Guid id)
         {
-            return _dbSet.FirstOrDefault(x=>x.Id == id && !x.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(x=>x.Id == id && !x.IsDeleted);
         }
 
-        public virtual void Update(T entity)
+        public virtual async Task Update(T entity)
         {
             entity.UpdateDateTime = DateTime.UtcNow;
             _dbSet.Update(entity);
-            SaveChanges();
+            await SaveChanges();
         }
 
-        protected void SaveChanges()
+        protected async Task SaveChanges()
         {
             try
             {
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateException ex)
             {

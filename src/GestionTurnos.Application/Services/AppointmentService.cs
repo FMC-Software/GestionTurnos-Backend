@@ -28,11 +28,11 @@ namespace GestionTurnos.Application.Services
         }
         /// Valida que el turno caiga dentro del horario de atencion de la sucursal
         /// y devuelve el endTime calculado a partir de la duracion del servicio.
-        private TimeSpan ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime, int serviceDurationMinutes)
+        private async Task<TimeSpan> ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime, int serviceDurationMinutes)
         {
             var dayOfWeek = day.DayOfWeek;
 
-            var schedule = _scheduleRepository.GetByBranchIdAndDay(branchId, dayOfWeek)
+            var schedule = await _scheduleRepository.GetByBranchIdAndDay(branchId, dayOfWeek)
                 ?? throw new ConflictException("La sucursal no atiende el día seleccionado.");
 
             var endTime = startTime.Add(TimeSpan.FromMinutes(serviceDurationMinutes));
@@ -45,33 +45,34 @@ namespace GestionTurnos.Application.Services
             return endTime;
         }
 
-        public List<GlobalAppointmentResponse> GetAllGlobal()
+        public async Task<List<GlobalAppointmentResponse>> GetAllGlobal()
         {
-            var appointments = _appointmentRepository.GetAllGlobal();
+            var appointments = await _appointmentRepository.GetAllGlobal();
 
             return appointments
                 .Select(a => a.ToGlobalResponse())
                 .ToList();
         }
 
-        public List<AppointmentResponse> GetAppointmentsOfCurrentBusiness()
+        public async Task<List<AppointmentResponse>> GetAppointmentsOfCurrentBusiness()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            return _appointmentRepository.GetByBusinessId(businessId)
+            var appointments = await _appointmentRepository.GetByBusinessId(businessId);
+            return appointments
                 .Select(a => a.ToResponse())
                 .ToList();
         }
 
-        public List<AppointmentResponse> GetAppointmentsOfMyBranch()
+        public async Task<List<AppointmentResponse>> GetAppointmentsOfMyBranch()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
-            
+
             var branchId = _tenantProvider.GetBranchId()
                 ?? throw new ConflictException("No se encontró la sucursal asignada al usuario.");
-                
+
             var role = _tenantProvider.GetUserRole()
                 ?? throw new ConflictException("No se encontró el rol del usuario.");
 
@@ -80,51 +81,55 @@ namespace GestionTurnos.Application.Services
 
             if (Enum.TryParse(role, out Rol userRole) && userRole == Rol.Profesional)
             {
-                return _appointmentRepository.GetByStaffId(userId, businessId)
+                var staffAppointments = await _appointmentRepository.GetByStaffId(userId, businessId);
+                return staffAppointments
                     .Select(a => a.ToResponse())
                     .ToList();
             }
 
             // Para Recepcionista o Admin, traemos todos los de la sucursal
-            return _appointmentRepository.GetByBranchId(branchId, businessId)
+            var branchAppointments = await _appointmentRepository.GetByBranchId(branchId, businessId);
+            return branchAppointments
                 .Select(a => a.ToResponse())
                 .ToList();
         }
 
-        public List<AppointmentResponse> GetMyAppointments()
+        public async Task<List<AppointmentResponse>> GetMyAppointments()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
-            
+
             var userId = _tenantProvider.GetUserId()
                 ?? throw new ConflictException("No se encontró el id del usuario.");
 
-            return _appointmentRepository.GetByStaffId(userId, businessId)
+            var appointments = await _appointmentRepository.GetByStaffId(userId, businessId);
+            return appointments
                 .Select(a => a.ToResponse())
                 .ToList();
         }
 
-        public List<AppointmentResponse> GetAppointmentsByBranch(Guid branchId)
+        public async Task<List<AppointmentResponse>> GetAppointmentsByBranch(Guid branchId)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            return _appointmentRepository.GetByBranchId(branchId, businessId)
+            var appointments = await _appointmentRepository.GetByBranchId(branchId, businessId);
+            return appointments
                 .Select(a => a.ToResponse())
                 .ToList();
         }
 
-        public AppointmentResponse GetById(Guid id)
+        public async Task<AppointmentResponse> GetById(Guid id)
         {
-            var appointment = _appointmentRepository.GetById(id) 
+            var appointment = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
             return appointment.ToResponse();
         }
 
-        public AppointmentResponse CreateAppointment(AppointmentRequest request)
+        public async Task<AppointmentResponse> CreateAppointment(AppointmentRequest request)
         {
             // 1. Obtener el Staff para derivar el BusinessId
-            var staff = _staffRepository.GetById(request.StaffId)
+            var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
             // 2. Validar que el staff pertenece a la sucursal indicada
@@ -132,7 +137,7 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El profesional seleccionado no pertenece a esta sucursal.");
 
             // 3. Obtener el servicio para calcular el costo real
-            var service = _appointmentRepository.GetServiceById(request.ServiceId)
+            var service = await _appointmentRepository.GetServiceById(request.ServiceId)
                 ?? throw new Exception("El servicio no fue encontrado.");
 
             if(service.BusinessId != staff.BusinessId)
@@ -164,44 +169,44 @@ namespace GestionTurnos.Application.Services
                 BirthDay = request.ClientBirthDay.ToString("yyyy-MM-dd")
             };
 
-            var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
+            var clientResponse = await _clientService.CreateClient(clientDto, staff.BusinessId);
             var clientId = clientResponse.Id;
 
             // 4. Valido que el turno caiga dentro del horario de la sucursal y calculo endTime
-            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
+            var endTime = await ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
 
-            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
+            if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
             {
                 throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
             }
 
-            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
+            if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
             {
                 throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             // 5. Crear el turno usando el precio real del servicio y el horario final calculado
             var appointment = request.ToEntity(clientId, service.Price, endTime);
-            var appointmentCreated = _appointmentRepository.Add(appointment);
+            var appointmentCreated = await _appointmentRepository.Add(appointment);
 
-            var fullyLoaded = _appointmentRepository.GetById(appointmentCreated.Id) 
+            var fullyLoaded = await _appointmentRepository.GetById(appointmentCreated.Id)
                 ?? throw new Exception("Error al cargar el turno creado.");
 
             //ACA se manda el email para avisar TURNO
-            Task.Run(() => _appointmentNotificationService.SendAppointmentConfirmationAsync(request, staff.Business.Name,
-                staff.Branch.Address));
+            await _appointmentNotificationService.SendAppointmentConfirmationAsync(request, staff.Business.Name,
+                staff.Branch.Address);
 
             //
             return fullyLoaded.ToResponse();
         }
 
-        public AppointmentResponse UpdateAppointment(Guid id, AppointmentRequest request)
+        public async Task<AppointmentResponse> UpdateAppointment(Guid id, AppointmentRequest request)
         {
-            var existing = _appointmentRepository.GetById(id) 
+            var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
 
             // Obtener el Staff para derivar el BusinessId
-            var staff = _staffRepository.GetById(request.StaffId)
+            var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
             // Resolver el cliente por email (find or create) delegando a ClientService
@@ -213,21 +218,21 @@ namespace GestionTurnos.Application.Services
                 BirthDay = request.ClientBirthDay.ToString("yyyy-MM-dd")
             };
 
-            var clientResponse = _clientService.CreateClient(clientDto, staff.BusinessId);
+            var clientResponse = await _clientService.CreateClient(clientDto, staff.BusinessId);
             var clientId = clientResponse.Id;
 
             // Obtener el servicio para sacar su duración
-            var service = _appointmentRepository.GetServiceById(request.ServiceId)
+            var service = await _appointmentRepository.GetServiceById(request.ServiceId)
                 ?? throw new Exception("El servicio no fue encontrado.");
 
-            var endTime = ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
+            var endTime = await ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
 
-            if (_appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
+            if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
             {
                 throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
             }
 
-            if (_appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
+            if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
             {
                 throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
             }
@@ -241,34 +246,34 @@ namespace GestionTurnos.Application.Services
             existing.Observation = request.Observation;
             existing.Payment = request.Payment;
 
-            _appointmentRepository.Update(existing);
+            await _appointmentRepository.Update(existing);
 
-            var fullyLoaded = _appointmentRepository.GetById(id) 
+            var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
 
             return fullyLoaded.ToResponse();
         }
 
-        public AppointmentResponse UpdateStatus(Guid id, AppointmentStatus newStatus)
+        public async Task<AppointmentResponse> UpdateStatus(Guid id, AppointmentStatus newStatus)
         {
-            var existing = _appointmentRepository.GetById(id) 
+            var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
 
             existing.Status = newStatus;
-            
-            _appointmentRepository.Update(existing);
 
-            var fullyLoaded = _appointmentRepository.GetById(id) 
+            await _appointmentRepository.Update(existing);
+
+            var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
 
             return fullyLoaded.ToResponse();
         }
 
-        public void DeleteAppointment(Guid id)
+        public async Task DeleteAppointment(Guid id)
         {
-            var existing = _appointmentRepository.GetById(id) 
+            var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
-            _appointmentRepository.Delete(id);
+            await _appointmentRepository.Delete(id);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -16,22 +16,22 @@ namespace GestionTurnos.Application.Services
         {
             _scheduleRepository = scheduleRepository;
         }
-        public ScheduleResponse CreateSchedule(ScheduleRequest request)
+        public async Task<ScheduleResponse> CreateSchedule(ScheduleRequest request)
         {
             var schedule = request.ToEntitySchedule();
-            _scheduleRepository.Add(schedule);
+            await _scheduleRepository.Add(schedule);
             return schedule.ToResponseSchedule();
         }
 
-        public void UpdateSchedule(ScheduleRequest request, Guid id)
+        public async Task UpdateSchedule(ScheduleRequest request, Guid id)
         {
-            var schedule = _scheduleRepository.GetById(id) ?? throw new ConflictException("Schedule not found");
+            var schedule = await _scheduleRepository.GetById(id) ?? throw new ConflictException("Schedule not found");
 
 
             schedule.EndTime = request.EndTime ?? schedule.EndTime;
             schedule.StartTime = request.StartTime ?? schedule.StartTime;
             schedule.IsDeleted = request.IsDeleted ?? schedule.IsDeleted;
-            _scheduleRepository.Update(schedule);
+            await _scheduleRepository.Update(schedule);
         }
 
     }

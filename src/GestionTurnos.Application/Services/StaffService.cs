@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Mapper;
@@ -19,79 +19,80 @@ namespace GestionTurnos.Application.Services
             _tenantProvider = tenantProvider;
         }
 
-        public StaffsResponse CreateStaff(StaffRequest request)
+        public async Task<StaffsResponse> CreateStaff(StaffRequest request)
         {
-            var existingStaff = _staffRepository.GetByEmail(request.Email);
+            var existingStaff = await _staffRepository.GetByEmail(request.Email);
             if (existingStaff != null)
             {
                 throw new ConflictException("Ya existe un usuario con ese correo electrónico.");
             }
-            var AdminExisting = _staffRepository.GetAll().Any(s => s.Rol == Rol.Admin && request.Rol == Rol.Admin); //No anda arreglalo
+            var staffList = await _staffRepository.GetAll();
+            var AdminExisting = staffList.Any(s => s.Rol == Rol.Admin && request.Rol == Rol.Admin); //No anda arreglalo
             if (AdminExisting)
             {
-                var adminExisting = _staffRepository.GetAll().Any(s => s.Rol == Rol.Admin);
+                var adminExisting = staffList.Any(s => s.Rol == Rol.Admin);
                 if (adminExisting)
                     throw new ConflictException("Cada negocio solo puede tener un Admin.");
             }
             var IdBusiness = _tenantProvider.GetBusinessId()
                 ?? Guid.Empty;
             var newStaff = request.ToStaff();
-            
+
             newStaff.BusinessId = IdBusiness;
-            _staffRepository.Add(newStaff);
+            await _staffRepository.Add(newStaff);
 
             return newStaff.ToResponse();
         }
 
-        public List<StaffsResponse> GetStaffOfCurrentBusiness()
+        public async Task<List<StaffsResponse>> GetStaffOfCurrentBusiness()
         {
-            
-            var staffList = _staffRepository.GetAll().Where(s => s.Rol != Rol.Admin);
+
+            var staffList = (await _staffRepository.GetAll()).Where(s => s.Rol != Rol.Admin);
             return staffList.Select(s => s.ToResponse()).ToList();
         }
 
-        public StaffsResponse GetById(Guid id)
+        public async Task<StaffsResponse> GetById(Guid id)
         {
-            var staff = _staffRepository.GetById(id)
+            var staff = await _staffRepository.GetById(id)
                 ?? throw new KeyNotFoundException("Usuario no encontrado o no pertenece a su comercio.");
             return staff.ToResponse();
         }
 
-        public StaffsResponse UpdateStaff(StaffRequest request, Guid idStaff)
+        public async Task<StaffsResponse> UpdateStaff(StaffRequest request, Guid idStaff)
         {
-            var existingStaff = _staffRepository.GetById(idStaff)
+            var existingStaff = await _staffRepository.GetById(idStaff)
                 ?? throw new ConflictException("Usuario no encontrado.");
 
-           
+
             existingStaff.UpdateFromDto(request);
 
-            _staffRepository.Update(existingStaff);
+            await _staffRepository.Update(existingStaff);
             return existingStaff.ToResponse();
         }
 
-        public void DeleteStaff(Guid id)
+        public async Task DeleteStaff(Guid id)
         {
-            var staff = _staffRepository.GetById(id)
+            var staff = await _staffRepository.GetById(id)
                 ?? throw new ConflictException("Usuario no encontrado.");
-            _staffRepository.Delete(id);
+            await _staffRepository.Delete(id);
         }
 
-        public List<GlobalStaffResponse> GetAllGlobal()
+        public async Task<List<GlobalStaffResponse>> GetAllGlobal()
         {
-            var globalList = _staffRepository.GetAllGlobal();
+            var globalList = await _staffRepository.GetAllGlobal();
             return globalList.Select(s => s.ToGlobalResponse()).ToList();
         }
 
-        public Staff GetByEmail(string email)
+        public async Task<Staff?> GetByEmail(string email)
         {
-            var staff = _staffRepository.GetByEmail(email) ?? null;
-            
+            var staff = await _staffRepository.GetByEmail(email) ?? null;
+
             return staff;
         }
 
-        public Staff GetByEmailGlobal(string email)
+        public async Task<Staff?> GetByEmailGlobal(string email)
         {
-            var staff = _staffRepository.GetByEmailGlobal(email) ?? null;
+            var staff = await _staffRepository.GetByEmailGlobal(email) ?? null;
 
             return staff;
         }

@@ -23,46 +23,47 @@ namespace GestionTurnos.Application.Services
             _businessService = businessService;
         }
 
-        public List<BranchResponse> GetBranchesOfCurrentBusiness()
+        public async Task<List<BranchResponse>> GetBranchesOfCurrentBusiness()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            return _branchRepository.GetByBusinessId(businessId)
+            var branches = await _branchRepository.GetByBusinessId(businessId);
+            return branches
                 .Where(b => !b.IsDeleted)
                 .Select(b => b.ToBranchResponse())
                 .ToList();
         }
 
-        public BranchResponse GetById(Guid id)
+        public async Task<BranchResponse> GetById(Guid id)
         {
-            var branch = _branchRepository.GetById(id)
+            var branch = await _branchRepository.GetById(id)
                 ?? throw new ConflictException("Sucursal no encontrada.");
 
             return branch.ToBranchResponse();
         }
 
-        public BranchResponse CreateBranch(CreateBranchRequest request)
+        public async Task<BranchResponse> CreateBranch(CreateBranchRequest request)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            bool branchExist = _branchRepository
-                .GetByBusinessId(businessId)
-                .Any( b => 
+            var businessBranches = await _branchRepository.GetByBusinessId(businessId);
+
+            bool branchExist = businessBranches
+                .Any( b =>
                     string.Equals(
                         b.Name.Trim(),
                         request.Name.Trim(),
                         StringComparison.OrdinalIgnoreCase));
 
-            bool branchAdrressDuplicated = _branchRepository
-                .GetByBusinessId(businessId)
-                .Any(b => 
+            bool branchAdrressDuplicated = businessBranches
+                .Any(b =>
                     string.Equals(
                         b.Address.Trim(),
                         request.Address.Trim(),
                         StringComparison.OrdinalIgnoreCase));
-        
+
 
             if (branchExist)
             {
@@ -76,11 +77,11 @@ namespace GestionTurnos.Application.Services
 
             var newBranch = request.ToBranch(businessId);
 
-            _branchRepository.Add(newBranch);
+            await _branchRepository.Add(newBranch);
 
             for (int i = 0; i < 7; i++)
             {
-                _scheduleService.CreateSchedule(new ScheduleRequest
+                await _scheduleService.CreateSchedule(new ScheduleRequest
                 {
                     BranchId = newBranch.Id,
                     Day = (DayOfWeek)i,
@@ -94,12 +95,12 @@ namespace GestionTurnos.Application.Services
             return newBranch.ToBranchResponse();
         }
 
-        public BranchResponse UpdateBranch(CreateBranchRequest request, Guid id)
+        public async Task<BranchResponse> UpdateBranch(CreateBranchRequest request, Guid id)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontro la empresa");
 
-            var existingBranch = _branchRepository.GetById(id)
+            var existingBranch = await _branchRepository.GetById(id)
                 ?? throw new ConflictException("Sucursal no encontrada");
 
             if(existingBranch.BusinessId != businessId)
@@ -107,8 +108,8 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("La sucursal no pertenece a su negocio");
             }
 
-            bool branchExist = _branchRepository
-                .GetByBusinessId(businessId)
+            var businessBranches = await _branchRepository.GetByBusinessId(businessId);
+            bool branchExist = businessBranches
                 .Any(b =>
                     b.Id != id &&
                     string.Equals(
@@ -123,18 +124,18 @@ namespace GestionTurnos.Application.Services
 
             existingBranch.UpdateFromRequest(request);
 
-            _branchRepository.Update(existingBranch);
+            await _branchRepository.Update(existingBranch);
 
             return existingBranch.ToBranchResponse();
 
         }
 
-        public void DeleteBranch(Guid id)
+        public async Task DeleteBranch(Guid id)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            var branch = _branchRepository.GetById(id)
+            var branch = await _branchRepository.GetById(id)
                 ?? throw new ConflictException("Sucursal no encontrada.");
 
             if (branch.BusinessId != businessId)
@@ -143,10 +144,10 @@ namespace GestionTurnos.Application.Services
                     "La sucursal no pertenece a su negocio.");
             }
 
-            _branchRepository.Delete(id);
+            await _branchRepository.Delete(id);
         }
 
-        public Branch CreateInitialBranch(SignUpRequest request, Business newBusiness)
+        public async Task<Branch> CreateInitialBranch(SignUpRequest request, Business newBusiness)
         {
             // Corregido: Usamos el Mapper para crear la entidad
             var newBranch = new Branch
@@ -160,18 +161,18 @@ namespace GestionTurnos.Application.Services
                 Business = newBusiness
             };
 
-            _branchRepository.Add(newBranch);
+            await _branchRepository.Add(newBranch);
 
             // Lógica de los 7 días
             for (int i = 0; i < 7; i++)
             {
-                _scheduleService.CreateSchedule(new ScheduleRequest
+                await _scheduleService.CreateSchedule(new ScheduleRequest
                 {
                     BranchId = newBranch.Id,
                     Day = (DayOfWeek)i,
                     StartTime = new TimeSpan(9, 0, 0),
                     EndTime = new TimeSpan(18, 0, 0),
-                    
+
                     IsDeleted = (i != 0 && i != 5)
                 });
             }
@@ -179,10 +180,10 @@ namespace GestionTurnos.Application.Services
         }
 
 
-        public InfoBranchResponse GetInfoBranch(Guid idBranch)
+        public async Task<InfoBranchResponse> GetInfoBranch(Guid idBranch)
         {
-            
-            var branch = _branchRepository.GetInfoBranch(idBranch)
+
+            var branch = await _branchRepository.GetInfoBranch(idBranch)
                 ?? throw new ConflictException("Sucursal no encontrada.");
 
             return branch.ToInfoBranchResponse();

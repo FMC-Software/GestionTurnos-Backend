@@ -19,25 +19,26 @@ namespace GestionTurnos.Application.Services
             _subscriptions = subscriptions;
         }
 
-        public List<PlanResponse> GetAll()
+        public async Task<List<PlanResponse>> GetAll()
         {
-            return _planRepository.GetAllGlobal()
+            var plans = await _planRepository.GetAllGlobal();
+            return plans
                 .Select(p => p.ToPlanResponse())
                 .ToList();
         }
 
-        public PlanResponse GetById(Guid id)
+        public async Task<PlanResponse> GetById(Guid id)
         {
-            var plan = _planRepository.GetById(id)
+            var plan = await _planRepository.GetById(id)
                 ?? throw new ConflictException("Plan no encontrado.");
 
             return plan.ToPlanResponse();
         }
 
-        public PlanResponse Create(PlanRequest request)
+        public async Task<PlanResponse> Create(PlanRequest request)
         {
-            bool planExist = _planRepository
-                .GetAllGlobal()
+            var allPlans = await _planRepository.GetAllGlobal();
+            bool planExist = allPlans
                 .Any(p =>
                     string.Equals(
                             p.Name.Trim(),
@@ -51,19 +52,19 @@ namespace GestionTurnos.Application.Services
 
             var newPlan = request.ToPlan();
 
-            _planRepository.Add(newPlan);
+            await _planRepository.Add(newPlan);
 
             return newPlan.ToPlanResponse();
 
         }
 
-        public PlanResponse Update(PlanRequest request, Guid id)
+        public async Task<PlanResponse> Update(PlanRequest request, Guid id)
         {
-            var existingPlan = _planRepository.GetById(id)
+            var existingPlan = await _planRepository.GetById(id)
                 ?? throw new ConflictException("Plan no encontrado.");
 
-            bool duplicatedPlan = _planRepository
-                .GetAllGlobal()
+            var allPlans = await _planRepository.GetAllGlobal();
+            bool duplicatedPlan = allPlans
                 .Any(p =>
                     p.Id != id &&
                     string.Equals(
@@ -71,21 +72,21 @@ namespace GestionTurnos.Application.Services
                         request.Name.Trim(),
                         StringComparison.OrdinalIgnoreCase));
 
-            if(duplicatedPlan) 
+            if(duplicatedPlan)
             {
                 throw new ConflictException($"Ya existe un plan con el nombre '{request.Name}'");
             }
 
             existingPlan.UpdateFromRequest(request);
 
-            _planRepository.Update(existingPlan);
+            await _planRepository.Update(existingPlan);
 
             return existingPlan.ToPlanResponse();
         }
 
-        public void Delete(Guid id)
+        public async Task Delete(Guid id)
         {
-            var plan = _planRepository.GetById(id)
+            var plan = await _planRepository.GetById(id)
                 ?? throw new ConflictException("Plan no encontrado.");
 
             if (string.Equals(
@@ -96,35 +97,35 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("No se puede eliminar el plan por defecto");
             }
 
-            bool hasSubscriptions = _subscriptions
-                    .GetAllGlobal()
+            var allSubscriptions = await _subscriptions.GetAllGlobal();
+            bool hasSubscriptions = allSubscriptions
                     .Any(s => s.PlanId == id);
 
-            if (hasSubscriptions) 
-            { 
+            if (hasSubscriptions)
+            {
                 throw new ConflictException("No se puede eliminar un plan que esta siendo utilizado.");
             }
 
-            _planRepository.Delete(id);
+            await _planRepository.Delete(id);
         }
 
-        public Plan GetPlanOrDefault(Guid? planId)
+        public async Task<Plan> GetPlanOrDefault(Guid? planId)
         {
             if (!planId.HasValue || planId == Guid.Empty)
             {
-                return _planRepository.GetAllGlobal()
-                    .FirstOrDefault(p => p.Name == "Free Plan")
-                    ?? _planRepository.GetAllGlobal().FirstOrDefault()
+                var allPlans = await _planRepository.GetAllGlobal();
+                return allPlans.FirstOrDefault(p => p.Name == "Free Plan")
+                    ?? allPlans.FirstOrDefault()
                     ?? throw new ConflictException("No se encontro plan.");
             }
 
-            return _planRepository.GetById(planId.Value)
+            return await _planRepository.GetById(planId.Value)
                 ?? throw new ConflictException("El plan especificado no existe");
         }
 
-        public Plan GetActivePlan(Guid planId)
+        public async Task<Plan> GetActivePlan(Guid planId)
         {
-            var plan = _planRepository.GetById(planId)
+            var plan = await _planRepository.GetById(planId)
                 ?? throw new NotFoundException("El plan especificado no existe");
             if (!plan.IsActive)
             {
