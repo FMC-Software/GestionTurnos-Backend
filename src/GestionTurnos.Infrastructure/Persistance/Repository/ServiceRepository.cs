@@ -1,6 +1,7 @@
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Domain.Entities;
 using GestionTurnos.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace GestionTurnos.Infrastructure.Persistance.Repository
 {
@@ -10,14 +11,14 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
         }
 
-        public List<Service> GetByBusinessId(Guid businessId)
+        public async Task<List<Service>> GetByBusinessId(Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Where(s => s.BusinessId == businessId && !s.IsDeleted)
-                .ToList();
+                .ToListAsync();
         }
 
-        public bool ExistByName(Guid businessId, string name, Guid? excludeId = null)
+        public async Task<bool> ExistByName(Guid businessId, string name, Guid? excludeId = null)
         {
             var query = _dbSet.Where(s =>
                 s.BusinessId == businessId &&
@@ -29,9 +30,9 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 query = query.Where(s => s.Id != excludeId.Value);
             }
 
-            return query.Any();
+            return await query.AnyAsync();
         }
 
-        
+
     }
 }

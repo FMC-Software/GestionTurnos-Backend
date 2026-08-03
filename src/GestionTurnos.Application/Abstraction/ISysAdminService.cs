@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
 using System;
@@ -9,7 +9,7 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface ISysAdminService
     {
-        SysAdminUser GetByEmail(string email);
+        Task<SysAdminUser?> GetByEmail(string email);
     }
 }
 

@@ -14,78 +14,78 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         public AppointmentRepository(FMCTurnosDbContext context) : base(context)
         {
         }
-        public List<Appointment> GetAll()
+        public async Task<List<Appointment>> GetAll()
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted)
-                .ToList();
+                .ToListAsync();
         }
 
-        public new List<Appointment> GetAllGlobal()
+        public new async Task<List<Appointment>> GetAllGlobal()
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                     .ThenInclude(s => s.Business)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted)
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Appointment> GetByBusinessId(Guid businessId)
+        public async Task<List<Appointment>> GetByBusinessId(Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted && a.Staff.BusinessId == businessId)
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Appointment> GetByBranchId(Guid branchId, Guid businessId)
+        public async Task<List<Appointment>> GetByBranchId(Guid branchId, Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted && a.Staff.BranchId == branchId && a.Staff.BusinessId == businessId)
-                .ToList();
+                .ToListAsync();
         }
 
-        public List<Appointment> GetByStaffId(Guid staffId, Guid businessId)
+        public async Task<List<Appointment>> GetByStaffId(Guid staffId, Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted && a.StaffId == staffId && a.Staff.BusinessId == businessId)
-                .ToList();
+                .ToListAsync();
         }
 
-        public override Appointment? GetById(Guid id)
+        public override async Task<Appointment?> GetById(Guid id)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(a => a.Client)
                 .Include(a => a.Staff)
                     .ThenInclude(s => s.Business)
                 .Include(a => a.Staff)
                     .ThenInclude(s => s.Branch)
                 .Include(a => a.Service)
-                .FirstOrDefault(a => a.Id == id && !a.IsDeleted);
+                .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
         }
 
-        public Service? GetServiceById(Guid serviceId)
+        public async Task<Service?> GetServiceById(Guid serviceId)
         {
-            return _context.Set<Service>().FirstOrDefault(s => s.Id == serviceId);
+            return await _context.Set<Service>().FirstOrDefaultAsync(s => s.Id == serviceId);
         }
 
-        public bool ExistsOverlappingAppointment(Guid staffId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
+        public async Task<bool> ExistsOverlappingAppointment(Guid staffId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
         {
             var date = day.Date;
-            return _dbSet.Any(a => !a.IsDeleted &&
+            return await _dbSet.AnyAsync(a => !a.IsDeleted &&
                                    a.Status != AppointmentStatus.Cancelled &&
                                    a.Id != excludeAppointmentId &&
                                    a.StaffId == staffId &&
@@ -94,10 +94,10 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                                    a.EndTime > startTime);
         }
 
-        public bool ExistsOverlappingAppointmentForClient(Guid clientId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
+        public async Task<bool> ExistsOverlappingAppointmentForClient(Guid clientId, DateTime day, TimeSpan startTime, TimeSpan endTime, Guid? excludeAppointmentId = null)
         {
             var date = day.Date;
-            return _dbSet.Any(a => !a.IsDeleted &&
+            return await _dbSet.AnyAsync(a => !a.IsDeleted &&
                                    a.Status != AppointmentStatus.Cancelled &&
                                    a.Id != excludeAppointmentId &&
                                    a.ClientId == clientId &&

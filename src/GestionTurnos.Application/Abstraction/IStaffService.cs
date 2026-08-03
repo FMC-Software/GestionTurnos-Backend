@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
 
@@ -6,15 +6,15 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface IStaffService
     {
-        List<StaffsResponse> GetStaffOfCurrentBusiness();
-        StaffsResponse GetById(Guid id);
-        StaffsResponse CreateStaff(StaffRequest request);
-        StaffsResponse UpdateStaff(StaffRequest staff, Guid idStaff);
-        void DeleteStaff(Guid id);
-        List<GlobalStaffResponse> GetAllGlobal();
+        Task<List<StaffsResponse>> GetStaffOfCurrentBusiness();
+        Task<StaffsResponse> GetById(Guid id);
+        Task<StaffsResponse> CreateStaff(StaffRequest request);
+        Task<StaffsResponse> UpdateStaff(StaffRequest staff, Guid idStaff);
+        Task DeleteStaff(Guid id);
+        Task<List<GlobalStaffResponse>> GetAllGlobal();
 
-        Staff GetByEmail(string email);
+        Task<Staff?> GetByEmail(string email);
 
-        Staff GetByEmailGlobal(string email);
+        Task<Staff?> GetByEmailGlobal(string email);
     }
 }

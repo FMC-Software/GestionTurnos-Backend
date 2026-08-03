@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using System;
 using System.Collections.Generic;
@@ -8,11 +8,11 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure.Auth
 {
     public interface IAuthService
     {
-        AuthResponse? SignUp(SignUpRequest request);
-        AuthResponse? SignIn(SignInRequest request);
+        Task<AuthResponse?> SignUp(SignUpRequest request);
+        Task<AuthResponse?> SignIn(SignInRequest request);
 
-        public void ForgotPassword(string request);
+        public Task ForgotPassword(string request);
 
-        public void ResetPassword(string request, string token);
+        public Task ResetPassword(string request, string token);
     }
 }

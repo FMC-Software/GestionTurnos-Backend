@@ -6,12 +6,12 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     {
         Task<List<BusinessSubscription>> GetActiveSubscriptionsAsync();
         Task UpdateAsync(BusinessSubscription entity);
-        List<BusinessSubscription> GetAllWithDetails();
-        BusinessSubscription? GetByIdWithDetails(Guid id);
-        List<BusinessSubscription> GetByBusinessId(Guid businessId);
+        Task<List<BusinessSubscription>> GetAllWithDetails();
+        Task<BusinessSubscription?> GetByIdWithDetails(Guid id);
+        Task<List<BusinessSubscription>> GetByBusinessId(Guid businessId);
 
-        BusinessSubscription? GetCurrentSubscription(Guid businessId);
+        Task<BusinessSubscription?> GetCurrentSubscription(Guid businessId);
 
-        BusinessSubscription? GetLatestByBusinessId(Guid businessId);
+        Task<BusinessSubscription?> GetLatestByBusinessId(Guid businessId);
     }
 }

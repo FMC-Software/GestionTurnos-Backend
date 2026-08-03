@@ -19,10 +19,10 @@ namespace GestionTurnos.Application.Services
             _tenantProvider = tenantProvider;
         }
 
-        public ClientsResponse CreateClient(ClientRequest request, Guid? businessId = null)
+        public async Task<ClientsResponse> CreateClient(ClientRequest request, Guid? businessId = null)
         {
             //Si el cliente ya existe, lo retornamos sin crear uno nuevo
-            var clientExisting = _clientRepository.GetClientByEmail(request.Email, businessId) ?? null;
+            var clientExisting = await _clientRepository.GetClientByEmail(request.Email, businessId) ?? null;
                if(clientExisting is not null) return clientExisting.ToResponse();
 
             //Si el cliente no existe, lo creamos
@@ -30,77 +30,77 @@ namespace GestionTurnos.Application.Services
 
             // Si llega un businessId, lo asignamos(Esto si lo hace el client propio). Si no, lo obtenemos del tenant provider (Esto si lo hace un admin o un empleado).
 
-            client.BusinessId = businessId ?? _tenantProvider.GetBusinessId() 
+            client.BusinessId = businessId ?? _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
-                
+
             if (DateTime.TryParse(request.BirthDay, out DateTime parsedDate))
             {
                 client.BirthDay = parsedDate;
             }
-            
+
             client.UpdateDateTime = DateTime.UtcNow;
 
-            _clientRepository.Add(client);
+            await _clientRepository.Add(client);
 
             return client.ToResponse();
         }
 
-        public List<ClientsResponse> GetClientsOfCurrentBusiness()
+        public async Task<List<ClientsResponse>> GetClientsOfCurrentBusiness()
         {
-            var clients = _clientRepository.GetAll();
+            var clients = await _clientRepository.GetAll();
             return clients.Select(c => c.ToResponse()).ToList();
         }
 
-        public ClientsResponse GetById(Guid id)
+        public async Task<ClientsResponse> GetById(Guid id)
         {
-            var client = _clientRepository.GetById(id)
+            var client = await _clientRepository.GetById(id)
                 ?? throw new ConflictException("Cliente no encontrado o no pertenece a su comercio.");
             return client.ToResponse();
         }
 
-        public ClientsResponse GetByName(string name)
+        public async Task<ClientsResponse> GetByName(string name)
         {
-            var client = _clientRepository.GetClientByName(name)
+            var client = await _clientRepository.GetClientByName(name)
                 ?? throw new ConflictException("Cliente no encontrado en su comercio.");
             return client.ToResponse();
         }
 
-        public ClientsResponse GetByEmail(string email)
+        public async Task<ClientsResponse> GetByEmail(string email)
         {
-            var client = _clientRepository.GetClientByEmail(email)
+            var client = await _clientRepository.GetClientByEmail(email)
                 ?? throw new ConflictException("Cliente no encontrado en su comercio.");
             return client.ToResponse();
         }
 
-        public void UpdateClient(ClientRequest request, Guid id)
+        public async Task UpdateClient(ClientRequest request, Guid id)
         {
-            var existingClient = _clientRepository.GetById(id)
+            var existingClient = await _clientRepository.GetById(id)
                 ?? throw new ConflictException("Cliente no encontrado.");
 
-            
+
             existingClient.UpdateFromDto(request);
 
-            
-            _clientRepository.Update(existingClient);
+
+            await _clientRepository.Update(existingClient);
         }
 
-        public void DeleteClient(Guid id)
+        public async Task DeleteClient(Guid id)
         {
-            var existingClient = _clientRepository.GetById(id)
+            var existingClient = await _clientRepository.GetById(id)
                 ?? throw new ConflictException("Cliente no encontrado.");
             if (existingClient.IsDeleted)
             {
                 throw new ConflictException("El cliente ya se encuentra eliminado.");
-            }   
+            }
 
-            _clientRepository.Delete(id);
+            await _clientRepository.Delete(id);
         }
 
 
-        public List<GlobalClientResponse> GetAllGlobal()
+        public async Task<List<GlobalClientResponse>> GetAllGlobal()
         {
-            var allClients = _clientRepository.GetAllGlobal();
-  
+            var allClients = await _clientRepository.GetAllGlobal();
+
             return allClients.Select(c => c.ToGlobalResponse()).ToList();
         }
     }

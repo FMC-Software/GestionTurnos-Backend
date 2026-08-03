@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Mapper;
@@ -22,49 +22,50 @@ namespace GestionTurnos.Application.Services
             _staffService = staffService;
         }
 
-        public Business Create(Business business)
+        public async Task<Business> Create(Business business)
         {
-            return _businessRepository.Add(business);
+            return await _businessRepository.Add(business);
         }
 
-        public void Delete()
+        public async Task Delete()
         {
             var BusinesId = _tenantProvider.GetBusinessId() ?? throw new ConflictException("No se encontró la empresa.");
 
-            _businessRepository.Delete(BusinesId);
+            await _businessRepository.Delete(BusinesId);
         }
 
-        public List<BusinessDashboardResponse> GetAllGlobal()
+        public async Task<List<BusinessDashboardResponse>> GetAllGlobal()
         {
-            return _businessRepository.GetAllGlobal()
+            var businesses = await _businessRepository.GetAllGlobal();
+            return businesses
                 .Select(b => b.ToResponse())
                 .ToList();
         }
 
-        public Business GetById(Guid id)
+        public async Task<Business> GetById(Guid id)
         {
-            var business = _businessRepository.GetById(id) ?? throw new ConflictException("Empresa no encontrada.");
+            var business = await _businessRepository.GetById(id) ?? throw new ConflictException("Empresa no encontrada.");
             return business;
         }
-        public BusinessDashboardResponse GetBusinessEcosystem()
+        public async Task<BusinessDashboardResponse> GetBusinessEcosystem()
         {
-            var business = _businessRepository.GetById(_tenantProvider.GetBusinessId() ?? Guid.Empty)
+            var business = await _businessRepository.GetById(_tenantProvider.GetBusinessId() ?? Guid.Empty)
                 ?? throw new ConflictException("No se encontró la configuración de su empresa.");
-          
+
             return business.ToResponse();
         }
 
-        public void Update(BusinessUpdateRequest request)
+        public async Task Update(BusinessUpdateRequest request)
         {
             var BusinesId = _tenantProvider.GetBusinessId();
 
-            var existingBusiness = _businessRepository.GetById(BusinesId ?? Guid.Empty)
+            var existingBusiness = await _businessRepository.GetById(BusinesId ?? Guid.Empty)
                 ?? throw new KeyNotFoundException("Empresa no encontrada");
 
             existingBusiness.ToUpdateBusiness(request);
 
 
-            _businessRepository.Update(existingBusiness);
+            await _businessRepository.Update(existingBusiness);
         }
 
         public Business initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed)

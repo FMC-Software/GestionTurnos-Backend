@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction.Infrastructure;
+using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Request;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,12 +17,13 @@ namespace GestionTurnos.Presentation.Controllers
             _scheduleService = scheduleService;
         }
 
-        
+
         [HttpPut("{id}")]
-        public void Put([FromBody] ScheduleRequest request, Guid id)
+        public async Task<IActionResult> Put([FromBody] ScheduleRequest request, Guid id)
         {
-            _scheduleService.UpdateSchedule(request, id);
+            await _scheduleService.UpdateSchedule(request, id);
+            return NoContent();
         }
 
     }
-} 
+}

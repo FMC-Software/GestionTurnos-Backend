@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Request;
@@ -19,9 +19,9 @@ namespace GestionTurnos.Application.Services
             _sysAdminRepository = sysAdminRepository;
         }
 
-        public SysAdminUser GetByEmail(string email)
+        public async Task<SysAdminUser?> GetByEmail(string email)
         {
-            var sysAdmin = _sysAdminRepository.GetByEmail(email) ?? null;
+            var sysAdmin = await _sysAdminRepository.GetByEmail(email) ?? null;
 
             return sysAdmin;
         }

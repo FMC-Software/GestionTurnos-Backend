@@ -25,54 +25,54 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             await _context.SaveChangesAsync();
         }
 
-        public List<BusinessSubscription> GetAllWithDetails()
+        public async Task<List<BusinessSubscription>> GetAllWithDetails()
         {
-            return _dbSet
+            return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
                 .Where(bs => !bs.IsDeleted)
-                .ToList();
+                .ToListAsync();
         }
 
-        public BusinessSubscription? GetByIdWithDetails(Guid id)
+        public async Task<BusinessSubscription?> GetByIdWithDetails(Guid id)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
-                .FirstOrDefault(bs => bs.Id == id);
+                .FirstOrDefaultAsync(bs => bs.Id == id);
         }
 
-        public List<BusinessSubscription> GetByBusinessId(Guid businessId)
+        public async Task<List<BusinessSubscription>> GetByBusinessId(Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
                 .Where(bs => bs.BusinessId == businessId && !bs.IsDeleted)
-                .ToList();
+                .ToListAsync();
         }
 
-        public BusinessSubscription? GetCurrentSubscription(Guid businessId)
+        public async Task<BusinessSubscription?> GetCurrentSubscription(Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
-                .FirstOrDefault(bs =>
+                .FirstOrDefaultAsync(bs =>
                     bs.BusinessId == businessId &&
                     bs.Status == Status.Active &&
                     !bs.IsDeleted);
-                    
+
         }
 
-        public BusinessSubscription? GetLatestByBusinessId(Guid businessId)
+        public async Task<BusinessSubscription?> GetLatestByBusinessId(Guid businessId)
         {
-            return _dbSet
+            return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
                 .Where( bs =>
                     bs.BusinessId == businessId &&
                     !bs.IsDeleted)
                 .OrderByDescending(bs => bs.EndDate)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
         }
     }
 }

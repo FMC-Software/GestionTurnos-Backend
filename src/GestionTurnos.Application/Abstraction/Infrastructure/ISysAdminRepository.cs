@@ -4,6 +4,6 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface ISysAdminRepository : IBaseRepository<SysAdminUser>
     {
-        SysAdminUser? GetByEmail(string email);
+        Task<SysAdminUser?> GetByEmail(string email);
     }
 }

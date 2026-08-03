@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
-    [Authorize(Policy = Policies.SysAdmin)] 
+    [Authorize(Policy = Policies.SysAdmin)]
     [Route("api/[controller]")]
     [ApiController]
     public class PlanController : ControllerBase
@@ -20,37 +20,37 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<PlanResponse>> GetAll()
+        public async Task<ActionResult<List<PlanResponse>>> GetAll()
         {
-            var plans = _planService.GetAll();
+            var plans = await _planService.GetAll();
             return Ok(plans);
         }
 
         [HttpGet("{id}")]
-        public ActionResult<PlanResponse> GetById([FromRoute] Guid id)
+        public async Task<ActionResult<PlanResponse>> GetById([FromRoute] Guid id)
         {
-            var plan = _planService.GetById(id);
+            var plan = await _planService.GetById(id);
             return Ok(plan);
         }
 
         [HttpPost]
-        public ActionResult<PlanResponse> Create([FromBody] PlanRequest request)
+        public async Task<ActionResult<PlanResponse>> Create([FromBody] PlanRequest request)
         {
-            var newPlan = _planService.Create(request);
+            var newPlan = await _planService.Create(request);
             return CreatedAtAction(nameof(GetById), new { id = newPlan.Id }, newPlan);
         }
 
         [HttpPut("{id}")]
-        public ActionResult<PlanResponse> Update([FromBody] PlanRequest request, [FromRoute] Guid id)
+        public async Task<ActionResult<PlanResponse>> Update([FromBody] PlanRequest request, [FromRoute] Guid id)
         {
-            var updatedPlan = _planService.Update(request, id);
+            var updatedPlan = await _planService.Update(request, id);
             return Ok(updatedPlan);
         }
 
         [HttpDelete("{id}")]
-        public ActionResult Delete([FromRoute] Guid id)
+        public async Task<ActionResult> Delete([FromRoute] Guid id)
         {
-            _planService.Delete(id);
+            await _planService.Delete(id);
             return NoContent();
         }
     }

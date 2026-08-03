@@ -6,19 +6,19 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface IBusinessSubscriptionService
     {
-        List<BusinessSubscriptionResponse> GetAll();
-        BusinessSubscriptionResponse GetById(Guid id);
-        List<BusinessSubscriptionResponse> GetByBusinessId(Guid businessId);
-        BusinessSubscriptionResponse Create(BusinessSubscriptionRequest request);
-        BusinessSubscriptionResponse UpdateStatus(Guid id, string status);
-        void Delete(Guid id);
-        void InitialBusinessSubscription(Plan plan, Business newBusiness);
+        Task<List<BusinessSubscriptionResponse>> GetAll();
+        Task<BusinessSubscriptionResponse> GetById(Guid id);
+        Task<List<BusinessSubscriptionResponse>> GetByBusinessId(Guid businessId);
+        Task<BusinessSubscriptionResponse> Create(BusinessSubscriptionRequest request);
+        Task<BusinessSubscriptionResponse> UpdateStatus(Guid id, string status);
+        Task Delete(Guid id);
+        Task InitialBusinessSubscription(Plan plan, Business newBusiness);
 
-        BusinessSubscriptionResponse GetCurrentSubscription(Guid businessId);
+        Task<BusinessSubscriptionResponse> GetCurrentSubscription(Guid businessId);
 
-        void RenewSubscription(Guid businessId);
+        Task RenewSubscription(Guid businessId);
 
-        void ChangePlan(Guid businessId, Guid planId);
+        Task ChangePlan(Guid businessId, Guid planId);
 
         //void ChangePlan(Guid businessId, Guid newPlanId);
     }

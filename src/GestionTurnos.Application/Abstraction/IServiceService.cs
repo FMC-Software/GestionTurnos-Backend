@@ -6,9 +6,9 @@ namespace GestionTurnos.Application.Abstraction
     public interface IServiceService
     {
         Task<List<ServiceBusinessResponse>> GetServicesOfCurrentBusiness();
-        ServiceBusinessResponse GetById(Guid id);
-        ServiceBusinessResponse CreateService(ServiceRequest request);
-        ServiceBusinessResponse UpdateService(ServiceRequest request, Guid id);
-        void DeleteService(Guid id);
+        Task<ServiceBusinessResponse> GetById(Guid id);
+        Task<ServiceBusinessResponse> CreateService(ServiceRequest request);
+        Task<ServiceBusinessResponse> UpdateService(ServiceRequest request, Guid id);
+        Task DeleteService(Guid id);
     }
 }

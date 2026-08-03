@@ -28,10 +28,10 @@ namespace GestionTurnos.Presentation.Controllers
         // Retorna todas las suscripciones para control del SysAdmin
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpGet]
-        public ActionResult<List<BusinessSubscriptionResponse>> GetAll()
+        public async Task<ActionResult<List<BusinessSubscriptionResponse>>> GetAll()
         {
 
-                var subscriptions = _subscriptionService.GetAll();
+                var subscriptions = await _subscriptionService.GetAll();
                 return Ok(subscriptions);
 
         }
@@ -39,12 +39,12 @@ namespace GestionTurnos.Presentation.Controllers
         //Retorna una suscripcion a traves del Id del Business
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpGet("{id}")]
-        public ActionResult<BusinessSubscriptionResponse> GetById([FromRoute] Guid id)
+        public async Task<ActionResult<BusinessSubscriptionResponse>> GetById([FromRoute] Guid id)
         {
 
-                var subscription = _subscriptionService.GetById(id);
+                var subscription = await _subscriptionService.GetById(id);
                 return Ok(subscription);
- 
+
         }
 
 
@@ -53,10 +53,10 @@ namespace GestionTurnos.Presentation.Controllers
         //Crea una suscripcion, asignando un plan a un business
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpPost]
-        public ActionResult<BusinessSubscriptionResponse> Create([FromBody] BusinessSubscriptionRequest request)
+        public async Task<ActionResult<BusinessSubscriptionResponse>> Create([FromBody] BusinessSubscriptionRequest request)
         {
 
-                var newSubscription = _subscriptionService.Create(request);
+                var newSubscription = await _subscriptionService.Create(request);
                 return CreatedAtAction(nameof(GetById), new { id = newSubscription.Id }, newSubscription);
 
         }
@@ -64,37 +64,37 @@ namespace GestionTurnos.Presentation.Controllers
         // Cambiar el estado de una suscripcion
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpPut("{id}/status")]
-        public ActionResult<BusinessSubscriptionResponse> UpdateStatus(
+        public async Task<ActionResult<BusinessSubscriptionResponse>> UpdateStatus(
             [FromRoute] Guid id,
             [FromBody] UpdateSubscriptionStatusRequest request)
         {
-            
-            
-                var updated = _subscriptionService.UpdateStatus(id, request.Status);
+
+
+                var updated = await _subscriptionService.UpdateStatus(id, request.Status);
                 return Ok(updated);
 
         }
 
-        //Desactiva una suscripcion 
+        //Desactiva una suscripcion
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpDelete("{id}")]
-        public ActionResult Delete([FromRoute] Guid id)
+        public async Task<ActionResult> Delete([FromRoute] Guid id)
         {
 
-                _subscriptionService.Delete(id);
+                await _subscriptionService.Delete(id);
                 return NoContent();
 
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("my")]
-        public ActionResult<BusinessSubscriptionResponse> GetMy()
+        public async Task<ActionResult<BusinessSubscriptionResponse>> GetMy()
         {
 
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
-                var subscription = _subscriptionService.GetCurrentSubscription(businessId);
+                var subscription = await _subscriptionService.GetCurrentSubscription(businessId);
 
                 return Ok(subscription);
 
@@ -103,44 +103,44 @@ namespace GestionTurnos.Presentation.Controllers
         //Retorna el historial del negocio
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("my/history")]
-        public ActionResult<List<BusinessSubscriptionResponse>> GetMyHistory()
+        public async Task<ActionResult<List<BusinessSubscriptionResponse>>> GetMyHistory()
         {
 
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontró el negocio en el token.");
 
-                var subscriptions = _subscriptionService.GetByBusinessId(businessId);
+                var subscriptions = await _subscriptionService.GetByBusinessId(businessId);
                 return Ok(subscriptions);
 
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpPut("my/renew")]
-        public IActionResult Renew()
+        public async Task<IActionResult> Renew()
         {
-  
+
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
-                _subscriptionService.RenewSubscription(businessId);
+                await _subscriptionService.RenewSubscription(businessId);
 
                 return NoContent();
 
-        
+
         }
 
         [Authorize(Policy = Policies.Admin)]
         [HttpPut("my/change-plan/{planId}")]
-        public IActionResult ChangePlan([FromRoute] Guid planId)
+        public async Task<IActionResult> ChangePlan([FromRoute] Guid planId)
         {
 
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
-                _subscriptionService.ChangePlan(businessId, planId);
+                await _subscriptionService.ChangePlan(businessId, planId);
 
                 return NoContent();
-         
+
 
         }
 

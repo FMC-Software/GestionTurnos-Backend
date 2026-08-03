@@ -23,46 +23,46 @@ namespace GestionTurnos.Presentation.Controllers
         [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
 
         [HttpGet]
-        public ActionResult<List<ClientsResponse>> GetAll()
+        public async Task<ActionResult<List<ClientsResponse>>> GetAll()
         {
-            return Ok(_clientService.GetClientsOfCurrentBusiness());
+            return Ok(await _clientService.GetClientsOfCurrentBusiness());
         }
 
 
         [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpGet("{id}")]
-        public ActionResult<ClientsResponse> GetById([FromRoute] Guid id)
+        public async Task<ActionResult<ClientsResponse>> GetById([FromRoute] Guid id)
         {
-            return Ok(_clientService.GetById(id));
+            return Ok(await _clientService.GetById(id));
         }
 
         [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpGet("search")]
-        public ActionResult<ClientsResponse> GetByName([FromQuery] string name)
+        public async Task<ActionResult<ClientsResponse>> GetByName([FromQuery] string name)
         {
-            return Ok(_clientService.GetByName(name));
+            return Ok(await _clientService.GetByName(name));
         }
 
         [HttpPost]
-        public ActionResult<ClientsResponse> Create([FromBody] ClientRequest request)
+        public async Task<ActionResult<ClientsResponse>> Create([FromBody] ClientRequest request)
         {
-            var newClient = _clientService.CreateClient(request);
+            var newClient = await _clientService.CreateClient(request);
             return CreatedAtAction(nameof(GetById), new { id = newClient.Id }, newClient);
         }
 
         [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpPut("{id}")]
-        public ActionResult Update([FromBody] ClientRequest request, [FromRoute] Guid id)
+        public async Task<ActionResult> Update([FromBody] ClientRequest request, [FromRoute] Guid id)
         {
-            _clientService.UpdateClient(request, id);
+            await _clientService.UpdateClient(request, id);
             return NoContent();
         }
 
         [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpDelete("{id}")]
-        public ActionResult Delete([FromRoute] Guid id)
+        public async Task<ActionResult> Delete([FromRoute] Guid id)
         {
-            _clientService.DeleteClient(id);
+            await _clientService.DeleteClient(id);
             return NoContent();
         }
     }
