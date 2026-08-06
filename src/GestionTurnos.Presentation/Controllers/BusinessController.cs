@@ -29,6 +29,13 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
 
+        [AllowAnonymous]
+        [HttpGet("types")]
+        public ActionResult<List<BusinessTypeResponse>> GetBusinessTypes()
+        {
+            return Ok(_businessService.GetBusinessTypes());
+        }
+
 
 
         [Authorize(Policy = Policies.Admin)]

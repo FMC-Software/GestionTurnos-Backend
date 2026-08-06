@@ -18,5 +18,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<Business> GetById(Guid id);
 
         Business initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed);
+
+        List<BusinessTypeResponse> GetBusinessTypes();
     }
 }
