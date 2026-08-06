@@ -79,5 +79,16 @@ namespace GestionTurnos.Application.Services
             };
             return newBusiness;
         }
+
+        public List<BusinessTypeResponse> GetBusinessTypes()
+        {
+            return Enum.GetValues<TypeBusiness>()
+                .Select(t => new BusinessTypeResponse
+                {
+                    Id = (int)t,
+                    Name = t.ToString()
+                })
+                .ToList();
+        }
     }
 }
