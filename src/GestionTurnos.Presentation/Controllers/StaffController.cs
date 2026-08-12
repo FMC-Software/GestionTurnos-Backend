@@ -20,6 +20,13 @@ namespace GestionTurnos.Presentation.Controllers
             _staffService = staffService;
         }
 
+        [AllowAnonymous]
+        [HttpGet("branch/{branchId}")]
+        public async Task<ActionResult<List<StaffSummaryResponse>>> GetStaffByBranch([FromRoute] Guid branchId)
+        {
+            return Ok(await _staffService.GetStaffByBranchId(branchId));
+        }
+
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("Business/Staffs")]
         public async Task<ActionResult<List<StaffsResponse>>> GetStaffOfBusiness()

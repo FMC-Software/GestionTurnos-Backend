@@ -16,5 +16,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<AppointmentResponse> UpdateStatus(Guid id, GestionTurnos.Domain.Entities.AppointmentStatus newStatus);
         Task DeleteAppointment(Guid id);
 
+        Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date);
+
     }
 }

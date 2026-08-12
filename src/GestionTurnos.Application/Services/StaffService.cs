@@ -96,5 +96,11 @@ namespace GestionTurnos.Application.Services
 
             return staff;
         }
+
+        public async Task<List<StaffSummaryResponse>> GetStaffByBranchId(Guid branchId)
+        {
+            var staff = await _staffRepository.GetByBranchId(branchId);
+            return staff.Select(s => s.ToSummaryResponse()).ToList();
+        }
     }
 }

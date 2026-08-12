@@ -275,5 +275,59 @@ namespace GestionTurnos.Application.Services
                 ?? throw new Exception("Turno no encontrado.");
             await _appointmentRepository.Delete(id);
         }
+
+        public async Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date)
+        {
+            var staff = await _staffRepository.GetById(staffId);
+            if (staff == null || staff.BranchId != branchId)
+            {
+                return new List<AvailableSlotResponse>();
+            }
+
+            var service = await _appointmentRepository.GetServiceById(serviceId);
+            if (service == null || service.IsDeleted || service.BusinessId != staff.BusinessId)
+            {
+                return new List<AvailableSlotResponse>();
+            }
+
+            var schedule = await _scheduleRepository.GetByBranchIdAndDay(branchId, date.DayOfWeek);
+            if (schedule == null)
+            {
+                return new List<AvailableSlotResponse>();
+            }
+
+            var serviceDuration = TimeSpan.FromMinutes(service.Duration);
+            var slotStep = TimeSpan.FromMinutes(schedule.SlotDurationMinutes);
+
+            if (slotStep <= TimeSpan.Zero || serviceDuration <= TimeSpan.Zero)
+            {
+                return new List<AvailableSlotResponse>();
+            }
+
+            var existingAppointments = await _appointmentRepository.GetByStaffIdAndDay(staffId, date);
+
+            var result = new List<AvailableSlotResponse>();
+
+            for (var candidateStart = schedule.StartTime;
+                 candidateStart + serviceDuration <= schedule.EndTime;
+                 candidateStart += slotStep)
+            {
+                var candidateEnd = candidateStart + serviceDuration;
+
+                bool overlaps = existingAppointments.Any(a =>
+                    a.StartTime < candidateEnd && a.EndTime > candidateStart);
+
+                if (!overlaps)
+                {
+                    result.Add(new AvailableSlotResponse
+                    {
+                        StartTime = candidateStart.ToString(@"hh\:mm"),
+                        EndTime = candidateEnd.ToString(@"hh\:mm")
+                    });
+                }
+            }
+
+            return result;
+        }
     }
 }

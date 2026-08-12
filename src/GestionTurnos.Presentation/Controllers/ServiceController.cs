@@ -36,6 +36,13 @@ namespace GestionTurnos.Presentation.Controllers
             return  Ok(Services);
         }
 
+        [AllowAnonymous]
+        [HttpGet("/api/services/business/{businessId}")]
+        public async Task<ActionResult<List<ServiceResponse>>> GetByBusinessId([FromRoute] Guid businessId)
+        {
+            return Ok(await _serviceService.GetServicesByBusinessId(businessId));
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateService(ServiceRequest request, [FromRoute] Guid id)
         {

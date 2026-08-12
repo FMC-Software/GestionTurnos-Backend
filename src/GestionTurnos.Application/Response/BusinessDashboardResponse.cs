@@ -3,6 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GestionTurnos.Application.Response
 {
+    public class BusinessSummaryResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+    }
+
     public class BusinessDashboardResponse
     {
         public Guid Id { get; set; }
@@ -32,6 +38,7 @@ namespace GestionTurnos.Application.Response
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public int DurationMinutes { get; set; }
+        public string Description {  get; set; } = string.Empty;
     }
 
     public class DashboardResponse

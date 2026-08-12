@@ -20,5 +20,7 @@ namespace GestionTurnos.Application.Abstraction
         Business initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed);
 
         List<BusinessTypeResponse> GetBusinessTypes();
+
+        Task<List<BusinessSummaryResponse>> GetBusinessesByType(TypeBusiness type);
     }
 }

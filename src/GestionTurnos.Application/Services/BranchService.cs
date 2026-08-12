@@ -35,6 +35,12 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<List<BranchResponse>> GetBranchesByBusinessId(Guid businessId)
+        {
+            var branches = await _branchRepository.GetByBusinessId(businessId);
+            return branches.Select(b => b.ToBranchResponse()).ToList();
+        }
+
         public async Task<BranchResponse> GetById(Guid id)
         {
             var branch = await _branchRepository.GetById(id)
@@ -172,7 +178,7 @@ namespace GestionTurnos.Application.Services
                     Day = (DayOfWeek)i,
                     StartTime = new TimeSpan(9, 0, 0),
                     EndTime = new TimeSpan(18, 0, 0),
-
+                    SlotDurationMinutes = 30,
                     IsDeleted = (i != 0 && i != 5)
                 });
             }

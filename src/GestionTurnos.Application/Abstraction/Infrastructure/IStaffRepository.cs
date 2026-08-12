@@ -10,6 +10,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Task<Staff?> GetByEmailGlobal(string email);
 
+        public Task<List<Staff>> GetByBranchId(Guid branchId);
+
     }
 
 }

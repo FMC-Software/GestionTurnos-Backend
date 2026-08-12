@@ -73,7 +73,7 @@ namespace GestionTurnos.Application.Services
             var newBusiness = new Business
             {
                 Id = Guid.NewGuid(),
-                Name = $"{request.Name} - {request.BusinessCategory}",
+                Name = $"{request.Name} - {typeBusinessParsed}",
                 Url = $"http://www.{request.Name.Replace(" ", "")}.FCMTurniFy.com",
                 TypeBusiness = typeBusinessParsed
             };
@@ -89,6 +89,12 @@ namespace GestionTurnos.Application.Services
                     Name = t.ToString()
                 })
                 .ToList();
+        }
+
+        public async Task<List<BusinessSummaryResponse>> GetBusinessesByType(TypeBusiness type)
+        {
+            var businesses = await _businessRepository.GetByType(type);
+            return businesses.Select(b => b.ToSummaryResponse()).ToList();
         }
     }
 }

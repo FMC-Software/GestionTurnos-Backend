@@ -29,6 +29,13 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && !s.IsDeleted);
         }
 
+        public async Task<List<Staff>> GetByBranchId(Guid branchId)
+        {
+            return await _dbSet
+                .Where(s => s.BranchId == branchId && !s.IsDeleted)
+                .ToListAsync();
+        }
+
         public override async Task<List<Staff>> GetAllGlobal()
         {
             return await _dbSet.Where(s => !s.IsDeleted)

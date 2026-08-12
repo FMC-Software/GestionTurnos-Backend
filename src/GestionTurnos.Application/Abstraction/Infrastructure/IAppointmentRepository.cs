@@ -10,6 +10,7 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
         Task<List<Appointment>> GetByBusinessId(Guid businessId);
         Task<List<Appointment>> GetByBranchId(Guid branchId, Guid businessId);
         Task<List<Appointment>> GetByStaffId(Guid staffId, Guid businessId);
+        Task<List<Appointment>> GetByStaffIdAndDay(Guid staffId, DateTime day);
         Task<Service?> GetServiceById(Guid serviceId);
         Task<bool> ExistsOverlappingAppointment(
             Guid staffId,

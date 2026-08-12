@@ -65,6 +65,17 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<Appointment>> GetByStaffIdAndDay(Guid staffId, DateTime day)
+        {
+            var date = day.Date;
+            return await _dbSet
+                .Where(a => !a.IsDeleted &&
+                            a.Status != AppointmentStatus.Cancelled &&
+                            a.StaffId == staffId &&
+                            a.Day.Date == date)
+                .ToListAsync();
+        }
+
         public override async Task<Appointment?> GetById(Guid id)
         {
             return await _dbSet
