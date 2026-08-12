@@ -42,6 +42,12 @@ namespace GestionTurnos.Application.Services
             return Services;
         }
 
+        public async Task<List<ServiceResponse>> GetServicesByBusinessId(Guid businessId)
+        {
+            var services = await _serviceRepository.GetByBusinessId(businessId);
+            return services.Select(s => s.ToResponse()).ToList();
+        }
+
         public async Task<ServiceBusinessResponse> GetById(Guid id)
         {
             var service = await _serviceRepository.GetById(id)

@@ -14,5 +14,10 @@ public class BusinessRepository : BaseRepository<Business>, IBusinessRepository
         _tenantProvider = tenantProvider;
     }
 
- 
+    public async Task<List<Business>> GetByType(TypeBusiness type)
+    {
+        return await _dbSet
+            .Where(b => b.TypeBusiness == type && !b.IsDeleted)
+            .ToListAsync();
+    }
 }

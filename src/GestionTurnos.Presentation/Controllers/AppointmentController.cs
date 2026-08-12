@@ -1,5 +1,6 @@
 using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Response;
 using GestionTurnos.Presentation.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -60,6 +61,18 @@ namespace GestionTurnos.Presentation.Controllers
         {
             var appointment = await _appointmentService.GetById(id);
             return Ok(appointment);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("/api/appointments/available-slots")]
+        public async Task<ActionResult<List<AvailableSlotResponse>>> GetAvailableSlots(
+            [FromQuery] Guid branchId,
+            [FromQuery] Guid staffId,
+            [FromQuery] Guid serviceId,
+            [FromQuery] DateTime date)
+        {
+            var slots = await _appointmentService.GetAvailableSlots(branchId, staffId, serviceId, date);
+            return Ok(slots);
         }
 
         [AllowAnonymous]

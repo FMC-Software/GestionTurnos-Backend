@@ -23,7 +23,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         public async Task<List<Branch>> GetByBusinessId(Guid businessId)
         {
             return await _context.Branches
-                .Where(x => x.BusinessId == businessId)
+                .Where(x => x.BusinessId == businessId && !x.IsDeleted)
                 .ToListAsync();
         }
 

@@ -39,6 +39,13 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
         [AllowAnonymous]
+        [HttpGet("/api/branches/business/{businessId}")]
+        public async Task<ActionResult<List<BranchResponse>>> GetByBusinessId([FromRoute] Guid businessId)
+        {
+            return Ok(await _branchService.GetBranchesByBusinessId(businessId));
+        }
+
+        [AllowAnonymous]
         [HttpGet("InfoBranch/{idBranch}")]
         public async Task<ActionResult<BranchResponse>> GetInfoBranch( [FromRoute] Guid idBranch)
         {

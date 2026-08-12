@@ -1,4 +1,6 @@
+using GestionTurnos.Application.Json;
 using GestionTurnos.Domain.Entities;
+using System.Text.Json.Serialization;
 
 namespace GestionTurnos.Application.Request
 {
@@ -9,6 +11,8 @@ namespace GestionTurnos.Application.Request
         public Guid BranchId { get; set; }
         public Guid ServiceId { get; set; }
         public DateTime Day { get; set; }
+
+        [JsonConverter(typeof(FlexibleTimeSpanJsonConverter))]
         public TimeSpan StartTime { get; set; }
         public string? Observation { get; set; }
         public PaymentMethod Payment { get; set; }

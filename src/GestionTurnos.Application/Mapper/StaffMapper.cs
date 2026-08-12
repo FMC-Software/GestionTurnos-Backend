@@ -36,6 +36,15 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
+        public static StaffSummaryResponse ToSummaryResponse(this Staff entity)
+        {
+            return new StaffSummaryResponse
+            {
+                Id = entity.Id,
+                Name = entity.Name
+            };
+        }
+
         public static GlobalStaffResponse ToGlobalResponse(this Staff entity)
         {
             return new GlobalStaffResponse

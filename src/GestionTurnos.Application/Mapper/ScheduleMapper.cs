@@ -13,6 +13,7 @@ public static class ScheduleMapper
             DayOfWeek = request.Day,
             StartTime = request.StartTime ?? default(TimeSpan),
             EndTime = request.EndTime ?? default(TimeSpan),
+            SlotDurationMinutes = request.SlotDurationMinutes,
             IsDeleted = false 
         };
     }

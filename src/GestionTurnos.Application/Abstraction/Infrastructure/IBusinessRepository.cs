@@ -5,5 +5,6 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IBusinessRepository : IBaseRepository<Business>
     {
+        Task<List<Business>> GetByType(TypeBusiness type);
     }
 }

@@ -36,6 +36,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(_businessService.GetBusinessTypes());
         }
 
+        [AllowAnonymous]
+        [HttpGet("type/{typeBusiness}")]
+        public async Task<ActionResult<List<BusinessSummaryResponse>>> GetBusinessesByType([FromRoute] TypeBusiness typeBusiness)
+        {
+            return Ok(await _businessService.GetBusinessesByType(typeBusiness));
+        }
+
 
 
         [Authorize(Policy = Policies.Admin)]
