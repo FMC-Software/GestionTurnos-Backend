@@ -18,5 +18,7 @@ namespace GestionTurnos.Application.Abstraction
 
         Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date);
 
+        Task<List<AppointmentResponse>> GetAppointmentsByBranchAndDate(DateTime day, Guid? branchId = null);
+
     }
 }

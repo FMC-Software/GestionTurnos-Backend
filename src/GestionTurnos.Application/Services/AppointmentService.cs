@@ -119,6 +119,17 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<List<AppointmentResponse>> GetAppointmentsByBranchAndDate(DateTime day, Guid? branchId = null)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var appointments = await _appointmentRepository.GetByBranchIdAndDay(businessId, day, branchId);
+            return appointments
+                .Select(a => a.ToResponse())
+                .ToList();
+        }
+
         public async Task<AppointmentResponse> GetById(Guid id)
         {
             var appointment = await _appointmentRepository.GetById(id)
