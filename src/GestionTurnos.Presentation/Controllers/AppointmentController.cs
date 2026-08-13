@@ -55,6 +55,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.AdminOrRecepcionista)]
+        [HttpGet("by-date")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetByDate([FromQuery] DateTime day, [FromQuery] Guid? branchId = null)
+        {
+            return Ok(await _appointmentService.GetAppointmentsByBranchAndDate(day, branchId));
+        }
+
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpGet("{id}")]
         public async Task<ActionResult> GetById(Guid id)
