@@ -1,14 +1,16 @@
-﻿using GestionTurnos.Domain.Entities;
+using GestionTurnos.Domain.Entities;
 
 namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IStaffRepository : IBaseRepository<Staff>
     {
-        public List<Staff> GetAll();
+        public Task<List<Staff>> GetAll();
 
-        public Staff GetByEmail(string email);
+        public Task<Staff?> GetByEmail(string email);
 
-        public Staff GetByEmailGlobal(string email);
+        public Task<Staff?> GetByEmailGlobal(string email);
+
+        public Task<List<Staff>> GetByBranchId(Guid branchId);
 
         Staff? GetAdminOfCurrentBusiness();
 

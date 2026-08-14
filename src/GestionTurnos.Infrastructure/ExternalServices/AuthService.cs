@@ -31,10 +31,10 @@ namespace GestionTurnos.Infrastructure.ExternalServices
         private readonly IStaffService _staffService;
         private readonly IPlanService _planService;
 
-        public AuthService(IStaffRepository staffRepository, 
+        public AuthService(IStaffRepository staffRepository,
             IConfiguration configuration, IEmailService emailService,
             IEmailContentBuilder emailContentBuilder,
-            IBranchService branchService,   
+            IBranchService branchService,
             IScheduleService scheduleService,
             IHttpContextAccessor httpContextAccessor,
             ISysAdminService sysAdminService,
@@ -42,7 +42,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             IBusinessSubscriptionService businessSubscriptionService,
             IStaffService staffService,
             IPlanService planService)
-            
+
 
         {
             _staffRepository = staffRepository;
@@ -60,49 +60,49 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         }
 
-        public AuthResponse? SignUp(SignUpRequest request)
+        public async Task<AuthResponse?> SignUp(SignUpRequest request)
         {
             if (!string.IsNullOrEmpty(request.Email))
             {
                 request.Email = request.Email.ToLowerInvariant().Trim();
             }
 
-            bool emailExists = _staffService.GetByEmailGlobal(request.Email) != null;
+            bool emailExists = await _staffService.GetByEmailGlobal(request.Email) != null;
             if (emailExists)
             {
                 throw new ConflictException("El correo electrónico ya está registrado.");
             }
 
-            
-            if (!Enum.TryParse<TypeBusiness>(request.BusinessCategory, ignoreCase: true, out var typeBusinessParsed)) 
+
+            if (!Enum.TryParse<TypeBusiness>(request.BusinessCategory, ignoreCase: true, out var typeBusinessParsed))
             {
                 throw new ConflictException($"La categoría de negocio '{request.BusinessCategory}' no es válida.");
             }
 
 
-            var selectedPlan = _planService.GetPlanOrDefault(request.Plan?.Id);
+            var selectedPlan = await _planService.GetPlanOrDefault(request.Plan?.Id);
 
             var newBusiness = _businessService.initialBusiness(request, typeBusinessParsed);
 
-            var newBranch = _branchService.CreateInitialBranch(request, newBusiness);
+            var newBranch = await _branchService.CreateInitialBranch(request, newBusiness);
 
             var newStaff = request.ToRegisterNewBusinessAndStaff(newBusiness, newBranch);
-            _staffRepository.Add(newStaff);
-            _businessSubscriptionService.InitialBusinessSubscription(selectedPlan,newBusiness);
-            
+            await _staffRepository.Add(newStaff);
+            await _businessSubscriptionService.InitialBusinessSubscription(selectedPlan,newBusiness);
+
 
             return new AuthResponse
             {
-                
+
                 Token = GenerarToken(newStaff.Id, newStaff.Name, newStaff.Rol, newBusiness.Id, newBranch.Id),
             };
         }
 
-        public AuthResponse? SignIn(SignInRequest request)
+        public async Task<AuthResponse?> SignIn(SignInRequest request)
         {
-            var user = _staffService.GetByEmailGlobal(request.Email);
+            var user = await _staffService.GetByEmailGlobal(request.Email);
 
-            var sysAdmin = _sysAdminService.GetByEmail(request.Email);
+            var sysAdmin = await _sysAdminService.GetByEmail(request.Email);
 
             // No existe ningún usuario
             if (user == null && sysAdmin == null)
@@ -146,9 +146,9 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             };
         }
 
-        public void ForgotPassword(string request)
+        public async Task ForgotPassword(string request)
         {
-            var user = _staffService.GetByEmailGlobal(request);
+            var user = await _staffService.GetByEmailGlobal(request);
             if (user == null)
             {
                 throw new ConflictException("No se encontró un usuario con ese correo electrónico.");
@@ -158,11 +158,11 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
            var emailMessage = _emailContentBuilder.BuildResetPassword(user,Token);
 
-            _emailService.SendEmailAsync(emailMessage);
- 
+            await _emailService.SendEmailAsync(emailMessage);
+
         }
 
-        public void ResetPassword(string request, string token) // MICAEL MIRA ESTO MAÑANA _-------------------_
+        public async Task ResetPassword(string request, string token) // MICAEL MIRA ESTO MAÑANA _-------------------_
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken;
@@ -182,7 +182,8 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             var updateDateTimeClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == "UpdateDateTime")?.Value;
 
 
-            var userEntity = _staffRepository.GetAllGlobal().FirstOrDefault(s => s.Id == Guid.Parse(userId));
+            var allStaff = await _staffRepository.GetAllGlobal();
+            var userEntity = allStaff.FirstOrDefault(s => s.Id == Guid.Parse(userId));
             if (userEntity == null)
             {
                 throw new ConflictException("No se encontró el usuario asociado a esta solicitud.");
@@ -203,7 +204,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
             userEntity.Password = request;
             userEntity.UpdateDateTime = DateTime.UtcNow;
 
-            _staffRepository.Update(userEntity);
+            await _staffRepository.Update(userEntity);
         }
 
 
@@ -220,7 +221,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()), 
+                new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Name, nameStaff),
                 new Claim(ClaimTypes.Role, rol?.ToString() ?? "SysAdmin"),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),

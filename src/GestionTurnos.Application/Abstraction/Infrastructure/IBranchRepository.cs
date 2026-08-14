@@ -8,8 +8,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     public interface IBranchRepository : IBaseRepository<Branch>
     {
         
-        List<Branch> GetByBusinessId(Guid businessId);
+        Task<List<Branch>> GetByBusinessId(Guid businessId);
 
-        Branch? GetInfoBranch( Guid branchId);
+        Task<Branch?> GetInfoBranch( Guid branchId);
     }
 }

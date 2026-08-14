@@ -19,6 +19,15 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
+        public static BusinessSummaryResponse ToSummaryResponse(this Business business)
+        {
+            return new BusinessSummaryResponse
+            {
+                Id = business.Id,
+                Name = business.Name
+            };
+        }
+
         public static BranchResponse ToResponse(this Branch branch)
         {
             return new BranchResponse
@@ -38,7 +47,8 @@ namespace GestionTurnos.Application.Mapper
                 Id = service.Id,
                 Name = service.Name,
                 Price = service.Price,
-                DurationMinutes = service.Duration
+                DurationMinutes = service.Duration,
+                Description = service.Description
             };
         }
 

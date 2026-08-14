@@ -26,7 +26,8 @@ namespace GestionTurnos.Application.Services
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-             var Services = _serviceRepository.GetByBusinessId(businessId)
+            var servicesEntities = await _serviceRepository.GetByBusinessId(businessId);
+            var Services = servicesEntities
                 .Where(s => !s.IsDeleted)
                 .Select(s => s.ToServiceResponse())
                 .ToList();
@@ -41,55 +42,61 @@ namespace GestionTurnos.Application.Services
             return Services;
         }
 
-        public ServiceBusinessResponse GetById(Guid id)
+        public async Task<List<ServiceResponse>> GetServicesByBusinessId(Guid businessId)
         {
-            var service = _serviceRepository.GetById(id)
+            var services = await _serviceRepository.GetByBusinessId(businessId);
+            return services.Select(s => s.ToResponse()).ToList();
+        }
+
+        public async Task<ServiceBusinessResponse> GetById(Guid id)
+        {
+            var service = await _serviceRepository.GetById(id)
                 ?? throw new ConflictException("Servicio no encontrado.");
 
             return service.ToServiceResponse();
         }
 
-        public ServiceBusinessResponse CreateService(ServiceRequest request)
+        public async Task<ServiceBusinessResponse> CreateService(ServiceRequest request)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
-            ValidateService(request, businessId);
-        
+            await ValidateService(request, businessId);
+
 
         var newService = request.ToService(businessId);
 
-            _serviceRepository.Add(newService);
+            await _serviceRepository.Add(newService);
 
             return newService.ToServiceResponse();
         }
 
-        public ServiceBusinessResponse UpdateService(ServiceRequest request, Guid id)
+        public async Task<ServiceBusinessResponse> UpdateService(ServiceRequest request, Guid id)
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontro la empresa");
 
-            var existingService = _serviceRepository.GetById(id)
+            var existingService = await _serviceRepository.GetById(id)
                 ?? throw new ConflictException("Servicio no encontrado.");
 
-            ValidateService(request, businessId, id);
+            await ValidateService(request, businessId, id);
 
             existingService.UpdateFromRequest(request);
 
-            _serviceRepository.Update(existingService);
+            await _serviceRepository.Update(existingService);
 
             return existingService.ToServiceResponse();
         }
 
-        public void DeleteService(Guid id)
+        public async Task DeleteService(Guid id)
         {
-            var service = _serviceRepository.GetById(id)
+            var service = await _serviceRepository.GetById(id)
                 ?? throw new ConflictException("Servicio no encontrado.");
 
-            _serviceRepository.Delete(id);
+            await _serviceRepository.Delete(id);
         }
 
-        private void ValidateService(ServiceRequest request, Guid businessId, Guid? excludeId = null)
+        private async Task ValidateService(ServiceRequest request, Guid businessId, Guid? excludeId = null)
         {
             if (string.IsNullOrWhiteSpace(request.Name))
             {
@@ -106,7 +113,7 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("La duracion del servicio debe ser mayor a 0");
             }
 
-            if(_serviceRepository.ExistByName(businessId, request.Name, excludeId))
+            if(await _serviceRepository.ExistByName(businessId, request.Name, excludeId))
             {
                 throw new ConflictException("Ya existe un servicio con ese nombre");
             }

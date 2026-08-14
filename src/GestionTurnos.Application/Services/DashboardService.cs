@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
 using GestionTurnos.Application.Response;
@@ -35,16 +35,16 @@ namespace GestionTurnos.Application.Services
             _tenantProvider = tenantProvider;
         }
 
-        public DashboardResponse GetDashboard()
+        public async Task<DashboardResponse> GetDashboard()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontro la empresa");
 
-            var appointments = _appointmentRepository.GetByBusinessId(businessId);
-            var branches = _branchRepository.GetByBusinessId(businessId);
-            var services = _serviceRepository.GetByBusinessId(businessId);
-            var staff = _staffRepository.GetAll();
-            var subscription = _businessSubscriptionRepository.GetCurrentSubscription(businessId);
+            var appointments = await _appointmentRepository.GetByBusinessId(businessId);
+            var branches = await _branchRepository.GetByBusinessId(businessId);
+            var services = await _serviceRepository.GetByBusinessId(businessId);
+            var staff = await _staffRepository.GetAll();
+            var subscription = await _businessSubscriptionRepository.GetCurrentSubscription(businessId);
             var today = DateTime.Today;
             var startWeek = today.AddDays(-(int)today.DayOfWeek);
             var endWeek = startWeek.AddDays(7);

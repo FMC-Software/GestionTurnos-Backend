@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using System;
 using System.Collections.Generic;
@@ -8,8 +8,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 {
     public interface IScheduleService
     {
-        public ScheduleResponse CreateSchedule(ScheduleRequest request);
+        public Task<ScheduleResponse> CreateSchedule(ScheduleRequest request);
 
-        public void UpdateSchedule(ScheduleRequest request, Guid id);
+        public Task UpdateSchedule(ScheduleRequest request, Guid id);
     }
 }

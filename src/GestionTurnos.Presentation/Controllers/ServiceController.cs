@@ -1,4 +1,4 @@
-﻿using GestionTurnos.Application.Abstraction;
+using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
@@ -22,9 +22,9 @@ namespace GestionTurnos.Presentation.Controllers
 
 
         [HttpPost]
-        public IActionResult CreateService(ServiceRequest request)
+        public async Task<IActionResult> CreateService(ServiceRequest request)
         {
-            _serviceService.CreateService(request);
+            await _serviceService.CreateService(request);
             return Ok();
         }
 
@@ -36,11 +36,25 @@ namespace GestionTurnos.Presentation.Controllers
             return  Ok(Services);
         }
 
-        [HttpPut("{id}")]
-        public IActionResult UpdateService(ServiceRequest request, [FromRoute] Guid id)
+        [AllowAnonymous]
+        [HttpGet("/api/services/business/{businessId}")]
+        public async Task<ActionResult<List<ServiceResponse>>> GetByBusinessId([FromRoute] Guid businessId)
         {
-            _serviceService.UpdateService(request, id);
+            return Ok(await _serviceService.GetServicesByBusinessId(businessId));
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateService(ServiceRequest request, [FromRoute] Guid id)
+        {
+            await _serviceService.UpdateService(request, id);
             return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteService([FromRoute] Guid id)
+        {
+            await _serviceService.DeleteService(id);
+            return NoContent();
         }
     }
 }

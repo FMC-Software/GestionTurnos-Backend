@@ -16,9 +16,9 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
            
         }
 
-        public SysAdminUser GetByEmail(string email)
+        public async Task<SysAdminUser?> GetByEmail(string email)
         {
-            return _dbSet.FirstOrDefault(s => s.Email == email && !s.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && !s.IsDeleted);
         }
     }
 }

@@ -6,15 +6,16 @@ namespace GestionTurnos.Application.Abstraction
 {
     public interface IBranchService
     {
-        List<BranchResponse> GetBranchesOfCurrentBusiness();
-        BranchResponse GetById(Guid id);
-        BranchResponse CreateBranch(CreateBranchRequest request);
-        BranchResponse UpdateBranch(CreateBranchRequest request, Guid id);
-        void DeleteBranch(Guid id);
+        Task<List<BranchResponse>> GetBranchesOfCurrentBusiness();
+        Task<List<BranchResponse>> GetBranchesByBusinessId(Guid businessId);
+        Task<BranchResponse> GetById(Guid id);
+        Task<BranchResponse> CreateBranch(CreateBranchRequest request);
+        Task<BranchResponse> UpdateBranch(CreateBranchRequest request, Guid id);
+        Task DeleteBranch(Guid id);
 
-        public Branch CreateInitialBranch(SignUpRequest request, Business newBusiness);
+        public Task<Branch> CreateInitialBranch(SignUpRequest request, Business newBusiness);
 
-        public InfoBranchResponse GetInfoBranch(Guid idBranch);
+        public Task<InfoBranchResponse> GetInfoBranch(Guid idBranch);
 
 
     }

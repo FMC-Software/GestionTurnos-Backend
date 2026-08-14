@@ -23,25 +23,25 @@ namespace GestionTurnos.Presentation.Controllers
 
         [Authorize(Policy = "SysAdmin")]
         [HttpGet]
-        public ActionResult<List<GlobalStaffResponse>> GetAll()
+        public async Task<ActionResult<List<GlobalStaffResponse>>> GetAll()
         {
 
-            return Ok(_staffService.GetAllGlobal());
+            return Ok(await _staffService.GetAllGlobal());
         }
 
         [Authorize(Policy = "SysAdmin")]
         [HttpGet("{id}")]
-        public ActionResult<GlobalStaffResponse> GetById(Guid id)
+        public async Task<ActionResult<GlobalStaffResponse>> GetById(Guid id)
         {
 
-            return Ok(_staffService.GetById(id));
+            return Ok(await _staffService.GetById(id));
         }
 
         [Authorize(Policy = "SysAdmin")]
         [HttpPut("{id}")]
-        public ActionResult<Staff> UpdateStaff([FromBody] StaffRequest Staff, [FromRoute] Guid id)
+        public async Task<ActionResult<Staff>> UpdateStaff([FromBody] StaffRequest Staff, [FromRoute] Guid id)
         {
-            var updatedUser = _staffService.UpdateStaff(Staff, id);
+            var updatedUser = await _staffService.UpdateStaff(Staff, id);
             return Ok(updatedUser);
         }
     }
