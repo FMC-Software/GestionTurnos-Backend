@@ -12,7 +12,7 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Task<List<Staff>> GetByBranchId(Guid branchId);
 
-        Staff? GetAdminOfCurrentBusiness();
+        public Task<Staff?> GetAdminOfCurrentBusiness();
 
     }
 

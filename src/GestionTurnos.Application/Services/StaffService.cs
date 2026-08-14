@@ -102,5 +102,12 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetByBranchId(branchId);
             return staff.Select(s => s.ToSummaryResponse()).ToList();
         }
+
+        public async Task<StaffsResponse> GetAdminOfCurrentBusiness()
+        {
+            var admin = await _staffRepository.GetAdminOfCurrentBusiness()
+                ?? throw new KeyNotFoundException("No se encontró un administrador para esta empresa.");
+            return admin.ToResponse();
+        }
     }
 }

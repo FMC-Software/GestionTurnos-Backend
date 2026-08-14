@@ -37,9 +37,15 @@ namespace GestionTurnos.Presentation.Controllers
         }
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("Business/Admin")]
-        public ActionResult<StaffsResponse> GetAdminOfBusiness()
+        public async Task<ActionResult<StaffsResponse>> GetAdminOfBusiness()
         {
-            var admin = _staffService.GetAdminOfCurrentBusiness();
+            var admin = await _staffService.GetAdminOfCurrentBusiness();
+
+            if (admin == null)
+            {
+                return NotFound(new { message = "No se encontró un administrador para este negocio." });
+            }
+
             return Ok(admin);
         }
 
