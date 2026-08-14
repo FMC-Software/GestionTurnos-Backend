@@ -162,7 +162,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         }
 
-        public async Task ResetPassword(string request, string token) // MICAEL MIRA ESTO MAÑANA _-------------------_
+        public async Task ResetPassword(string request, string token) 
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             JwtSecurityToken jwtToken;

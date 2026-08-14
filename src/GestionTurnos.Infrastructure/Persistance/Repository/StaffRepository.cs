@@ -52,6 +52,13 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);
         }
 
+        public async Task<Staff?> GetAdminOfCurrentBusiness()
+        {
+            return await _dbSet.FirstOrDefaultAsync(s =>
+            s.BusinessId == _tenantProvider.GetBusinessId()
+            && s.Rol == Rol.Admin
+            && !s.IsDeleted);
+        }
     }
 
 

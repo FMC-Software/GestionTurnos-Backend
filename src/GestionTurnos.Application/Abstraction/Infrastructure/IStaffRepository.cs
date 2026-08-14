@@ -12,6 +12,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Task<List<Staff>> GetByBranchId(Guid branchId);
 
+        public Task<Staff?> GetAdminOfCurrentBusiness();
+
     }
 
 }

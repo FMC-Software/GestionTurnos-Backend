@@ -18,7 +18,7 @@ namespace GestionTurnos.Presentation.Controllers
         {
             _planService = planService;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<List<PlanResponse>>> GetAll()
         {
