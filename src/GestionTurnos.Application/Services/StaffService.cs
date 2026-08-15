@@ -103,6 +103,24 @@ namespace GestionTurnos.Application.Services
             return staff.Select(s => s.ToSummaryResponse()).ToList();
         }
 
+        public async Task<StaffsResponse> UpdateStaffByEmail(UpdateStaffRequest request)
+        {
+            var existingStaff = await _staffRepository.GetByEmail(request.StaffEmail)
+                ?? throw new ConflictException("Usuario no encontrado.");
+
+            if (!string.IsNullOrWhiteSpace(request.StaffName))
+                existingStaff.Name = request.StaffName;
+
+            if (!string.IsNullOrWhiteSpace(request.StaffPhone))
+                existingStaff.Phone = request.StaffPhone;
+
+            if (!string.IsNullOrWhiteSpace(request.StaffLinkPhoto))
+                existingStaff.LinkPhoto = request.StaffLinkPhoto;
+
+            await _staffRepository.Update(existingStaff);
+            return existingStaff.ToResponse();
+        }
+
         public async Task<StaffsResponse> GetAdminOfCurrentBusiness()
         {
             var admin = await _staffRepository.GetAdminOfCurrentBusiness()

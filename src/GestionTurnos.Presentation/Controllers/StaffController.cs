@@ -71,5 +71,13 @@ namespace GestionTurnos.Presentation.Controllers
             var updatedUser = await _staffService.UpdateStaff(user, id);
             return Ok(updatedUser);
         }
+
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
+        [HttpPut("email")]
+        public async Task<ActionResult<StaffsResponse>> UpdateStaffByEmail([FromBody] UpdateStaffRequest request)
+        {
+            var updatedUser = await _staffService.UpdateStaffByEmail(request);
+            return Ok(updatedUser);
+        }
     }
 }

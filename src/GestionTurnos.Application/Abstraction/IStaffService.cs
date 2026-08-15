@@ -20,5 +20,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<List<StaffSummaryResponse>> GetStaffByBranchId(Guid branchId);
 
         Task<StaffsResponse> GetAdminOfCurrentBusiness();
+
+        Task<StaffsResponse> UpdateStaffByEmail(UpdateStaffRequest request);
     }
 }
