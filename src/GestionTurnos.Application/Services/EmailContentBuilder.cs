@@ -71,5 +71,26 @@ namespace GestionTurnos.Application.Services
                         "
             };
         }
+
+        public EmailMessage BuildAppointmentCancelledEmail(string clientEmail, string clientName, string businessName, string branchAddress, DateTime day, TimeSpan time)
+        {
+            string formattedDate = day.ToString("dd/MM/yyyy");
+            string formattedTime = time.ToString(@"hh\:mm");
+            return new EmailMessage
+            {
+                To = clientEmail,
+                Subject = $"{businessName} - Turno cancelado",
+                Body = $@"Hola {clientName},
+                        Lamentablemente tu turno en {businessName} ha sido cancelado.
+                        Detalles del turno cancelado:
+                        - Negocio: {businessName}
+                        - Dirección: {branchAddress}
+                        - Fecha: {formattedDate}
+                        - Hora: {formattedTime}
+                        Podés pedir otro turno con anticipación cuando quieras.
+                        ¡Te esperamos!
+                        "
+            };
+        }
     }
 }

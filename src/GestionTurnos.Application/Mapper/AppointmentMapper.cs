@@ -54,6 +54,32 @@ namespace GestionTurnos.Application.Mapper
                 BusinessName = appointment.Staff.Business != null ? appointment.Staff.Business.Name : "Desconocido"
             };
         }
+        public static AppointmentNotificationPayload ToNotificationPayload(this Appointment appointment)
+        {
+            return new AppointmentNotificationPayload
+            {
+                Id = appointment.Id,
+
+                ClientName = appointment.Client.Name,
+                StaffName = appointment.Staff.Name,
+                ServiceName = appointment.Service.Name,
+
+                Day = appointment.Day.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
+
+                Observation = appointment.Observation,
+
+                Payment = appointment.Payment.ToString(),
+                Status = appointment.Status.ToString(),
+
+                TotalCost = appointment.TotalCost,
+
+                BranchId = appointment.Staff.BranchId,
+                BusinessId = appointment.Staff.BusinessId
+            };
+        }
+
         public static Appointment ToEntity(this AppointmentRequest request, Guid clientId, decimal totalCost, TimeSpan endTime)
         {
             return new Appointment
