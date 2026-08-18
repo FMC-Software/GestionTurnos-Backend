@@ -5,8 +5,7 @@ using GestionTurnos.Application.Response;
 using GestionTurnos.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using System.Linq;
 
 namespace GestionTurnos.Application.Services
 {
@@ -14,92 +13,84 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IBranchRepository _branchRepository;
-        private readonly IStaffRepository _staffRepository;
-        private readonly IServiceRepository _serviceRepository;
-        private readonly IBusinessSubscriptionRepository _businessSubscriptionRepository;
         private readonly ITenantProvider _tenantProvider;
 
         public DashboardService(
             IAppointmentRepository appointmentRepository,
             IBranchRepository branchRepository,
-            IStaffRepository staffRepository,
-            IServiceRepository serviceRepository,
-            IBusinessSubscriptionRepository businessSubscriptionRepository,
             ITenantProvider tenantProvider)
         {
             _appointmentRepository = appointmentRepository;
             _branchRepository = branchRepository;
-            _staffRepository = staffRepository;
-            _serviceRepository = serviceRepository;
-            _businessSubscriptionRepository = businessSubscriptionRepository;
             _tenantProvider = tenantProvider;
         }
 
-        public async Task<DashboardResponse> GetDashboard()
+        public async Task<DashboardSummaryResponse> GetDashboard()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontro la empresa");
 
             var appointments = await _appointmentRepository.GetByBusinessId(businessId);
             var branches = await _branchRepository.GetByBusinessId(businessId);
-            var services = await _serviceRepository.GetByBusinessId(businessId);
-            var staff = await _staffRepository.GetAll();
-            var subscription = await _businessSubscriptionRepository.GetCurrentSubscription(businessId);
             var today = DateTime.Today;
-            var startWeek = today.AddDays(-(int)today.DayOfWeek);
-            var endWeek = startWeek.AddDays(7);
-            var startMonth = new DateTime(
-                today.Year,
-                today.Month,
-                1);
+            var startMonth = new DateTime(today.Year, today.Month, 1);
             var endMonth = startMonth.AddMonths(1);
 
-            return new DashboardResponse
+            var monthlyRevenue = new List<MonthlyRevenueDto>(6);
+            for (var i = 5; i >= 0; i--)
             {
-                AppointmentsToday = appointments.Count(a =>
-                    a.Day.Date == today),
+                var monthStart = startMonth.AddMonths(-i);
+                var monthEnd = monthStart.AddMonths(1);
+                monthlyRevenue.Add(new MonthlyRevenueDto
+                {
+                    Month = monthStart.ToString("yyyy-MM"),
+                    Revenue = appointments
+                        .Where(a =>
+                            a.Status != AppointmentStatus.Cancelled &&
+                            a.Day >= monthStart &&
+                            a.Day < monthEnd)
+                        .Sum(a => a.TotalCost)
+                });
+            }
 
-                AppointmentsThisWeek = appointments.Count(a =>
-                    a.Day >= startWeek &&
-                    a.Day < endWeek),
+            var currentMonthTotal = monthlyRevenue[^1].Revenue;
+            var nextDay = today.AddDays(1);
 
-                PendingAppointments = appointments.Count(a =>
-                    a.Status == AppointmentStatus.Pending),
+            var currentMonthAppointments = appointments
+                .Where(a => a.Day >= startMonth && a.Day < endMonth)
+                .ToList();
 
-                ConfirmedAppointments = appointments.Count(a =>
-                    a.Status == AppointmentStatus.Confirmed),
+            return new DashboardSummaryResponse
+            {
+                MonthlyRevenue = monthlyRevenue,
+                CurrentMonth = new CurrentMonthDto
+                {
+                    Revenue = currentMonthTotal,
+                    EstimatedEarnings = currentMonthAppointments
+                        .Where(a => a.Status != AppointmentStatus.Cancelled && a.Day < nextDay)
+                        .Sum(a => a.TotalCost),
+                    Pending = currentMonthAppointments.Count(a => a.Status == AppointmentStatus.Pending),
+                    Confirmed = currentMonthAppointments.Count(a => a.Status == AppointmentStatus.Confirmed),
+                    Cancelled = currentMonthAppointments.Count(a => a.Status == AppointmentStatus.Cancelled)
+                },
+                Branches = branches.Select(branch =>
+                {
+                    var branchAppointments = currentMonthAppointments
+                        .Where(a => a.Staff?.BranchId == branch.Id)
+                        .ToList();
 
-                CancelledAppointments = appointments.Count(a =>
-                    a.Status == AppointmentStatus.Cancelled),
-
-                TotalClients = appointments
-                    .Select(a => a.ClientId)
-                    .Distinct()
-                    .Count(),
-
-                TotalStaff = staff.Count,
-
-                TotalBranches = branches.Count,
-
-                TotalServices = services.Count,
-
-                RevenueThisMonth = appointments
-                    .Where(a =>
-                        a.Status == AppointmentStatus.Confirmed &&
-                        a.Day >= startMonth &&
-                        a.Day < endMonth)
-                    .Sum(a => a.TotalCost),
-
-                MostRequestedService = appointments
-                    .GroupBy(a => a.Service.Name)
-                    .OrderByDescending(g => g.Count())
-                    .Select(g => g.Key)
-                    .FirstOrDefault(),
-
-                CurrentPlan = subscription?.Plan?.Name ?? "Sin plan",
-
-                SubscriptionStatus = subscription?.Status.ToString()
-                    ?? "Sin suscripción"
+                    return new BranchDashboardDto
+                    {
+                        BranchId = branch.Id,
+                        Name = branch.Name,
+                        Pending = branchAppointments.Count(a => a.Status == AppointmentStatus.Pending),
+                        Confirmed = branchAppointments.Count(a => a.Status == AppointmentStatus.Confirmed),
+                        Cancelled = branchAppointments.Count(a => a.Status == AppointmentStatus.Cancelled),
+                        MonthRevenue = branchAppointments
+                            .Where(a => a.Status != AppointmentStatus.Cancelled)
+                            .Sum(a => a.TotalCost)
+                    };
+                }).ToList()
             };
         }
     }

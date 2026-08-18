@@ -1,12 +1,10 @@
 using GestionTurnos.Application.Response;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace GestionTurnos.Application.Abstraction
 {
     public interface IDashboardService
     {
-        Task<DashboardResponse> GetDashboard();
+        Task<DashboardSummaryResponse> GetDashboard();
     }
 }
