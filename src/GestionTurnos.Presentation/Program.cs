@@ -5,12 +5,14 @@ using GestionTurnos.Application.Abstraction.Infrastructure.External_Interface;
 using GestionTurnos.Application.Services;
 using GestionTurnos.Infrastructure.BackgroundServices;
 using GestionTurnos.Infrastructure.ExternalServices;
+using GestionTurnos.Infrastructure.Hubs;
 using GestionTurnos.Infrastructure.Persistance;
 using GestionTurnos.Infrastructure.Persistance.Repository;
 using GestionTurnos.Infrastructure.Persistence;
 using GestionTurnos.Presentation.Authorization;
 using GestionTurnos.Presentation.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
@@ -54,6 +56,7 @@ builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
+builder.Services.AddScoped<IAppointmentRealtimeNotifier, AppointmentRealtimeNotifier>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -95,10 +98,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                ValidIssuer = builder.Configuration["Jwt:Issuer"],
                ValidateAudience = true,
                ValidAudience = builder.Configuration["Jwt:Audience"],
-               ValidateLifetime = true,   // rechaza tokens vencidos
-               RoleClaimType = "role"
-           };
-       });
+ValidateLifetime = true,   // rechaza tokens vencidos
+                RoleClaimType = "role"
+            };
+            options.Events = new JwtBearerEvents
+            {
+                // SignalR: los navegadores no pueden setear headers en WebSocket,
+                // el token viaja como query param access_token en negotiate y transporte.
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    if (!string.IsNullOrEmpty(accessToken))
+                        context.Token = accessToken;
+                    return Task.CompletedTask;
+                }
+            };
+        });
+
+builder.Services.AddSignalR();
 
 builder.Services.AddHttpClient("DolarApi", client =>
 {
@@ -114,7 +131,8 @@ builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TO
         policy
             .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -131,11 +149,10 @@ app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

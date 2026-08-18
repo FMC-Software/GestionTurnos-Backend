@@ -16,8 +16,9 @@ namespace GestionTurnos.Application.Services
         private readonly ITenantProvider _tenantProvider;
         private readonly IClientService _clientService;
         private readonly IAppointmentNotificationService _appointmentNotificationService;
+        private readonly IAppointmentRealtimeNotifier _appointmentRealtimeNotifier;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, IScheduleRepository scheduleRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService)
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, IScheduleRepository scheduleRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService, IAppointmentRealtimeNotifier appointmentRealtimeNotifier)
         {
             _appointmentRepository = appointmentRepository;
             _staffRepository = staffRepository;
@@ -25,6 +26,7 @@ namespace GestionTurnos.Application.Services
             _tenantProvider = tenantProvider;
             _clientService = clientService;
             _appointmentNotificationService = appointmentNotificationService;
+            _appointmentRealtimeNotifier = appointmentRealtimeNotifier;
         }
         /// Valida que el turno caiga dentro del horario de atencion de la sucursal
         /// y devuelve el endTime calculado a partir de la duracion del servicio.
@@ -203,6 +205,8 @@ namespace GestionTurnos.Application.Services
             var fullyLoaded = await _appointmentRepository.GetById(appointmentCreated.Id)
                 ?? throw new Exception("Error al cargar el turno creado.");
 
+            await _appointmentRealtimeNotifier.NotifyAppointmentCreatedAsync(fullyLoaded.ToNotificationPayload());
+
             //ACA se manda el email para avisar TURNO
             await _appointmentNotificationService.SendAppointmentConfirmationAsync(request, staff.Business.Name,
                 staff.Branch.Address);
@@ -270,12 +274,21 @@ namespace GestionTurnos.Application.Services
             var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
 
+            var wasNotCancelled = existing.Status != AppointmentStatus.Cancelled;
+
             existing.Status = newStatus;
 
             await _appointmentRepository.Update(existing);
 
             var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            if (newStatus == AppointmentStatus.Cancelled &&
+                wasNotCancelled &&
+                fullyLoaded.Day.Date >= DateTime.UtcNow.AddHours(-3).Date)
+            {
+                await _appointmentNotificationService.SendAppointmentCancelledAsync(fullyLoaded);
+            }
 
             return fullyLoaded.ToResponse();
         }

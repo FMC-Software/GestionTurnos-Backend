@@ -19,8 +19,8 @@ namespace GestionTurnos.Presentation.Controllers
             _dashboardService = dashboardService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<DashboardResponse>> GetDashboard()
+        [HttpGet("summary")]
+        public async Task<ActionResult<DashboardSummaryResponse>> GetDashboard()
         {
             var dashboard = await _dashboardService.GetDashboard();
             return Ok(dashboard);
