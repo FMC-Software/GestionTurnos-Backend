@@ -13,16 +13,18 @@ namespace GestionTurnos.Application.Services
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IScheduleRepository _scheduleRepository;
+        private readonly IBranchRepository _branchRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IClientService _clientService;
         private readonly IAppointmentNotificationService _appointmentNotificationService;
         private readonly IAppointmentRealtimeNotifier _appointmentRealtimeNotifier;
 
-        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, IScheduleRepository scheduleRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService, IAppointmentRealtimeNotifier appointmentRealtimeNotifier)
+        public AppointmentService(IAppointmentRepository appointmentRepository, IClientService clientService, IStaffRepository staffRepository, IScheduleRepository scheduleRepository, IBranchRepository branchRepository, ITenantProvider tenantProvider, IAppointmentNotificationService appointmentNotificationService, IAppointmentRealtimeNotifier appointmentRealtimeNotifier)
         {
             _appointmentRepository = appointmentRepository;
             _staffRepository = staffRepository;
             _scheduleRepository = scheduleRepository;
+            _branchRepository = branchRepository;
             _tenantProvider = tenantProvider;
             _clientService = clientService;
             _appointmentNotificationService = appointmentNotificationService;
@@ -352,6 +354,53 @@ namespace GestionTurnos.Application.Services
             }
 
             return result;
+        }
+
+        public async Task<BranchAgendaResponse> GetBranchAgenda(Guid branchId, DateTime date)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var branch = await _branchRepository.GetById(branchId)
+                ?? throw new ConflictException("Sucursal no encontrada.");
+
+            if (branch.BusinessId != businessId)
+            {
+                throw new ConflictException("La sucursal no pertenece a su negocio.");
+            }
+
+            var schedule = await _scheduleRepository.GetByBranchIdAndDay(branchId, date.DayOfWeek);
+            var staffList = await _staffRepository.GetByBranchId(branchId);
+            var appointments = await _appointmentRepository.GetByBranchIdAndDay(businessId, date, branchId);
+
+            var appointmentsByStaff = appointments.ToLookup(a => a.StaffId);
+
+            return new BranchAgendaResponse
+            {
+                BranchId = branch.Id,
+                BranchName = branch.Name,
+                Date = date.Date,
+                Schedule = schedule == null ? null : new ScheduleInfoResponse
+                {
+                    StartTime = schedule.StartTime.ToString(@"hh\:mm"),
+                    EndTime = schedule.EndTime.ToString(@"hh\:mm"),
+                    SlotDurationMinutes = schedule.SlotDurationMinutes
+                },
+                Staff = staffList.Select(s => new StaffAgendaResponse
+                {
+                    StaffId = s.Id,
+                    StaffName = s.Name,
+                    Appointments = appointmentsByStaff[s.Id].Select(a => new AgendaAppointmentResponse
+                    {
+                        Id = a.Id,
+                        StartTime = a.StartTime.ToString(@"hh\:mm"),
+                        EndTime = a.EndTime.ToString(@"hh\:mm"),
+                        ClientName = a.Client.Name,
+                        ServiceName = a.Service.Name,
+                        Status = a.Status.ToString()
+                    }).ToList()
+                }).ToList()
+            };
         }
     }
 }

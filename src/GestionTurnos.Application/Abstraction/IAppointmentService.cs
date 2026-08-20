@@ -20,5 +20,7 @@ namespace GestionTurnos.Application.Abstraction
 
         Task<List<AppointmentResponse>> GetAppointmentsByBranchAndDate(DateTime day, Guid? branchId = null);
 
+        Task<BranchAgendaResponse> GetBranchAgenda(Guid branchId, DateTime date);
+
     }
 }
