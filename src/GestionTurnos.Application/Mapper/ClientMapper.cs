@@ -26,7 +26,8 @@ namespace GestionTurnos.Application.Mapper
                 Id = entity.Id,
                 Name = entity.Name,
                 Email = entity.Email,
-                Phone = entity.Phone
+                Phone = entity.Phone,
+                Birthday = entity.BirthDay
             };
         }
 
