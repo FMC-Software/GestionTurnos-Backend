@@ -114,6 +114,12 @@ namespace GestionTurnos.Application.Services
             return subscription.ToBusinessSubscriptionResponse();
         }
 
+        public async Task<Plan> GetActivePlanForBusiness(Guid businessId)
+        {
+            var subscription = await GetCurrentSubscriptionEntity(businessId);
+            return subscription.Plan;
+        }
+
         public async Task RenewSubscription(Guid businessId)
         {
             var subscription = await _subscriptionRepository

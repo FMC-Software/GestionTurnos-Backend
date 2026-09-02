@@ -1,6 +1,7 @@
 using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
+using GestionTurnos.Application.Helpers;
 using GestionTurnos.Application.Mapper;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -12,11 +13,13 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IStaffRepository _staffRepository;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IBusinessSubscriptionService _businessSubscriptionService;
 
-        public StaffService(IStaffRepository staffRepository, ITenantProvider tenantProvider)
+        public StaffService(IStaffRepository staffRepository, ITenantProvider tenantProvider, IBusinessSubscriptionService businessSubscriptionService)
         {
             _staffRepository = staffRepository;
             _tenantProvider = tenantProvider;
+            _businessSubscriptionService = businessSubscriptionService;
         }
 
         public async Task<StaffsResponse> CreateStaff(StaffRequest request)
@@ -35,7 +38,11 @@ namespace GestionTurnos.Application.Services
                     throw new ConflictException("Cada negocio solo puede tener un Admin.");
             }
             var IdBusiness = _tenantProvider.GetBusinessId()
-                ?? Guid.Empty;
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(IdBusiness);
+            PlanLimitGuard.EnsureWithinLimit(staffList.Count, plan.MaxStaffAllowed, "personal");
+
             var newStaff = request.ToStaff();
 
             newStaff.BusinessId = IdBusiness;
