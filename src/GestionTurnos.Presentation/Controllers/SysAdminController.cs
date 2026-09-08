@@ -15,10 +15,19 @@ namespace GestionTurnos.Presentation.Controllers
     public class SysAdminController : ControllerBase
     {
         private readonly IStaffService _staffService;
+        private readonly ISysAdminDashboardService _sysAdminDashboardService;
 
-        public SysAdminController(IStaffService staffService)
+        public SysAdminController(IStaffService staffService, ISysAdminDashboardService sysAdminDashboardService)
         {
             _staffService = staffService;
+            _sysAdminDashboardService = sysAdminDashboardService;
+        }
+
+        [Authorize(Policy = "SysAdmin")]
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<SysAdminDashboardResponse>> GetDashboard()
+        {
+            return Ok(await _sysAdminDashboardService.GetDashboard());
         }
 
         [Authorize(Policy = "SysAdmin")]

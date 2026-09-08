@@ -53,6 +53,7 @@ builder.Services.AddScoped<IBusinessSubscriptionService, BusinessSubscriptionSer
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISysAdminService, SysAdminService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<ISysAdminDashboardService, SysAdminDashboardService>();
 
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();

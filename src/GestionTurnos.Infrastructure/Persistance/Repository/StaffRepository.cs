@@ -59,6 +59,11 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             && s.Rol == Rol.Admin
             && !s.IsDeleted);
         }
+
+        public async Task<int> CountAllUsers()
+        {
+            return await _context.Users.CountAsync(u => !u.IsDeleted);
+        }
     }
 
 
