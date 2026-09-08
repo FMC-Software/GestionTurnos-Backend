@@ -16,5 +16,9 @@ namespace GestionTurnos.Application.Request
         public int DurationDays { get; set; }
 
         public bool IsActive { get; set; } = true;
+
+        public int MaxStaffAllowed { get; set; } = -1;
+        public int MaxBranchesAllowed { get; set; } = -1;
+        public int MaxServicesAllowed { get; set; } = -1;
     }
 }

@@ -14,7 +14,10 @@ namespace GestionTurnos.Application.Mapper
                 Description = request.Description,
                 Price = request.Price,
                 DurationDays = request.DurationDays,
-                IsActive = request.IsActive
+                IsActive = request.IsActive,
+                MaxStaffAllowed = request.MaxStaffAllowed,
+                MaxBranchesAllowed = request.MaxBranchesAllowed,
+                MaxServicesAllowed = request.MaxServicesAllowed
             };
         }
 
@@ -25,6 +28,9 @@ namespace GestionTurnos.Application.Mapper
             plan.Price = request.Price;
             plan.DurationDays = request.DurationDays;
             plan.IsActive = request.IsActive;
+            plan.MaxStaffAllowed = request.MaxStaffAllowed;
+            plan.MaxBranchesAllowed = request.MaxBranchesAllowed;
+            plan.MaxServicesAllowed = request.MaxServicesAllowed;
             plan.UpdateDateTime = DateTime.Now;
         }
 
@@ -37,7 +43,10 @@ namespace GestionTurnos.Application.Mapper
                 Description = plan.Description,
                 Price = plan.Price,
                 DurationDays = plan.DurationDays,
-                IsActive = plan.IsActive
+                IsActive = plan.IsActive,
+                MaxStaffAllowed = plan.MaxStaffAllowed,
+                MaxBranchesAllowed = plan.MaxBranchesAllowed,
+                MaxServicesAllowed = plan.MaxServicesAllowed
             };
         }
     }

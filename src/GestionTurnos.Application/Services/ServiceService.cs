@@ -2,6 +2,7 @@ using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Abstraction.Infrastructure.External_Interface;
 using GestionTurnos.Application.Exceptions;
+using GestionTurnos.Application.Helpers;
 using GestionTurnos.Application.Mapper;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -13,12 +14,14 @@ namespace GestionTurnos.Application.Services
         private readonly IServiceRepository _serviceRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IDolarService _dolarPriceService;
+        private readonly IBusinessSubscriptionService _businessSubscriptionService;
 
-        public ServiceService(IServiceRepository serviceRepository, ITenantProvider tenantProvider, IDolarService dolarPriceService)
+        public ServiceService(IServiceRepository serviceRepository, ITenantProvider tenantProvider, IDolarService dolarPriceService, IBusinessSubscriptionService businessSubscriptionService)
         {
             _serviceRepository = serviceRepository;
             _tenantProvider = tenantProvider;
             _dolarPriceService = dolarPriceService;
+            _businessSubscriptionService = businessSubscriptionService;
         }
 
         public async Task<List<ServiceBusinessResponse>> GetServicesOfCurrentBusiness()
@@ -63,8 +66,11 @@ namespace GestionTurnos.Application.Services
 
             await ValidateService(request, businessId);
 
+            var existingServices = await _serviceRepository.GetByBusinessId(businessId);
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            PlanLimitGuard.EnsureWithinLimit(existingServices.Count, plan.MaxServicesAllowed, "servicios");
 
-        var newService = request.ToService(businessId);
+            var newService = request.ToService(businessId);
 
             await _serviceRepository.Add(newService);
 

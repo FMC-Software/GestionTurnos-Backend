@@ -1,6 +1,7 @@
 using GestionTurnos.Application.Abstraction;
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Exceptions;
+using GestionTurnos.Application.Helpers;
 using GestionTurnos.Application.Mapper;
 using GestionTurnos.Application.Request;
 using GestionTurnos.Application.Response;
@@ -14,13 +15,15 @@ namespace GestionTurnos.Application.Services
         private readonly IScheduleService _scheduleService;
         private readonly ITenantProvider _tenantProvider;
         private readonly IBusinessService _businessService;
+        private readonly IBusinessSubscriptionService _businessSubscriptionService;
 
-        public BranchService(IBranchRepository branchRepository, ITenantProvider tenantProvider, IScheduleService scheduleService, IBusinessService businessService)
+        public BranchService(IBranchRepository branchRepository, ITenantProvider tenantProvider, IScheduleService scheduleService, IBusinessService businessService, IBusinessSubscriptionService businessSubscriptionService)
         {
             _branchRepository = branchRepository;
             _tenantProvider = tenantProvider;
             _scheduleService = scheduleService;
             _businessService = businessService;
+            _businessSubscriptionService = businessSubscriptionService;
         }
 
         public async Task<List<BranchResponse>> GetBranchesOfCurrentBusiness()
@@ -80,6 +83,9 @@ namespace GestionTurnos.Application.Services
             {
                 throw new ConflictException("Ya tienes una sucursal con esa direccion.");
             }
+
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            PlanLimitGuard.EnsureWithinLimit(businessBranches.Count, plan.MaxBranchesAllowed, "sucursales");
 
             var newBranch = request.ToBranch(businessId);
 
