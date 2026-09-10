@@ -60,6 +60,14 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             && !s.IsDeleted);
         }
 
+        public async Task<Staff?> GetAdminByBusinessId(Guid businessId)
+        {
+            return await _dbSet.FirstOrDefaultAsync(s =>
+                s.BusinessId == businessId
+                && s.Rol == Rol.Admin
+                && !s.IsDeleted);
+        }
+
         public async Task<int> CountAllUsers()
         {
             return await _context.Users.CountAsync(u => !u.IsDeleted);
