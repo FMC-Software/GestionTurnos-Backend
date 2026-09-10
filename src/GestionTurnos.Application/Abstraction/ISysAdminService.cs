@@ -10,6 +10,10 @@ namespace GestionTurnos.Application.Abstraction
     public interface ISysAdminService
     {
         Task<SysAdminUser?> GetByEmail(string email);
+
+        Task<List<BusinessCardResponse>> GetBusinessCards();
+
+        Task<BusinessDetailResponse> GetBusinessDetail(Guid businessId);
     }
 }
 

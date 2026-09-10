@@ -16,11 +16,27 @@ namespace GestionTurnos.Presentation.Controllers
     {
         private readonly IStaffService _staffService;
         private readonly ISysAdminDashboardService _sysAdminDashboardService;
+        private readonly ISysAdminService _sysAdminService;
 
-        public SysAdminController(IStaffService staffService, ISysAdminDashboardService sysAdminDashboardService)
+        public SysAdminController(IStaffService staffService, ISysAdminDashboardService sysAdminDashboardService, ISysAdminService sysAdminService)
         {
             _staffService = staffService;
             _sysAdminDashboardService = sysAdminDashboardService;
+            _sysAdminService = sysAdminService;
+        }
+
+        [Authorize(Policy = "SysAdmin")]
+        [HttpGet("businesses")]
+        public async Task<ActionResult<List<BusinessCardResponse>>> GetBusinesses()
+        {
+            return Ok(await _sysAdminService.GetBusinessCards());
+        }
+
+        [Authorize(Policy = "SysAdmin")]
+        [HttpGet("businesses/{businessId:guid}")]
+        public async Task<ActionResult<BusinessDetailResponse>> GetBusinessDetail([FromRoute] Guid businessId)
+        {
+            return Ok(await _sysAdminService.GetBusinessDetail(businessId));
         }
 
         [Authorize(Policy = "SysAdmin")]

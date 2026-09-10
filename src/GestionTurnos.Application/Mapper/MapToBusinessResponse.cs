@@ -40,6 +40,18 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
+        public static BranchDetailResponse ToBranchDetailResponse(this Branch branch)
+        {
+            return new BranchDetailResponse
+            {
+                Id = branch.Id,
+                Name = branch.Name,
+                Address = branch.Address,
+                City = branch.City,
+                Phone = branch.Phone
+            };
+        }
+
         public static ServiceResponse ToResponse(this Service service)
         {
             return new ServiceResponse
