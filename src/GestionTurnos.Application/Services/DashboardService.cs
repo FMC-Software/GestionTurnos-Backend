@@ -13,15 +13,24 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IAppointmentRepository _appointmentRepository;
         private readonly IBranchRepository _branchRepository;
+        private readonly IStaffRepository _staffRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IBusinessSubscriptionService _businessSubscriptionService;
         private readonly ITenantProvider _tenantProvider;
 
         public DashboardService(
             IAppointmentRepository appointmentRepository,
             IBranchRepository branchRepository,
+            IStaffRepository staffRepository,
+            IServiceRepository serviceRepository,
+            IBusinessSubscriptionService businessSubscriptionService,
             ITenantProvider tenantProvider)
         {
             _appointmentRepository = appointmentRepository;
             _branchRepository = branchRepository;
+            _staffRepository = staffRepository;
+            _serviceRepository = serviceRepository;
+            _businessSubscriptionService = businessSubscriptionService;
             _tenantProvider = tenantProvider;
         }
 
@@ -32,6 +41,9 @@ namespace GestionTurnos.Application.Services
 
             var appointments = await _appointmentRepository.GetByBusinessId(businessId);
             var branches = await _branchRepository.GetByBusinessId(businessId);
+            var staff = await _staffRepository.GetAll();
+            var services = await _serviceRepository.GetByBusinessId(businessId);
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
             var today = DateTime.Today;
             var startMonth = new DateTime(today.Year, today.Month, 1);
             var endMonth = startMonth.AddMonths(1);
@@ -90,7 +102,16 @@ namespace GestionTurnos.Application.Services
                             .Where(a => a.Status != AppointmentStatus.Cancelled)
                             .Sum(a => a.TotalCost)
                     };
-                }).ToList()
+                }).ToList(),
+                PlanUsage = new PlanUsageDto
+                {
+                    StaffCount = staff.Count,
+                    MaxStaffAllowed = plan.MaxStaffAllowed,
+                    BranchCount = branches.Count,
+                    MaxBranchesAllowed = plan.MaxBranchesAllowed,
+                    ServiceCount = services.Count,
+                    MaxServicesAllowed = plan.MaxServicesAllowed
+                }
             };
         }
     }
