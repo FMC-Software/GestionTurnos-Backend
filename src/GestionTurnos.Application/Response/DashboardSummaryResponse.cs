@@ -28,10 +28,21 @@ namespace GestionTurnos.Application.Response
         public decimal MonthRevenue { get; set; }
     }
 
+    public class PlanUsageDto
+    {
+        public int StaffCount { get; set; }
+        public int MaxStaffAllowed { get; set; }
+        public int BranchCount { get; set; }
+        public int MaxBranchesAllowed { get; set; }
+        public int ServiceCount { get; set; }
+        public int MaxServicesAllowed { get; set; }
+    }
+
     public class DashboardSummaryResponse
     {
         public List<MonthlyRevenueDto> MonthlyRevenue { get; set; } = new();
         public CurrentMonthDto CurrentMonth { get; set; } = new();
         public List<BranchDashboardDto> Branches { get; set; } = new();
+        public PlanUsageDto PlanUsage { get; set; } = new();
     }
 }
