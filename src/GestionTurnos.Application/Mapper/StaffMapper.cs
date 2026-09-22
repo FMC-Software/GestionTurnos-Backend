@@ -77,6 +77,7 @@ namespace GestionTurnos.Application.Mapper
                 entity.LinkPhoto = request.LinkPhoto;
 
                 entity.Rol = request.Rol;
+                entity.BranchId = request.BranchId ?? Guid.Empty;
            
         }
     }

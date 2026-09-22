@@ -7,6 +7,7 @@ namespace GestionTurnos.Application.Abstraction
     public interface IPlanService
     {
         Task<List<PlanResponse>> GetAll();
+        Task<List<PlanResponse>> GetAllActive();
         Task<PlanResponse> GetById(Guid id);
         Task<PlanResponse> Create(PlanRequest request);
         Task<PlanResponse> Update(PlanRequest request, Guid id);
