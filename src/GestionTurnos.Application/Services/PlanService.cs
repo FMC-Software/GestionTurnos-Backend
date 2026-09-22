@@ -27,6 +27,15 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<List<PlanResponse>> GetAllActive()
+        {
+            var plans = await _planRepository.GetAllGlobal();
+            return plans
+                .Where(p => p.IsActive)
+                .Select(p => p.ToPlanResponse())
+                .ToList();
+        }
+
         public async Task<PlanResponse> GetById(Guid id)
         {
             var plan = await _planRepository.GetById(id)

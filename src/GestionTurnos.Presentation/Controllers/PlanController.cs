@@ -22,6 +22,13 @@ namespace GestionTurnos.Presentation.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PlanResponse>>> GetAll()
         {
+            var plans = await _planService.GetAllActive();
+            return Ok(plans);
+        }
+
+        [HttpGet("all")]
+        public async Task<ActionResult<List<PlanResponse>>> GetAllForSysAdmin()
+        {
             var plans = await _planService.GetAll();
             return Ok(plans);
         }
