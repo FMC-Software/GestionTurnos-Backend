@@ -24,6 +24,11 @@ namespace GestionTurnos.Domain.Entities
 
         public Rol Rol { get; set; }
 
+        // False cuando el plan del negocio no permite mas personal activo. No se reactiva automaticamente.
+        public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
+
         // Propiedad de navegación inversa: Un profesional tiene muchos turnos
         public virtual ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 

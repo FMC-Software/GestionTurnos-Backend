@@ -73,6 +73,13 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
+        [HttpPut("{id}/activate")]
+        public async Task<ActionResult<StaffsResponse>> ActivateStaff([FromRoute] Guid id)
+        {
+            return Ok(await _staffService.ActivateStaff(id));
+        }
+
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPut("email")]
         public async Task<ActionResult<StaffsResponse>> UpdateStaffByEmail([FromBody] UpdateStaffRequest request)
         {

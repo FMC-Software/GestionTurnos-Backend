@@ -10,6 +10,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<StaffsResponse> GetById(Guid id);
         Task<StaffsResponse> CreateStaff(StaffRequest request);
         Task<StaffsResponse> UpdateStaff(StaffRequest staff, Guid idStaff);
+        Task<StaffsResponse> ActivateStaff(Guid id);
         Task DeleteStaff(Guid id);
         Task<List<GlobalStaffResponse>> GetAllGlobal();
 
