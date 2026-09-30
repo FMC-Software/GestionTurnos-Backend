@@ -147,6 +147,9 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
+            if (!staff.IsActive)
+                throw new ConflictException("El profesional seleccionado no está disponible.");
+
             // 2. Validar que el staff pertenece a la sucursal indicada
             if (staff.BranchId != request.BranchId)
                 throw new ConflictException("El profesional seleccionado no pertenece a esta sucursal.");
@@ -271,6 +274,65 @@ namespace GestionTurnos.Application.Services
             return fullyLoaded.ToResponse();
         }
 
+        public async Task<List<AppointmentResponse>> GetPendingReassignments()
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var appointments = await _appointmentRepository.GetPendingReassignmentByBusinessId(businessId);
+            return appointments.Select(a => a.ToResponse()).ToList();
+        }
+
+        public async Task<AppointmentResponse> ReassignAppointment(Guid id, Guid newStaffId)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var existing = await _appointmentRepository.GetById(id)
+                ?? throw new NotFoundException("Turno no encontrado.");
+
+            if (existing.Staff.BusinessId != businessId)
+                throw new NotFoundException("Turno no encontrado.");
+
+            if (existing.Status != AppointmentStatus.PendingReassignment)
+                throw new ConflictException("El turno no está pendiente de reasignación.");
+
+            if (existing.Day.Date < DateTime.UtcNow.AddHours(-3).Date)
+                throw new ConflictException("No se puede reasignar un turno con fecha pasada.");
+
+            var newStaff = await _staffRepository.GetById(newStaffId)
+                ?? throw new NotFoundException("El profesional no fue encontrado.");
+
+            if (newStaff.BusinessId != businessId)
+                throw new NotFoundException("El profesional no fue encontrado.");
+
+            if (!newStaff.IsActive)
+                throw new ConflictException("El profesional seleccionado no está activo.");
+
+            if (newStaff.Id == existing.StaffId)
+                throw new ConflictException("Debe seleccionar un profesional distinto al original.");
+
+            if (newStaff.BranchId != existing.Staff.BranchId)
+                throw new ConflictException("El profesional seleccionado no pertenece a la sucursal del turno.");
+
+            var endTime = await ValidateAppointmentWithinSchedule(newStaff.BranchId, existing.Day, existing.StartTime, existing.Service.Duration);
+
+            if (await _appointmentRepository.ExistsOverlappingAppointment(newStaff.Id, existing.Day, existing.StartTime, endTime, id))
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
+
+            existing.StaffId = newStaff.Id;
+            existing.Staff = newStaff;
+            existing.EndTime = endTime;
+            existing.Status = AppointmentStatus.Confirmed;
+
+            await _appointmentRepository.Update(existing);
+
+            var fullyLoaded = await _appointmentRepository.GetById(id)
+                ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            return fullyLoaded.ToResponse();
+        }
+
         public async Task<AppointmentResponse> UpdateStatus(Guid id, AppointmentStatus newStatus)
         {
             var existing = await _appointmentRepository.GetById(id)
@@ -305,7 +367,7 @@ namespace GestionTurnos.Application.Services
         public async Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date)
         {
             var staff = await _staffRepository.GetById(staffId);
-            if (staff == null || staff.BranchId != branchId)
+            if (staff == null || !staff.IsActive || staff.BranchId != branchId)
             {
                 return new List<AvailableSlotResponse>();
             }

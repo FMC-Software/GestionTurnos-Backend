@@ -32,7 +32,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         public async Task<List<Staff>> GetByBranchId(Guid branchId)
         {
             return await _dbSet
-                .Where(s => s.BranchId == branchId && !s.IsDeleted)
+                .Where(s => s.BranchId == branchId && !s.IsDeleted && s.IsActive)
                 .ToListAsync();
         }
 
@@ -66,6 +66,13 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 s.BusinessId == businessId
                 && s.Rol == Rol.Admin
                 && !s.IsDeleted);
+        }
+
+        public async Task<List<Staff>> GetByBusinessIdGlobal(Guid businessId)
+        {
+            return await _dbSet
+                .Where(s => s.BusinessId == businessId && !s.IsDeleted)
+                .ToListAsync();
         }
 
         public async Task<int> CountAllUsers()

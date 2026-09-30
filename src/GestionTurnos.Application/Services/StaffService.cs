@@ -41,7 +41,7 @@ namespace GestionTurnos.Application.Services
                 ?? throw new ConflictException("No se encontró la empresa.");
 
             var plan = await _businessSubscriptionService.GetActivePlanForBusiness(IdBusiness);
-            PlanLimitGuard.EnsureWithinLimit(staffList.Count, plan.MaxStaffAllowed, "personal");
+            PlanLimitGuard.EnsureWithinLimit(staffList.Count(s => s.IsActive), plan.MaxStaffAllowed, "personal");
 
             var newStaff = request.ToStaff();
 
@@ -75,6 +75,29 @@ namespace GestionTurnos.Application.Services
 
             await _staffRepository.Update(existingStaff);
             return existingStaff.ToResponse();
+        }
+
+        public async Task<StaffsResponse> ActivateStaff(Guid id)
+        {
+            var staff = await _staffRepository.GetById(id)
+                ?? throw new ConflictException("Usuario no encontrado.");
+
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            if (staff.BusinessId != businessId)
+                throw new ConflictException("Usuario no encontrado.");
+
+            if (staff.IsActive)
+                return staff.ToResponse();
+
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            var activeCount = (await _staffRepository.GetAll()).Count(s => s.IsActive);
+            PlanLimitGuard.EnsureWithinLimit(activeCount, plan.MaxStaffAllowed, "personal");
+
+            staff.IsActive = true;
+            await _staffRepository.Update(staff);
+            return staff.ToResponse();
         }
 
         public async Task DeleteStaff(Guid id)

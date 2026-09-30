@@ -6,7 +6,8 @@ namespace GestionTurnos.Domain.Entities
     {
         Pending, // Apenas se crea el turno
         Confirmed, // El cliente paso, tomo el sevicio, pago y se fue
-        Cancelled // El cliente cancelo el turno o no se presento
+        Cancelled, // El cliente cancelo el turno o no se presento
+        PendingReassignment // El profesional fue desactivado por limite de plan; el admin debe reasignar el turno
     }
 
     public enum PaymentMethod

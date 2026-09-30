@@ -16,6 +16,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
 
         public Task<Staff?> GetAdminByBusinessId(Guid businessId);
 
+        public Task<List<Staff>> GetByBusinessIdGlobal(Guid businessId);
+
         public Task<int> CountAllUsers();
 
     }

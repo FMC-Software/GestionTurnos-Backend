@@ -115,6 +115,20 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
 
+        [Authorize(Policy = Policies.Admin)]
+        [HttpGet("pending-reassignment")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetPendingReassignments()
+        {
+            return Ok(await _appointmentService.GetPendingReassignments());
+        }
+
+        [Authorize(Policy = Policies.Admin)]
+        [HttpPut("{id}/reassign")]
+        public async Task<ActionResult<AppointmentResponse>> Reassign(Guid id, [FromBody] ReassignAppointmentRequest request)
+        {
+            return Ok(await _appointmentService.ReassignAppointment(id, request.StaffId));
+        }
+
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(Guid id)
