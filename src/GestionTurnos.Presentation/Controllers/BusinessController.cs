@@ -43,6 +43,20 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(await _businessService.GetBusinessesByType(typeBusiness));
         }
 
+        [AllowAnonymous]
+        [HttpGet("by-url/{url}")]
+        public async Task<ActionResult<BusinessPublicResponse>> GetByUrl([FromRoute] string url)
+        {
+            return Ok(await _businessService.GetPublicByUrl(url));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("by-url/{url}/ecosystem")]
+        public async Task<ActionResult<BusinessPublicEcosystemResponse>> GetEcosystemByUrl([FromRoute] string url)
+        {
+            return Ok(await _businessService.GetPublicEcosystemByUrl(url));
+        }
+
 
 
         [Authorize(Policy = Policies.Admin)]

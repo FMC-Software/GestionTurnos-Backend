@@ -17,10 +17,14 @@ namespace GestionTurnos.Application.Abstraction
 
         Task<Business> GetById(Guid id);
 
-        Business initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed);
+        Task<Business> initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed);
 
         List<BusinessTypeResponse> GetBusinessTypes();
 
         Task<List<BusinessSummaryResponse>> GetBusinessesByType(TypeBusiness type);
+
+        Task<BusinessPublicResponse> GetPublicByUrl(string url);
+
+        Task<BusinessPublicEcosystemResponse> GetPublicEcosystemByUrl(string url);
     }
 }

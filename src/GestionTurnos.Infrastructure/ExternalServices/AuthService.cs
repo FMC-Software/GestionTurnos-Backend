@@ -82,7 +82,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
             var selectedPlan = await _planService.GetPlanOrDefault(request.Plan?.Id);
 
-            var newBusiness = _businessService.initialBusiness(request, typeBusinessParsed);
+            var newBusiness = await _businessService.initialBusiness(request, typeBusinessParsed);
 
             var newBranch = await _branchService.CreateInitialBranch(request, newBusiness);
 
