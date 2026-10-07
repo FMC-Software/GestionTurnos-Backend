@@ -11,5 +11,9 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
         Task<List<BusinessCardResponse>> GetBusinessCardsAsync();
 
         Task<BusinessStatsResult?> GetBusinessStatsAsync(Guid businessId);
+
+        Task<Business?> GetByUrl(string url);
+
+        Task<bool> ExistsByUrl(string url);
     }
 }

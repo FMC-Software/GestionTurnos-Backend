@@ -40,6 +40,16 @@ public class BusinessRepository : BaseRepository<Business>, IBusinessRepository
             .ToListAsync();
     }
 
+    public async Task<Business?> GetByUrl(string url)
+    {
+        return await _dbSet.FirstOrDefaultAsync(b => b.Url == url && !b.IsDeleted);
+    }
+
+    public async Task<bool> ExistsByUrl(string url)
+    {
+        return await _dbSet.AnyAsync(b => b.Url == url && !b.IsDeleted);
+    }
+
     public async Task<BusinessStatsResult?> GetBusinessStatsAsync(Guid businessId)
     {
         return await _dbSet

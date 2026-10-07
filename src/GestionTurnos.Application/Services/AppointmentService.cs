@@ -168,10 +168,15 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El servicio no se encuentra disponible");
             }
 
-            var argDate = DateTime.UtcNow.AddHours(-3).Date;
-            if(request.Day.Date < argDate)
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
             {
                 throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
             }
 
 
@@ -195,12 +200,12 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             // 5. Crear el turno usando el precio real del servicio y el horario final calculado
@@ -229,6 +234,17 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
+            {
+                throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
+            }
+
             // Resolver el cliente por email (find or create) delegando a ClientService
             var clientDto = new ClientRequest
             {
@@ -249,16 +265,17 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             existing.StaffId = request.StaffId;
             existing.ClientId = clientId;
+            existing.ClientName = request.ClientName;
             existing.ServiceId = request.ServiceId;
             existing.Day = request.Day;
             existing.StartTime = request.StartTime;
@@ -394,12 +411,20 @@ namespace GestionTurnos.Application.Services
 
             var existingAppointments = await _appointmentRepository.GetByStaffIdAndDay(staffId, date);
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            var isToday = date.Date == nowArgentina.Date;
+
             var result = new List<AvailableSlotResponse>();
 
             for (var candidateStart = schedule.StartTime;
                  candidateStart + serviceDuration <= schedule.EndTime;
                  candidateStart += slotStep)
             {
+                if (isToday && candidateStart <= nowArgentina.TimeOfDay)
+                {
+                    continue;
+                }
+
                 var candidateEnd = candidateStart + serviceDuration;
 
                 bool overlaps = existingAppointments.Any(a =>
@@ -457,7 +482,7 @@ namespace GestionTurnos.Application.Services
                         Id = a.Id,
                         StartTime = a.StartTime.ToString(@"hh\:mm"),
                         EndTime = a.EndTime.ToString(@"hh\:mm"),
-                        ClientName = a.Client.Name,
+                        ClientName = a.ClientName,
                         ServiceName = a.Service.Name,
                         Status = a.Status.ToString()
                     }).ToList()

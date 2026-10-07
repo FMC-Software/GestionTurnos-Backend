@@ -15,7 +15,8 @@ namespace GestionTurnos.Application.Abstraction
         Task DeleteClient(Guid id);
 
         Task<List<GlobalClientResponse>> GetAllGlobal();
-        Task<ClientsResponse> GetByName(string name);
+
+        Task<List<ClientsResponse>> SearchClients(string query);
 
         Task<ClientsResponse> GetByEmail(string email);
 

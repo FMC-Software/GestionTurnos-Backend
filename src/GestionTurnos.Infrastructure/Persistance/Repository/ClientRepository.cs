@@ -13,11 +13,6 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             _tenantProvider = tenantProvider;
         }
-        public async Task<Client?> GetClientByName(string name)
-        {
-            return await _dbSet.FirstOrDefaultAsync(x => x.Name.Contains(name) && x.BusinessId == _tenantProvider.GetBusinessId() && !x.IsDeleted);
-        }
-
         public async Task<Client?> GetClientByEmail(string email, Guid? businessId = null)
         {
             var bId = businessId ?? _tenantProvider.GetBusinessId();
@@ -42,6 +37,14 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 throw new ConflictException("No se encontró la empresa.");
             }
             return await _dbSet.Where(x => x.BusinessId == businessId && !x.IsDeleted).ToListAsync();
+        }
+
+        public async Task<List<Client>> SearchClients(string query, Guid businessId)
+        {
+            return await _dbSet
+                .Where(x => x.BusinessId == businessId && !x.IsDeleted &&
+                    (x.Name.Contains(query) || x.Email.Contains(query)))
+                .ToListAsync();
         }
     }
 }

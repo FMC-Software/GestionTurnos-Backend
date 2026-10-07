@@ -12,7 +12,7 @@ namespace GestionTurnos.Application.Mapper
             {
                 Id = appointment.Id,
 
-                ClientName = appointment.Client.Name,
+                ClientName = appointment.ClientName,
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,
 
@@ -35,7 +35,7 @@ namespace GestionTurnos.Application.Mapper
             {
                 Id = appointment.Id,
 
-                ClientName = appointment.Client.Name,
+                ClientName = appointment.ClientName,
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,
 
@@ -60,7 +60,7 @@ namespace GestionTurnos.Application.Mapper
             {
                 Id = appointment.Id,
 
-                ClientName = appointment.Client.Name,
+                ClientName = appointment.ClientName,
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,
 
@@ -86,6 +86,7 @@ namespace GestionTurnos.Application.Mapper
             {
                 StaffId = request.StaffId,
                 ClientId = clientId,
+                ClientName = request.ClientName,
                 ServiceId = request.ServiceId,
 
                 Day = request.Day,

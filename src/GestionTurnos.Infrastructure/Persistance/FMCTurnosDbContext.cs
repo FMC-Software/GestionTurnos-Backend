@@ -44,6 +44,10 @@ namespace GestionTurnos.Infrastructure.Persistence
             .HasValue<Staff>("Staff")
             .HasValue<SysAdminUser>("SysAdmin");
 
+            modelBuilder.Entity<Business>()
+                .HasIndex(b => b.Url)
+                .IsUnique();
+
             // Relación Business -> Branches (1 a muchos)
             modelBuilder.Entity<Branch>()
                 .HasOne(b => b.Business)

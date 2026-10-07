@@ -21,9 +21,22 @@ namespace GestionTurnos.Application.Services
 
         public async Task<ClientsResponse> CreateClient(ClientRequest request, Guid? businessId = null)
         {
-            //Si el cliente ya existe, lo retornamos sin crear uno nuevo
+            //Si el cliente ya existe, actualizamos sus datos con los mas recientes (no hay login,
+            //el email es la unica identidad posible, asi que el ultimo dato ingresado gana).
             var clientExisting = await _clientRepository.GetClientByEmail(request.Email, businessId) ?? null;
-               if(clientExisting is not null) return clientExisting.ToResponse();
+            if(clientExisting is not null)
+            {
+                clientExisting.Name = request.Name;
+                clientExisting.Phone = request.Phone;
+
+                if (DateTime.TryParse(request.BirthDay, out DateTime existingClientBirthDay) && existingClientBirthDay != default)
+                {
+                    clientExisting.BirthDay = existingClientBirthDay;
+                }
+
+                await _clientRepository.Update(clientExisting);
+                return clientExisting.ToResponse();
+            }
 
             //Si el cliente no existe, lo creamos
             var client = request.ToEntity(); // Mapper
@@ -58,11 +71,13 @@ namespace GestionTurnos.Application.Services
             return client.ToResponse();
         }
 
-        public async Task<ClientsResponse> GetByName(string name)
+        public async Task<List<ClientsResponse>> SearchClients(string query)
         {
-            var client = await _clientRepository.GetClientByName(name)
-                ?? throw new ConflictException("Cliente no encontrado en su comercio.");
-            return client.ToResponse();
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var clients = await _clientRepository.SearchClients(query, businessId);
+            return clients.Select(c => c.ToResponse()).ToList();
         }
 
         public async Task<ClientsResponse> GetByEmail(string email)
