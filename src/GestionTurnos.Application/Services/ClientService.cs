@@ -29,7 +29,7 @@ namespace GestionTurnos.Application.Services
                 clientExisting.Name = request.Name;
                 clientExisting.Phone = request.Phone;
 
-                if (DateTime.TryParse(request.BirthDay, out DateTime existingClientBirthDay))
+                if (DateTime.TryParse(request.BirthDay, out DateTime existingClientBirthDay) && existingClientBirthDay != default)
                 {
                     clientExisting.BirthDay = existingClientBirthDay;
                 }
