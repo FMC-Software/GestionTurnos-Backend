@@ -71,11 +71,13 @@ namespace GestionTurnos.Application.Services
             return client.ToResponse();
         }
 
-        public async Task<ClientsResponse> GetByName(string name)
+        public async Task<List<ClientsResponse>> SearchClients(string query)
         {
-            var client = await _clientRepository.GetClientByName(name)
-                ?? throw new ConflictException("Cliente no encontrado en su comercio.");
-            return client.ToResponse();
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var clients = await _clientRepository.SearchClients(query, businessId);
+            return clients.Select(c => c.ToResponse()).ToList();
         }
 
         public async Task<ClientsResponse> GetByEmail(string email)

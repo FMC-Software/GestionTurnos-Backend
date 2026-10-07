@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GestionTurnos.Presentation.Controllers
 {
-    [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
+    [Authorize]
 
     [Route("api/[controller]")]
     [ApiController]
@@ -36,13 +36,14 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(await _clientService.GetById(id));
         }
 
-        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
+        [Authorize(Policy = Policies.AnyStaff)]
         [HttpGet("search")]
-        public async Task<ActionResult<ClientsResponse>> GetByName([FromQuery] string name)
+        public async Task<ActionResult<List<ClientsResponse>>> Search([FromQuery] string query)
         {
-            return Ok(await _clientService.GetByName(name));
+            return Ok(await _clientService.SearchClients(query));
         }
 
+        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
         [HttpPost]
         public async Task<ActionResult<ClientsResponse>> Create([FromBody] ClientRequest request)
         {
