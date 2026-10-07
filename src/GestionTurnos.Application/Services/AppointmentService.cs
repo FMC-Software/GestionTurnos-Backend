@@ -200,12 +200,12 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             // 5. Crear el turno usando el precio real del servicio y el horario final calculado
@@ -265,12 +265,12 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             existing.StaffId = request.StaffId;
