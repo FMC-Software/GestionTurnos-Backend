@@ -168,10 +168,15 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El servicio no se encuentra disponible");
             }
 
-            var argDate = DateTime.UtcNow.AddHours(-3).Date;
-            if(request.Day.Date < argDate)
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
             {
                 throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
             }
 
 
