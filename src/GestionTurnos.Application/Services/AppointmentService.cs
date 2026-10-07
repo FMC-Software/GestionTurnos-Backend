@@ -234,6 +234,17 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
+            {
+                throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
+            }
+
             // Resolver el cliente por email (find or create) delegando a ClientService
             var clientDto = new ClientRequest
             {
