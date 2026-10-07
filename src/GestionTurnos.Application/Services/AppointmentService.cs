@@ -394,12 +394,20 @@ namespace GestionTurnos.Application.Services
 
             var existingAppointments = await _appointmentRepository.GetByStaffIdAndDay(staffId, date);
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            var isToday = date.Date == nowArgentina.Date;
+
             var result = new List<AvailableSlotResponse>();
 
             for (var candidateStart = schedule.StartTime;
                  candidateStart + serviceDuration <= schedule.EndTime;
                  candidateStart += slotStep)
             {
+                if (isToday && candidateStart <= nowArgentina.TimeOfDay)
+                {
+                    continue;
+                }
+
                 var candidateEnd = candidateStart + serviceDuration;
 
                 bool overlaps = existingAppointments.Any(a =>
