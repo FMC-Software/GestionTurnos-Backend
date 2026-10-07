@@ -25,6 +25,10 @@ namespace GestionTurnos.Domain.Entities
         public Guid ClientId { get; set; }
         public Client Client { get; set; } = null!;
 
+        // Snapshot del nombre al momento de reservar: Client.Name puede cambiar
+        // despues (mismo email, otra reserva) sin afectar turnos ya creados.
+        public string ClientName { get; set; } = string.Empty;
+
     
         public Guid ServiceId { get; set; }
         public Service Service { get; set; } = null!;

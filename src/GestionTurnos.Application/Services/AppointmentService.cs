@@ -275,6 +275,7 @@ namespace GestionTurnos.Application.Services
 
             existing.StaffId = request.StaffId;
             existing.ClientId = clientId;
+            existing.ClientName = request.ClientName;
             existing.ServiceId = request.ServiceId;
             existing.Day = request.Day;
             existing.StartTime = request.StartTime;
@@ -481,7 +482,7 @@ namespace GestionTurnos.Application.Services
                         Id = a.Id,
                         StartTime = a.StartTime.ToString(@"hh\:mm"),
                         EndTime = a.EndTime.ToString(@"hh\:mm"),
-                        ClientName = a.Client.Name,
+                        ClientName = a.ClientName,
                         ServiceName = a.Service.Name,
                         Status = a.Status.ToString()
                     }).ToList()
