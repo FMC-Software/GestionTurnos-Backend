@@ -113,7 +113,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
-        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
+        [Authorize(Policy = Policies.AnyStaff)]
         [HttpPatch("{id}/status")]
         public async Task<ActionResult> UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request)
         {
