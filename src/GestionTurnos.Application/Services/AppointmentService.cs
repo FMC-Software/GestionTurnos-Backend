@@ -98,6 +98,20 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<List<AppointmentResponse>> GetAppointmentsOfMyBranchByDate(DateTime day)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var branchId = _tenantProvider.GetBranchId()
+                ?? throw new ConflictException("No se encontró la sucursal asignada al usuario.");
+
+            var appointments = await _appointmentRepository.GetByBranchIdAndDay(businessId, day, branchId);
+            return appointments
+                .Select(a => a.ToResponse())
+                .ToList();
+        }
+
         public async Task<List<AppointmentResponse>> GetMyAppointments()
         {
             var businessId = _tenantProvider.GetBusinessId()
@@ -354,6 +368,16 @@ namespace GestionTurnos.Application.Services
         {
             var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
+
+            var role = _tenantProvider.GetUserRole();
+            if (Enum.TryParse(role, out Rol userRole) && userRole == Rol.Profesional)
+            {
+                var userId = _tenantProvider.GetUserId();
+                if (existing.StaffId != userId)
+                {
+                    throw new ConflictException("No puede modificar un turno que no le pertenece.");
+                }
+            }
 
             var wasNotCancelled = existing.Status != AppointmentStatus.Cancelled;
 

@@ -7,6 +7,8 @@ namespace GestionTurnos.Application.Abstraction
     {
         Task<List<AppointmentResponse>> GetAppointmentsOfCurrentBusiness();
         Task<List<AppointmentResponse>> GetAppointmentsOfMyBranch();
+
+        Task<List<AppointmentResponse>> GetAppointmentsOfMyBranchByDate(DateTime day);
         Task<List<AppointmentResponse>> GetMyAppointments();
         Task<List<AppointmentResponse>> GetAppointmentsByBranch(Guid branchId);
         Task<List<GlobalAppointmentResponse>> GetAllGlobal();
