@@ -41,6 +41,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Recepcionista)]
+        [HttpGet("my-branch/by-date")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetMyBranchAppointmentsByDate([FromQuery] DateTime day)
+        {
+            return Ok(await _appointmentService.GetAppointmentsOfMyBranchByDate(day));
+        }
+
         [Authorize(Policy = Policies.Profesional)]
         [HttpGet("my-appointments")]
         public async Task<ActionResult> GetMyAppointments() {
