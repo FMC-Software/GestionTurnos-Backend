@@ -123,7 +123,8 @@ namespace GestionTurnos.Application.Services
         public async Task RenewSubscription(Guid businessId)
         {
             var subscription = await _subscriptionRepository
-                .GetLatestByBusinessId(businessId)
+                .GetCurrentSubscription(businessId)
+                ?? await _subscriptionRepository.GetLatestByBusinessId(businessId)
                 ?? throw new ConflictException("El negocio no posee suscripciones");
 
             if(subscription.Status == Status.Cancelled)
@@ -155,7 +156,8 @@ namespace GestionTurnos.Application.Services
         public async Task ChangePlan(Guid businessId, Guid newPlanId)
         {
             var currentSubscription = await _subscriptionRepository
-                .GetLatestByBusinessId(businessId)
+                .GetCurrentSubscription(businessId)
+                ?? await _subscriptionRepository.GetLatestByBusinessId(businessId)
                 ?? throw new NotFoundException("El negocio no posee suscripciones");
 
             var newPlan = await _planService.GetActivePlan(newPlanId);

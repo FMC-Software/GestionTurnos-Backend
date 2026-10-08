@@ -15,13 +15,16 @@ namespace GestionTurnos.Presentation.Controllers
     public class BusinessSubscriptionController : ControllerBase
     {
         private readonly IBusinessSubscriptionService _subscriptionService;
+        private readonly IPaymentOrderService _paymentOrderService;
         private readonly ITenantProvider _tenantProvider;
 
         public BusinessSubscriptionController(
             IBusinessSubscriptionService subscriptionService,
+            IPaymentOrderService paymentOrderService,
             ITenantProvider tenantProvider)
         {
             _subscriptionService = subscriptionService;
+            _paymentOrderService = paymentOrderService;
             _tenantProvider = tenantProvider;
         }
 
@@ -114,33 +117,34 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
 
+        // Genera la orden de pago y la preferencia de Checkout Pro para cambiar de plan.
+        // Si el plan es gratis (Price <= 0) aplica el cambio directo y devuelve noPaymentRequired.
         [Authorize(Policy = Policies.Admin)]
-        [HttpPut("my/renew")]
-        public async Task<IActionResult> Renew()
+        [HttpPost("my/change-plan/{planId}/checkout")]
+        public async Task<ActionResult<CheckoutResponse>> ChangePlanCheckout([FromRoute] Guid planId)
         {
 
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
-                await _subscriptionService.RenewSubscription(businessId);
+                var checkout = await _paymentOrderService.CreateChangePlanCheckout(businessId, planId);
 
-                return NoContent();
-
+                return Ok(checkout);
 
         }
 
+        // Genera la orden de pago y la preferencia de Checkout Pro para renovar la suscripción.
         [Authorize(Policy = Policies.Admin)]
-        [HttpPut("my/change-plan/{planId}")]
-        public async Task<IActionResult> ChangePlan([FromRoute] Guid planId)
+        [HttpPost("my/renew/checkout")]
+        public async Task<ActionResult<CheckoutResponse>> RenewCheckout()
         {
 
                 var businessId = _tenantProvider.GetBusinessId()
                     ?? throw new ConflictException("No se encontro el negocio en el token");
 
-                await _subscriptionService.ChangePlan(businessId, planId);
+                var checkout = await _paymentOrderService.CreateRenewCheckout(businessId);
 
-                return NoContent();
-
+                return Ok(checkout);
 
         }
 

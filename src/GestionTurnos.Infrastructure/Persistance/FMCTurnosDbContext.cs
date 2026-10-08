@@ -24,6 +24,7 @@ namespace GestionTurnos.Infrastructure.Persistence
         public DbSet<Plan> Plans { get; set; } = null!;
         public DbSet<BusinessSubscription> BusinessSubscriptions { get; set; } = null!;
         public DbSet<Schedule> Schedules { get; set; } = null!;
+        public DbSet<PaymentOrder> PaymentOrders { get; set; } = null!;
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
@@ -109,6 +110,19 @@ namespace GestionTurnos.Infrastructure.Persistence
                 .HasOne(bs => bs.Plan)
                 .WithMany(p => p.Subscriptions)
                 .HasForeignKey(bs => bs.PlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relaciones de Ordenes de Pago (MercadoPago)
+            modelBuilder.Entity<PaymentOrder>()
+                .HasOne(po => po.Business)
+                .WithMany()
+                .HasForeignKey(po => po.BusinessId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PaymentOrder>()
+                .HasOne(po => po.Plan)
+                .WithMany()
+                .HasForeignKey(po => po.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
