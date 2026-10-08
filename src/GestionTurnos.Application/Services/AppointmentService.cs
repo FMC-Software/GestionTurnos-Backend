@@ -98,6 +98,20 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<List<AppointmentResponse>> GetAppointmentsOfMyBranchByDate(DateTime day)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var branchId = _tenantProvider.GetBranchId()
+                ?? throw new ConflictException("No se encontró la sucursal asignada al usuario.");
+
+            var appointments = await _appointmentRepository.GetByBranchIdAndDay(businessId, day, branchId);
+            return appointments
+                .Select(a => a.ToResponse())
+                .ToList();
+        }
+
         public async Task<List<AppointmentResponse>> GetMyAppointments()
         {
             var businessId = _tenantProvider.GetBusinessId()
@@ -147,6 +161,9 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
+            if (!staff.IsActive)
+                throw new ConflictException("El profesional seleccionado no está disponible.");
+
             // 2. Validar que el staff pertenece a la sucursal indicada
             if (staff.BranchId != request.BranchId)
                 throw new ConflictException("El profesional seleccionado no pertenece a esta sucursal.");
@@ -165,10 +182,15 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El servicio no se encuentra disponible");
             }
 
-            var argDate = DateTime.UtcNow.AddHours(-3).Date;
-            if(request.Day.Date < argDate)
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
             {
                 throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
             }
 
 
@@ -192,12 +214,12 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             // 5. Crear el turno usando el precio real del servicio y el horario final calculado
@@ -226,6 +248,17 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            if(request.Day.Date < nowArgentina.Date)
+            {
+                throw new ConflictException("No se puede reservar turnos con fechas pasadas");
+            }
+
+            if(request.Day.Date == nowArgentina.Date && request.StartTime <= nowArgentina.TimeOfDay)
+            {
+                throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
+            }
+
             // Resolver el cliente por email (find or create) delegando a ClientService
             var clientDto = new ClientRequest
             {
@@ -246,16 +279,17 @@ namespace GestionTurnos.Application.Services
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El profesional ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
             }
 
             if (await _appointmentRepository.ExistsOverlappingAppointmentForClient(clientId, request.Day, request.StartTime, endTime, id))
             {
-                throw new Exception("El cliente ya tiene un turno asignado en ese horario.");
+                throw new ConflictException("El cliente ya tiene un turno asignado en ese horario.");
             }
 
             existing.StaffId = request.StaffId;
             existing.ClientId = clientId;
+            existing.ClientName = request.ClientName;
             existing.ServiceId = request.ServiceId;
             existing.Day = request.Day;
             existing.StartTime = request.StartTime;
@@ -271,10 +305,79 @@ namespace GestionTurnos.Application.Services
             return fullyLoaded.ToResponse();
         }
 
+        public async Task<List<AppointmentResponse>> GetPendingReassignments()
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var appointments = await _appointmentRepository.GetPendingReassignmentByBusinessId(businessId);
+            return appointments.Select(a => a.ToResponse()).ToList();
+        }
+
+        public async Task<AppointmentResponse> ReassignAppointment(Guid id, Guid newStaffId)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var existing = await _appointmentRepository.GetById(id)
+                ?? throw new NotFoundException("Turno no encontrado.");
+
+            if (existing.Staff.BusinessId != businessId)
+                throw new NotFoundException("Turno no encontrado.");
+
+            if (existing.Status != AppointmentStatus.PendingReassignment)
+                throw new ConflictException("El turno no está pendiente de reasignación.");
+
+            if (existing.Day.Date < DateTime.UtcNow.AddHours(-3).Date)
+                throw new ConflictException("No se puede reasignar un turno con fecha pasada.");
+
+            var newStaff = await _staffRepository.GetById(newStaffId)
+                ?? throw new NotFoundException("El profesional no fue encontrado.");
+
+            if (newStaff.BusinessId != businessId)
+                throw new NotFoundException("El profesional no fue encontrado.");
+
+            if (!newStaff.IsActive)
+                throw new ConflictException("El profesional seleccionado no está activo.");
+
+            if (newStaff.Id == existing.StaffId)
+                throw new ConflictException("Debe seleccionar un profesional distinto al original.");
+
+            if (newStaff.BranchId != existing.Staff.BranchId)
+                throw new ConflictException("El profesional seleccionado no pertenece a la sucursal del turno.");
+
+            var endTime = await ValidateAppointmentWithinSchedule(newStaff.BranchId, existing.Day, existing.StartTime, existing.Service.Duration);
+
+            if (await _appointmentRepository.ExistsOverlappingAppointment(newStaff.Id, existing.Day, existing.StartTime, endTime, id))
+                throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
+
+            existing.StaffId = newStaff.Id;
+            existing.Staff = newStaff;
+            existing.EndTime = endTime;
+            existing.Status = AppointmentStatus.Confirmed;
+
+            await _appointmentRepository.Update(existing);
+
+            var fullyLoaded = await _appointmentRepository.GetById(id)
+                ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            return fullyLoaded.ToResponse();
+        }
+
         public async Task<AppointmentResponse> UpdateStatus(Guid id, AppointmentStatus newStatus)
         {
             var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
+
+            var role = _tenantProvider.GetUserRole();
+            if (Enum.TryParse(role, out Rol userRole) && userRole == Rol.Profesional)
+            {
+                var userId = _tenantProvider.GetUserId();
+                if (existing.StaffId != userId)
+                {
+                    throw new ConflictException("No puede modificar un turno que no le pertenece.");
+                }
+            }
 
             var wasNotCancelled = existing.Status != AppointmentStatus.Cancelled;
 
@@ -305,7 +408,7 @@ namespace GestionTurnos.Application.Services
         public async Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date)
         {
             var staff = await _staffRepository.GetById(staffId);
-            if (staff == null || staff.BranchId != branchId)
+            if (staff == null || !staff.IsActive || staff.BranchId != branchId)
             {
                 return new List<AvailableSlotResponse>();
             }
@@ -332,12 +435,20 @@ namespace GestionTurnos.Application.Services
 
             var existingAppointments = await _appointmentRepository.GetByStaffIdAndDay(staffId, date);
 
+            var nowArgentina = DateTime.UtcNow.AddHours(-3);
+            var isToday = date.Date == nowArgentina.Date;
+
             var result = new List<AvailableSlotResponse>();
 
             for (var candidateStart = schedule.StartTime;
                  candidateStart + serviceDuration <= schedule.EndTime;
                  candidateStart += slotStep)
             {
+                if (isToday && candidateStart <= nowArgentina.TimeOfDay)
+                {
+                    continue;
+                }
+
                 var candidateEnd = candidateStart + serviceDuration;
 
                 bool overlaps = existingAppointments.Any(a =>
@@ -395,7 +506,7 @@ namespace GestionTurnos.Application.Services
                         Id = a.Id,
                         StartTime = a.StartTime.ToString(@"hh\:mm"),
                         EndTime = a.EndTime.ToString(@"hh\:mm"),
-                        ClientName = a.Client.Name,
+                        ClientName = a.ClientName,
                         ServiceName = a.Service.Name,
                         Status = a.Status.ToString()
                     }).ToList()

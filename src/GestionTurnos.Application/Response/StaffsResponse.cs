@@ -18,5 +18,6 @@ namespace GestionTurnos.Application.Response
         public Rol Rol { get; set; }
         public Guid BranchId { get; set; } 
         public string BranchName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
     }
 }

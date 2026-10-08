@@ -41,6 +41,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Recepcionista)]
+        [HttpGet("my-branch/by-date")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetMyBranchAppointmentsByDate([FromQuery] DateTime day)
+        {
+            return Ok(await _appointmentService.GetAppointmentsOfMyBranchByDate(day));
+        }
+
         [Authorize(Policy = Policies.Profesional)]
         [HttpGet("my-appointments")]
         public async Task<ActionResult> GetMyAppointments() {
@@ -106,7 +113,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
-        [Authorize(Policy = Policies.SysAdminOrAdminOrRecepcionista)]
+        [Authorize(Policy = Policies.AnyStaff)]
         [HttpPatch("{id}/status")]
         public async Task<ActionResult> UpdateStatus(Guid id, [FromBody] UpdateAppointmentStatusRequest request)
         {
@@ -114,6 +121,20 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointment);
         }
 
+
+        [Authorize(Policy = Policies.Admin)]
+        [HttpGet("pending-reassignment")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetPendingReassignments()
+        {
+            return Ok(await _appointmentService.GetPendingReassignments());
+        }
+
+        [Authorize(Policy = Policies.Admin)]
+        [HttpPut("{id}/reassign")]
+        public async Task<ActionResult<AppointmentResponse>> Reassign(Guid id, [FromBody] ReassignAppointmentRequest request)
+        {
+            return Ok(await _appointmentService.ReassignAppointment(id, request.StaffId));
+        }
 
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpDelete("{id}")]

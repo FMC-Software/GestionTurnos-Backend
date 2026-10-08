@@ -33,6 +33,7 @@ namespace GestionTurnos.Application.Mapper
                 StaffLinkPhoto = entity.LinkPhoto,
                 BranchId = entity.BranchId,
                 BranchName = entity.Branch?.Name ?? string.Empty,
+                IsActive = entity.IsActive,
             };
         }
 

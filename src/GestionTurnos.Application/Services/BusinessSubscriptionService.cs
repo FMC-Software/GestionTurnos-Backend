@@ -12,9 +12,11 @@ namespace GestionTurnos.Application.Services
     {
         private readonly IBusinessSubscriptionRepository _subscriptionRepository;
         private readonly IPlanService _planService;
+        private readonly IStaffLimitEnforcer _staffLimitEnforcer;
 
-        public BusinessSubscriptionService(IBusinessSubscriptionRepository subscriptionRepository, IPlanService planService)
+        public BusinessSubscriptionService(IBusinessSubscriptionRepository subscriptionRepository, IPlanService planService, IStaffLimitEnforcer staffLimitEnforcer)
         {
+            _staffLimitEnforcer = staffLimitEnforcer;
             _subscriptionRepository = subscriptionRepository;
             _planService = planService;
         }
@@ -182,6 +184,7 @@ namespace GestionTurnos.Application.Services
 
             await _subscriptionRepository.Add(newSubscription);
 
+            await _staffLimitEnforcer.ApplyStaffLimitAsync(businessId, newPlan);
         }
     }
 }

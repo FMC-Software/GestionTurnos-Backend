@@ -13,6 +13,7 @@ namespace GestionTurnos.Presentation.Authorization
         public const string SysAdminOrAdminOrRecepcionista = "SysAdminOrAdminOrRecepcionista"; 
         public const string AdminOrRecepcionista = "AdminOrRecepcionista";
         public const string SysAdminOrAdmin = "SysAdminOrAdmin";
-        
+        public const string AnyStaff = "AnyStaff";
+
     }
 }

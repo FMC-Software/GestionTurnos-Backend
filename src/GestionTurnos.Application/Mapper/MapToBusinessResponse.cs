@@ -19,6 +19,19 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
+        public static BusinessPublicResponse ToPublicResponse(this Business business)
+        {
+            return new BusinessPublicResponse
+            {
+                Id = business.Id,
+                Name = business.Name,
+                Url = business.Url,
+                LogoUrl = business.UrlLogo ?? string.Empty,
+                Category = business.TypeBusiness,
+                IsActive = business.IsActive == StatusBusiness.Habilitado
+            };
+        }
+
         public static BusinessSummaryResponse ToSummaryResponse(this Business business)
         {
             return new BusinessSummaryResponse

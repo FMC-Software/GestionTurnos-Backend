@@ -65,6 +65,30 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToListAsync();
         }
 
+        public async Task<List<Appointment>> GetFutureActiveByStaffId(Guid staffId, DateTime fromDay)
+        {
+            var date = fromDay.Date;
+            return await _dbSet
+                .Where(a => !a.IsDeleted &&
+                            a.StaffId == staffId &&
+                            a.Day.Date >= date &&
+                            (a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Confirmed))
+                .ToListAsync();
+        }
+
+        public async Task<List<Appointment>> GetPendingReassignmentByBusinessId(Guid businessId)
+        {
+            return await _dbSet
+                .Include(a => a.Client)
+                .Include(a => a.Staff)
+                .Include(a => a.Service)
+                .Where(a => !a.IsDeleted &&
+                            a.Status == AppointmentStatus.PendingReassignment &&
+                            a.Staff.BusinessId == businessId)
+                .OrderBy(a => a.Day).ThenBy(a => a.StartTime)
+                .ToListAsync();
+        }
+
         public async Task<List<Appointment>> GetByStaffIdAndDay(Guid staffId, DateTime day)
         {
             var date = day.Date;

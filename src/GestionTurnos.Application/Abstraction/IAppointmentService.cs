@@ -7,6 +7,8 @@ namespace GestionTurnos.Application.Abstraction
     {
         Task<List<AppointmentResponse>> GetAppointmentsOfCurrentBusiness();
         Task<List<AppointmentResponse>> GetAppointmentsOfMyBranch();
+
+        Task<List<AppointmentResponse>> GetAppointmentsOfMyBranchByDate(DateTime day);
         Task<List<AppointmentResponse>> GetMyAppointments();
         Task<List<AppointmentResponse>> GetAppointmentsByBranch(Guid branchId);
         Task<List<GlobalAppointmentResponse>> GetAllGlobal();
@@ -14,6 +16,8 @@ namespace GestionTurnos.Application.Abstraction
         Task<AppointmentResponse> GetById(Guid id);
         Task<AppointmentResponse> UpdateAppointment(Guid id, AppointmentRequest request);
         Task<AppointmentResponse> UpdateStatus(Guid id, GestionTurnos.Domain.Entities.AppointmentStatus newStatus);
+        Task<List<AppointmentResponse>> GetPendingReassignments();
+        Task<AppointmentResponse> ReassignAppointment(Guid id, Guid newStaffId);
         Task DeleteAppointment(Guid id);
 
         Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date);

@@ -21,6 +21,37 @@ namespace GestionTurnos.Application.Response
 
     }
 
+    public class BusinessPublicResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string LogoUrl { get; set; } = string.Empty;
+        public TypeBusiness Category { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class BusinessPublicEcosystemResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public string LogoUrl { get; set; } = string.Empty;
+        public TypeBusiness Category { get; set; }
+        public List<BranchPublicResponse> Branches { get; set; } = new();
+    }
+
+    public class BranchPublicResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string? Phone { get; set; }
+        public string? City { get; set; }
+        public List<ScheduleResponse> Schedules { get; set; } = new();
+        public List<StaffSummaryResponse> Staff { get; set; } = new();
+    }
+
     public class BranchResponse
     {
         public Guid Id { get; set; }

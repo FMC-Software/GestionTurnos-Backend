@@ -33,6 +33,7 @@ builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped(typeof(BaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffLimitEnforcer, StaffLimitEnforcer>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IPlanRepository, PlanRepository>();
@@ -89,6 +90,8 @@ builder.Services.AddAuthorization(options =>
     policy.RequireClaim(ClaimTypes.Role, "SysAdmin", "Admin"));
     options.AddPolicy(Policies.AdminOrRecepcionista, policy =>
     policy.RequireClaim(ClaimTypes.Role, "Recepcionista", "Admin"));
+    options.AddPolicy(Policies.AnyStaff, policy =>
+    policy.RequireClaim(ClaimTypes.Role, "SysAdmin", "Admin", "Recepcionista", "Profesional"));
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
        .AddJwtBearer(options =>

@@ -99,7 +99,7 @@ namespace GestionTurnos.Application.Services
                     Day = (DayOfWeek)i,
                     StartTime = new TimeSpan(9, 0, 0),
                     EndTime = new TimeSpan(18, 0, 0),
-
+                    SlotDurationMinutes = 30,
                     IsDeleted = (i != 0 && i != 5)
                 });
             }

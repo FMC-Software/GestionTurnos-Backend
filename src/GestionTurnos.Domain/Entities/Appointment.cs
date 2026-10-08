@@ -6,7 +6,8 @@ namespace GestionTurnos.Domain.Entities
     {
         Pending, // Apenas se crea el turno
         Confirmed, // El cliente paso, tomo el sevicio, pago y se fue
-        Cancelled // El cliente cancelo el turno o no se presento
+        Cancelled, // El cliente cancelo el turno o no se presento
+        PendingReassignment // El profesional fue desactivado por limite de plan; el admin debe reasignar el turno
     }
 
     public enum PaymentMethod
@@ -23,6 +24,10 @@ namespace GestionTurnos.Domain.Entities
 
         public Guid ClientId { get; set; }
         public Client Client { get; set; } = null!;
+
+        // Snapshot del nombre al momento de reservar: Client.Name puede cambiar
+        // despues (mismo email, otra reserva) sin afectar turnos ya creados.
+        public string ClientName { get; set; } = string.Empty;
 
     
         public Guid ServiceId { get; set; }
