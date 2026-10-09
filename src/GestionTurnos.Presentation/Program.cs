@@ -42,6 +42,7 @@ builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<ISysAdminRepository, SysAdminRepository>();
+builder.Services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
 
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
@@ -64,6 +65,8 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IEmailContentBuilder, EmailContentBuilder>();
 builder.Services.AddScoped<IDolarService, DolarService>();
+builder.Services.AddScoped<IMercadoPagoService, MercadoPagoService>();
+builder.Services.AddScoped<IPaymentOrderService, PaymentOrderService>();
 
 builder.Services.AddHostedService<SubscriptionWorker>();
 builder.Services.AddScoped<SubscriptionProcessor>();
@@ -125,6 +128,12 @@ builder.Services.AddHttpClient("DolarApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration[
 "DolarHoy:Base_URL"]!);
+});
+
+builder.Services.AddHttpClient("MercadoPago", client =>
+{
+    client.BaseAddress = new Uri("https://api.mercadopago.com");
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
 
 
