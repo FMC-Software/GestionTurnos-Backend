@@ -10,6 +10,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     {
         public Task<ScheduleResponse> CreateSchedule(ScheduleRequest request);
 
-        public Task UpdateSchedule(ScheduleRequest request, Guid id);
+        public Task<List<ScheduleResponse>> GetByBranch(Guid branchId);
+
+        public Task<List<ScheduleResponse>> UpdateBranchSchedules(Guid branchId, UpdateBranchSchedulesRequest request);
     }
 }

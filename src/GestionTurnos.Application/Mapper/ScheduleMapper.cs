@@ -14,7 +14,8 @@ public static class ScheduleMapper
             StartTime = request.StartTime ?? default(TimeSpan),
             EndTime = request.EndTime ?? default(TimeSpan),
             SlotDurationMinutes = request.SlotDurationMinutes,
-            IsDeleted = false 
+            IsActive = request.IsActive ?? true,
+            IsDeleted = false
         };
     }
 
@@ -22,10 +23,13 @@ public static class ScheduleMapper
     {
         return new ScheduleResponse
         {
+            Id = entity.Id,
             BranchId = entity.BranchId,
             Day = entity.DayOfWeek,
             StartTime = entity.StartTime,
-            EndTime = entity.EndTime
+            EndTime = entity.EndTime,
+            SlotDurationMinutes = entity.SlotDurationMinutes,
+            IsActive = entity.IsActive
         };
     }
 }

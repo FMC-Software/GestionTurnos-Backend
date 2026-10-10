@@ -1,11 +1,13 @@
 using GestionTurnos.Application.Abstraction.Infrastructure;
 using GestionTurnos.Application.Request;
+using GestionTurnos.Application.Response;
+using GestionTurnos.Presentation.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace GestionTurnos.Presentation.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ScheduleController : ControllerBase
@@ -17,13 +19,18 @@ namespace GestionTurnos.Presentation.Controllers
             _scheduleService = scheduleService;
         }
 
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put([FromBody] ScheduleRequest request, Guid id)
+        [Authorize(Policy = Policies.AnyStaff)]
+        [HttpGet("branch/{branchId}")]
+        public async Task<ActionResult<List<ScheduleResponse>>> GetByBranch([FromRoute] Guid branchId)
         {
-            await _scheduleService.UpdateSchedule(request, id);
-            return NoContent();
+            return Ok(await _scheduleService.GetByBranch(branchId));
         }
 
+        [Authorize(Policy = Policies.SysAdminOrAdmin)]
+        [HttpPut("branch/{branchId}")]
+        public async Task<ActionResult<List<ScheduleResponse>>> UpdateByBranch([FromRoute] Guid branchId, [FromBody] UpdateBranchSchedulesRequest request)
+        {
+            return Ok(await _scheduleService.UpdateBranchSchedules(branchId, request));
+        }
     }
 }
