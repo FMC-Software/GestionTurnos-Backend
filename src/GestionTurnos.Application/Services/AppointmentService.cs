@@ -30,6 +30,18 @@ namespace GestionTurnos.Application.Services
             _appointmentNotificationService = appointmentNotificationService;
             _appointmentRealtimeNotifier = appointmentRealtimeNotifier;
         }
+        private const int MaxAppointmentMonthsAhead = 2;
+
+        /// Valida que la fecha del turno no supere el maximo de meses de anticipacion permitido.
+        private static void ValidateAppointmentDateRange(DateTime day, DateTime nowArgentina)
+        {
+            var maxDate = nowArgentina.Date.AddMonths(MaxAppointmentMonthsAhead);
+            if (day.Date > maxDate)
+            {
+                throw new ConflictException($"No se puede reservar turnos con más de {MaxAppointmentMonthsAhead} meses de anticipación.");
+            }
+        }
+
         /// Valida que el turno caiga dentro del horario de atencion de la sucursal
         /// y devuelve el endTime calculado a partir de la duracion del servicio.
         private async Task<TimeSpan> ValidateAppointmentWithinSchedule(Guid branchId, DateTime day, TimeSpan startTime, int serviceDurationMinutes)
@@ -193,9 +205,7 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
             }
 
-
-
-
+            ValidateAppointmentDateRange(request.Day, nowArgentina);
 
             // 3. Busco o creo el cliente delegando a ClientService
             var clientDto = new ClientRequest
@@ -258,6 +268,8 @@ namespace GestionTurnos.Application.Services
             {
                 throw new ConflictException("No se puede reservar un turno en un horario que ya pasó");
             }
+
+            ValidateAppointmentDateRange(request.Day, nowArgentina);
 
             // Resolver el cliente por email (find or create) delegando a ClientService
             var clientDto = new ClientRequest
