@@ -8,6 +8,8 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
     public interface IAppointmentRepository : IBaseRepository<Appointment>
     {
         Task<List<Appointment>> GetByBusinessId(Guid businessId);
+        Task<int> CountByBusinessId(Guid businessId);
+        Task<int> CountDistinctActiveClientsByBusinessId(Guid businessId);
         Task<List<Appointment>> GetByBranchId(Guid branchId, Guid businessId);
         Task<List<Appointment>> GetByStaffId(Guid staffId, Guid businessId);
         Task<List<Appointment>> GetFutureActiveByStaffId(Guid staffId, DateTime fromDay);
