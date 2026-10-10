@@ -81,6 +81,18 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        public async Task<BusinessAppointmentStatsResponse> GetAppointmentStatsForCurrentBusiness()
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            return new BusinessAppointmentStatsResponse
+            {
+                TotalAppointments = await _appointmentRepository.CountByBusinessId(businessId),
+                ActiveClients = await _appointmentRepository.CountDistinctActiveClientsByBusinessId(businessId),
+            };
+        }
+
         public async Task<List<AppointmentResponse>> GetAppointmentsOfMyBranch()
         {
             var businessId = _tenantProvider.GetBusinessId()

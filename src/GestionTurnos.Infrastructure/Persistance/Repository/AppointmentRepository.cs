@@ -45,6 +45,16 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToListAsync();
         }
 
+        public async Task<int> CountByBusinessId(Guid businessId) =>
+            await _dbSet.CountAsync(a => !a.IsDeleted && a.Staff.BusinessId == businessId);
+
+        public async Task<int> CountDistinctActiveClientsByBusinessId(Guid businessId) =>
+            await _dbSet
+                .Where(a => !a.IsDeleted && a.Staff.BusinessId == businessId)
+                .Select(a => a.ClientId)
+                .Distinct()
+                .CountAsync();
+
         public async Task<List<Appointment>> GetByBranchId(Guid branchId, Guid businessId)
         {
             return await _dbSet

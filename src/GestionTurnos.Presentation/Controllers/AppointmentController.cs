@@ -34,6 +34,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(appointments);
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [HttpGet("stats")]
+        public async Task<ActionResult<BusinessAppointmentStatsResponse>> GetStats()
+        {
+            return Ok(await _appointmentService.GetAppointmentStatsForCurrentBusiness());
+        }
+
         [Authorize(Policy = Policies.Recepcionista)]
         [HttpGet("my-branch")]
         public async Task<ActionResult> GetMyBranchAppointments() {
