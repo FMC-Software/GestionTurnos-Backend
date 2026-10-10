@@ -130,7 +130,10 @@ namespace GestionTurnos.Application.Services
         public async Task<List<StaffSummaryResponse>> GetStaffByBranchId(Guid branchId)
         {
             var staff = await _staffRepository.GetByBranchId(branchId);
-            return staff.Select(s => s.ToSummaryResponse()).ToList();
+            return staff
+                .Where(s => s.Rol == Rol.Admin || s.Rol == Rol.Profesional)
+                .Select(s => s.ToSummaryResponse())
+                .ToList();
         }
 
         public async Task<StaffsResponse> UpdateStaffByEmail(UpdateStaffRequest request)
