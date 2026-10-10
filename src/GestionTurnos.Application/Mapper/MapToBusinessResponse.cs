@@ -15,7 +15,7 @@ namespace GestionTurnos.Application.Mapper
                 Name = business.Name,
                 Url = business.Url,
                 LogoUrl = business.UrlLogo ?? string.Empty,
-
+                Category = business.TypeBusiness,
             };
         }
 
