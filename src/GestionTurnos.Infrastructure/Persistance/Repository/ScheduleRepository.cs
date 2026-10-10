@@ -19,6 +19,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet.FirstOrDefaultAsync(s =>
                 s.BranchId == branchId &&
                 s.DayOfWeek == dayOfWeek &&
+                s.IsActive &&
                 !s.IsDeleted);
         }
 

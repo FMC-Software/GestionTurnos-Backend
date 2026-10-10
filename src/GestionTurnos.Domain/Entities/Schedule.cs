@@ -12,7 +12,8 @@ namespace GestionTurnos.Domain.Entities
             public DayOfWeek DayOfWeek { get; set; } // Enum de C# (0 = Domingo, 1 = Lunes...)
             public TimeSpan StartTime { get; set; } 
             public TimeSpan EndTime { get; set; }   
-            public int SlotDurationMinutes { get; set; } 
+            public int SlotDurationMinutes { get; set; }
+            public bool IsActive { get; set; } = true; // false = la sucursal no atiende ese dia
                                                          
     }
 }

@@ -1,9 +1,12 @@
-namespace GestionTurnos.Application.Response
+namespace GestionTurnos.Application.Request
 {
-    public class ScheduleResponse
+    public class UpdateBranchSchedulesRequest
     {
-        public Guid Id { get; set; }
-        public Guid BranchId { get; set; }
+        public List<ScheduleDayRequest> Days { get; set; } = new();
+    }
+
+    public class ScheduleDayRequest
+    {
         public DayOfWeek Day { get; set; }
         public TimeSpan StartTime { get; set; }
         public TimeSpan EndTime { get; set; }
