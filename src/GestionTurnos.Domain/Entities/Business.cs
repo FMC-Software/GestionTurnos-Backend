@@ -3,7 +3,7 @@
 namespace GestionTurnos.Domain.Entities
 {
     public enum StatusBusiness { Habilitado,Deshabilitado }
-    public enum TypeBusiness { Barberia, Spa}
+    public enum TypeBusiness { Barberia, Spa, Peluqueria, Estetica, Masajes, Tattoo }
     public class Business : BaseEntity
     {
         [Required, StringLength(100)]
