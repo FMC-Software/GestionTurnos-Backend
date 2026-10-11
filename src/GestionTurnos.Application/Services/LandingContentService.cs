@@ -27,10 +27,15 @@ namespace GestionTurnos.Application.Services
 
             var content = new LandingContent
             {
+                BrandName = "Turnify FMC",
                 HeroTitleEs = "Gestión de turnos simple para ti y tus clientes",
                 HeroTitleEn = "Scheduling made simple for you and your clients",
                 HeroDescriptionEs = "Automatiza tus reservas y ahorra horas cada semana.",
-                HeroDescriptionEn = "Automate your appointment booking and save hours every week."
+                HeroDescriptionEn = "Automate your appointment booking and save hours every week.",
+                PlansTitleEs = "Elegí tu plan",
+                PlansTitleEn = "Choose your plan",
+                PlansSubtitleEs = "Elegí el plan que se ajuste a tu negocio. Podés cambiarlo cuando quieras desde tu panel.",
+                PlansSubtitleEn = "Pick the plan that fits your business. You can change it anytime from your dashboard."
             };
 
             await _landingContentRepository.Add(content);
