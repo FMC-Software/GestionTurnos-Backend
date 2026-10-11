@@ -16,6 +16,9 @@ namespace GestionTurnos.Domain.Entities
         public string? Phone { get; set; }
         public string? City { get; set; }
 
+        // Permite ocultar la sucursal de la landing/booking publico sin borrarla.
+        public bool IsActive { get; set; } = true;
+
         public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 
         // Una sucursal tiene muchos empleados (Staff)

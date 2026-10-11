@@ -14,7 +14,8 @@ namespace GestionTurnos.Application.Mapper
                 Name = request.Name ?? "Sucursal 01",
                 Address = request.Address,
                 Phone = request.Phone,
-                City = request.City
+                City = request.City,
+                IsActive = request.IsActive ?? true
             };
         }
 
@@ -24,6 +25,8 @@ namespace GestionTurnos.Application.Mapper
             branch.Address = request.Address;
             branch.Phone = request.Phone;
             branch.City = request.City;
+            if (request.IsActive.HasValue)
+                branch.IsActive = request.IsActive.Value;
             branch.UpdateDateTime = DateTime.UtcNow;
         }
 
@@ -35,7 +38,8 @@ namespace GestionTurnos.Application.Mapper
                 Name = branch.Name,
                 Address = branch.Address,
                 Phone = branch.Phone ?? string.Empty,
-                City = branch.City
+                City = branch.City,
+                IsActive = branch.IsActive
             };
         }
 

@@ -17,6 +17,7 @@ namespace GestionTurnos.Application.Abstraction
 
         public Task<InfoBranchResponse> GetInfoBranch(Guid idBranch);
 
+        Task<BranchResponse> SetActiveStatus(Guid branchId, bool isActive);
 
     }
 }

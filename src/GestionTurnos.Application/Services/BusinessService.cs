@@ -129,7 +129,9 @@ namespace GestionTurnos.Application.Services
         {
             var business = await ResolveEnabledBusinessByUrl(url);
 
-            var branches = await _branchRepository.GetByBusinessId(business.Id);
+            var branches = (await _branchRepository.GetByBusinessId(business.Id))
+                .Where(b => b.IsActive)
+                .ToList();
             var branchResponses = new List<BranchPublicResponse>();
 
             foreach (var branch in branches)

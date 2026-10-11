@@ -37,6 +37,7 @@ namespace GestionTurnos.Application.Response
         public string Address { get; set; } = string.Empty;
         public string? City { get; set; }
         public string? Phone { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
     /// <summary>
