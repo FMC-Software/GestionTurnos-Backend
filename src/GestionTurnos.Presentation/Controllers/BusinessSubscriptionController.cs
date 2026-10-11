@@ -78,6 +78,22 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
 
+        // Cambia el plan de un negocio directamente (sin pasar por el checkout de
+        // MercadoPago): deja Inactive la suscripcion actual y crea una nueva Active
+        // con el plan elegido, aplicando ademas los limites de staff del nuevo plan.
+        [Authorize(Policy = Policies.SysAdmin)]
+        [HttpPut("business/{businessId}/plan")]
+        public async Task<ActionResult<BusinessSubscriptionResponse>> ChangePlan(
+            [FromRoute] Guid businessId,
+            [FromBody] ChangeSubscriptionPlanRequest request)
+        {
+
+                await _subscriptionService.ChangePlan(businessId, request.PlanId);
+                var updated = await _subscriptionService.GetCurrentSubscription(businessId);
+                return Ok(updated);
+
+        }
+
         //Desactiva una suscripcion
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpDelete("{id}")]

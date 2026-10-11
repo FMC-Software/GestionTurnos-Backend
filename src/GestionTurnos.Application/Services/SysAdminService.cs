@@ -67,6 +67,7 @@ namespace GestionTurnos.Application.Services
                 TypeBusiness = business.TypeBusiness,
                 Status = business.IsActive,
                 UpdateDateTime = business.UpdateDateTime,
+                CurrentPlanId = subscription?.PlanId,
                 CurrentPlan = subscription?.Plan?.Name,
                 SubscriptionStatus = subscription?.Status.ToString(),
                 SubscriptionStartDate = subscription?.StartDate,

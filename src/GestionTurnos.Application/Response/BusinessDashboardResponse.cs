@@ -61,6 +61,7 @@ namespace GestionTurnos.Application.Response
         [Phone]
         public string Phone { get; set; } = string.Empty;
         public string? City { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
     public class ServiceResponse

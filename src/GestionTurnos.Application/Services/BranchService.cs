@@ -38,10 +38,11 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        // Publico (AllowAnonymous): solo sucursales habilitadas para mostrar.
         public async Task<List<BranchResponse>> GetBranchesByBusinessId(Guid businessId)
         {
             var branches = await _branchRepository.GetByBusinessId(businessId);
-            return branches.Select(b => b.ToBranchResponse()).ToList();
+            return branches.Where(b => b.IsActive).Select(b => b.ToBranchResponse()).ToList();
         }
 
         public async Task<BranchResponse> GetById(Guid id)
@@ -199,6 +200,21 @@ namespace GestionTurnos.Application.Services
                 ?? throw new ConflictException("Sucursal no encontrada.");
 
             return branch.ToInfoBranchResponse();
+        }
+
+        // Para SysAdmin: habilita/deshabilita cualquier sucursal de cualquier
+        // negocio, sin el chequeo de pertenencia que usa UpdateBranch (Admin).
+        public async Task<BranchResponse> SetActiveStatus(Guid branchId, bool isActive)
+        {
+            var branch = await _branchRepository.GetById(branchId)
+                ?? throw new ConflictException("Sucursal no encontrada.");
+
+            branch.IsActive = isActive;
+            branch.UpdateDateTime = DateTime.UtcNow;
+
+            await _branchRepository.Update(branch);
+
+            return branch.ToBranchResponse();
         }
     }
 }

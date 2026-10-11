@@ -74,6 +74,18 @@ namespace GestionTurnos.Presentation.Controllers
                 return Ok(updatedBranch);
         }
 
+        // SysAdmin habilita/deshabilita cualquier sucursal (no solo la propia,
+        // como hace Update via UpdateBranch con el chequeo de pertenencia).
+        [Authorize(Policy = Policies.SysAdmin)]
+        [HttpPut("{id}/status")]
+        public async Task<ActionResult<BranchResponse>> SetActiveStatus(
+            [FromRoute] Guid id,
+            [FromBody] SetBranchActiveRequest request)
+        {
+            var updated = await _branchService.SetActiveStatus(id, request.IsActive);
+            return Ok(updated);
+        }
+
         [Authorize(Policy = Policies.Admin)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] Guid id)

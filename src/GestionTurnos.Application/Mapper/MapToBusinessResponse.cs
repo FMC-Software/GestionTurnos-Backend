@@ -61,7 +61,8 @@ namespace GestionTurnos.Application.Mapper
                 Name = branch.Name,
                 Address = branch.Address,
                 City = branch.City,
-                Phone = branch.Phone
+                Phone = branch.Phone,
+                IsActive = branch.IsActive
             };
         }
 

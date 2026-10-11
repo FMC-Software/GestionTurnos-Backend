@@ -16,6 +16,7 @@ namespace GestionTurnos.Application.Response
 
         public DateTime UpdateDateTime { get; set; }
 
+        public Guid? CurrentPlanId { get; set; }
         public string? CurrentPlan { get; set; }
         public string? SubscriptionStatus { get; set; }
         public DateTime? SubscriptionStartDate { get; set; }
@@ -36,6 +37,7 @@ namespace GestionTurnos.Application.Response
         public string Address { get; set; } = string.Empty;
         public string? City { get; set; }
         public string? Phone { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
     /// <summary>
