@@ -162,8 +162,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("ReactPolicy"); // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.UseHttpsRedirection();
-
+// Sin redirect a HTTPS: Cloudflare Tunnel ya termina HTTPS en el borde y le
+// habla al backend por HTTP plano (localhost:5189); redirigir acá rompia esas
+// requests (las mandaba a :7032, que no es accesible desde afuera).
 app.UseAuthentication();
 app.UseAuthorization();
 
