@@ -19,7 +19,19 @@ namespace GestionTurnos.Application.Mapper
                 PlansTitleEs = content.PlansTitleEs,
                 PlansTitleEn = content.PlansTitleEn,
                 PlansSubtitleEs = content.PlansSubtitleEs,
-                PlansSubtitleEn = content.PlansSubtitleEn
+                PlansSubtitleEn = content.PlansSubtitleEn,
+                FooterDescriptionEs = content.FooterDescriptionEs,
+                FooterDescriptionEn = content.FooterDescriptionEn,
+                ContactEmail = content.ContactEmail,
+                ContactPhone = content.ContactPhone,
+                InstagramUrl = content.InstagramUrl,
+                FacebookUrl = content.FacebookUrl,
+                TwitterUrl = content.TwitterUrl,
+                LinkedinUrl = content.LinkedinUrl,
+                AboutTitleEs = content.AboutTitleEs,
+                AboutTitleEn = content.AboutTitleEn,
+                AboutDescriptionEs = content.AboutDescriptionEs,
+                AboutDescriptionEn = content.AboutDescriptionEn
             };
         }
 
@@ -34,6 +46,18 @@ namespace GestionTurnos.Application.Mapper
             content.PlansTitleEn = request.PlansTitleEn;
             content.PlansSubtitleEs = request.PlansSubtitleEs;
             content.PlansSubtitleEn = request.PlansSubtitleEn;
+            content.FooterDescriptionEs = request.FooterDescriptionEs;
+            content.FooterDescriptionEn = request.FooterDescriptionEn;
+            content.ContactEmail = request.ContactEmail;
+            content.ContactPhone = request.ContactPhone;
+            content.InstagramUrl = request.InstagramUrl;
+            content.FacebookUrl = request.FacebookUrl;
+            content.TwitterUrl = request.TwitterUrl;
+            content.LinkedinUrl = request.LinkedinUrl;
+            content.AboutTitleEs = request.AboutTitleEs;
+            content.AboutTitleEn = request.AboutTitleEn;
+            content.AboutDescriptionEs = request.AboutDescriptionEs;
+            content.AboutDescriptionEn = request.AboutDescriptionEn;
             content.UpdateDateTime = DateTime.Now;
         }
     }

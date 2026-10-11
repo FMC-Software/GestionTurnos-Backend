@@ -12,5 +12,17 @@ namespace GestionTurnos.Application.Response
         public string PlansTitleEn { get; set; } = string.Empty;
         public string PlansSubtitleEs { get; set; } = string.Empty;
         public string PlansSubtitleEn { get; set; } = string.Empty;
+        public string FooterDescriptionEs { get; set; } = string.Empty;
+        public string FooterDescriptionEn { get; set; } = string.Empty;
+        public string ContactEmail { get; set; } = string.Empty;
+        public string ContactPhone { get; set; } = string.Empty;
+        public string InstagramUrl { get; set; } = string.Empty;
+        public string FacebookUrl { get; set; } = string.Empty;
+        public string TwitterUrl { get; set; } = string.Empty;
+        public string LinkedinUrl { get; set; } = string.Empty;
+        public string AboutTitleEs { get; set; } = string.Empty;
+        public string AboutTitleEn { get; set; } = string.Empty;
+        public string AboutDescriptionEs { get; set; } = string.Empty;
+        public string AboutDescriptionEn { get; set; } = string.Empty;
     }
 }

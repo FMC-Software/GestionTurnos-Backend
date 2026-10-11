@@ -35,7 +35,15 @@ namespace GestionTurnos.Application.Services
                 PlansTitleEs = "Elegí tu plan",
                 PlansTitleEn = "Choose your plan",
                 PlansSubtitleEs = "Elegí el plan que se ajuste a tu negocio. Podés cambiarlo cuando quieras desde tu panel.",
-                PlansSubtitleEn = "Pick the plan that fits your business. You can change it anytime from your dashboard."
+                PlansSubtitleEn = "Pick the plan that fits your business. You can change it anytime from your dashboard.",
+                FooterDescriptionEs = "La forma más simple de gestionar turnos para tu negocio.",
+                FooterDescriptionEn = "The simplest way to manage appointments for your business.",
+                AboutTitleEs = "Quiénes somos",
+                AboutTitleEn = "About us",
+                // "{brandName}" se reemplaza en el frontend por el BrandName actual,
+                // asi el texto no queda desactualizado si se cambia el nombre de marca.
+                AboutDescriptionEs = "{brandName} es una plataforma de gestión de turnos pensada para negocios que atienden por reservas: peluquerías, consultorios, estudios, academias y más. Ayudamos a organizar la agenda, el equipo y los clientes desde un solo lugar, para que dediques menos tiempo a la administración y más tiempo a hacer crecer tu negocio.",
+                AboutDescriptionEn = "{brandName} is an appointment management platform built for booking-based businesses: salons, clinics, studios, academies and more. We help organize your schedule, team and clients from one place, so you spend less time on admin and more time growing your business."
             };
 
             await _landingContentRepository.Add(content);
