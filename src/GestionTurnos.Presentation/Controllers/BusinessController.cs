@@ -77,6 +77,16 @@ namespace GestionTurnos.Presentation.Controllers
             return NoContent();
         }
 
+        // Permite a SysAdmin editar cualquier negocio de la plataforma (nombre,
+        // categoria, url, logo, telefono, estado habilitado/deshabilitado).
+        [Authorize(Policy = Policies.SysAdmin)]
+        [HttpPut("{businessId:guid}")]
+        public async Task<ActionResult> UpdateByAdmin([FromRoute] Guid businessId, [FromBody] BusinessUpdateRequest request)
+        {
+            await _businessService.UpdateByAdmin(businessId, request);
+            return NoContent();
+        }
+
         [Authorize(Policy = Policies.Admin)]
         [HttpDelete("MyBusiness/Delete")]
         public async Task<ActionResult<bool>> Delete()

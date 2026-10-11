@@ -62,9 +62,20 @@ namespace GestionTurnos.Application.Services
 
         public async Task Update(BusinessUpdateRequest request)
         {
-            var BusinesId = _tenantProvider.GetBusinessId();
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new KeyNotFoundException("Empresa no encontrada");
 
-            var existingBusiness = await _businessRepository.GetById(BusinesId ?? Guid.Empty)
+            await UpdateBusinessInternal(businessId, request);
+        }
+
+        public async Task UpdateByAdmin(Guid businessId, BusinessUpdateRequest request)
+        {
+            await UpdateBusinessInternal(businessId, request);
+        }
+
+        private async Task UpdateBusinessInternal(Guid businessId, BusinessUpdateRequest request)
+        {
+            var existingBusiness = await _businessRepository.GetById(businessId)
                 ?? throw new KeyNotFoundException("Empresa no encontrada");
 
             if (!string.IsNullOrWhiteSpace(request.Url))

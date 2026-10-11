@@ -15,6 +15,9 @@ namespace GestionTurnos.Application.Abstraction
 
         Task Update(BusinessUpdateRequest value);
 
+        // Igual que Update, pero para que SysAdmin edite cualquier negocio (no solo el propio).
+        Task UpdateByAdmin(Guid businessId, BusinessUpdateRequest value);
+
         Task<Business> GetById(Guid id);
 
         Task<Business> initialBusiness(SignUpRequest request, TypeBusiness typeBusinessParsed);

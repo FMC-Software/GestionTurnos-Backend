@@ -16,6 +16,7 @@ namespace GestionTurnos.Application.Response
 
         public DateTime UpdateDateTime { get; set; }
 
+        public Guid? CurrentPlanId { get; set; }
         public string? CurrentPlan { get; set; }
         public string? SubscriptionStatus { get; set; }
         public DateTime? SubscriptionStartDate { get; set; }
