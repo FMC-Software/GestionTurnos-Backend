@@ -25,6 +25,7 @@ namespace GestionTurnos.Infrastructure.Persistence
         public DbSet<BusinessSubscription> BusinessSubscriptions { get; set; } = null!;
         public DbSet<Schedule> Schedules { get; set; } = null!;
         public DbSet<PaymentOrder> PaymentOrders { get; set; } = null!;
+        public DbSet<LandingContent> LandingContents { get; set; } = null!;
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

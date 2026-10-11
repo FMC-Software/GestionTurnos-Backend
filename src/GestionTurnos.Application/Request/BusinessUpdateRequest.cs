@@ -17,6 +17,8 @@ namespace GestionTurnos.Application.Request
        
         public  string? LogoUrl { get; set; } = string.Empty;
 
-        public StatusBusiness? IsActive { get; set; } 
+        public StatusBusiness? IsActive { get; set; }
+
+        public TypeBusiness? Category { get; set; }
     }
 }
