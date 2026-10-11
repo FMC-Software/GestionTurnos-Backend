@@ -43,6 +43,7 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<ISysAdminRepository, SysAdminRepository>();
 builder.Services.AddScoped<IPaymentOrderRepository, PaymentOrderRepository>();
+builder.Services.AddScoped<ILandingContentRepository, LandingContentRepository>();
 
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
@@ -56,6 +57,7 @@ builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISysAdminService, SysAdminService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISysAdminDashboardService, SysAdminDashboardService>();
+builder.Services.AddScoped<ILandingContentService, LandingContentService>();
 
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IAppointmentNotificationService, AppointmentNotificationService>();
