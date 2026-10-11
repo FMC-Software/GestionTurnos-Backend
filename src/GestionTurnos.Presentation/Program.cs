@@ -144,7 +144,7 @@ builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TO
     options.AddPolicy("ReactPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:5173", "https://turnify.lat")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
