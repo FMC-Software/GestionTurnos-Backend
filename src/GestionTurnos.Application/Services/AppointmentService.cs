@@ -77,6 +77,7 @@ namespace GestionTurnos.Application.Services
 
             var appointments = await _appointmentRepository.GetByBusinessId(businessId);
             return appointments
+                .OrderByDescending(a => a.UpdateDateTime)
                 .Select(a => a.ToResponse())
                 .ToList();
         }
