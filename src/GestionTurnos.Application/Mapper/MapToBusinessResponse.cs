@@ -16,6 +16,7 @@ namespace GestionTurnos.Application.Mapper
                 Url = business.Url,
                 LogoUrl = business.UrlLogo ?? string.Empty,
                 Category = business.TypeBusiness,
+                Color = business.Color,
             };
         }
 
@@ -28,7 +29,8 @@ namespace GestionTurnos.Application.Mapper
                 Url = business.Url,
                 LogoUrl = business.UrlLogo ?? string.Empty,
                 Category = business.TypeBusiness,
-                IsActive = business.IsActive == StatusBusiness.Habilitado
+                IsActive = business.IsActive == StatusBusiness.Habilitado,
+                Color = business.Color
             };
         }
 
@@ -94,6 +96,9 @@ namespace GestionTurnos.Application.Mapper
 
             if (request.Category.HasValue)
                 business.TypeBusiness = request.Category.Value;
+
+            if (!string.IsNullOrWhiteSpace(request.Color))
+                business.Color = request.Color;
         }
 
     }

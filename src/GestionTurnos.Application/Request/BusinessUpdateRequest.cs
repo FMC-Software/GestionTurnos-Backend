@@ -20,5 +20,7 @@ namespace GestionTurnos.Application.Request
         public StatusBusiness? IsActive { get; set; }
 
         public TypeBusiness? Category { get; set; }
+
+        public string? Color { get; set; }
     }
 }

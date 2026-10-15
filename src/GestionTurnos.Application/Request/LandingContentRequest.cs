@@ -57,5 +57,17 @@ namespace GestionTurnos.Application.Request
 
         [Required]
         public string AboutDescriptionEn { get; set; } = string.Empty;
+
+        // Paleta de colores de la landing. No incluye LinkPhoto a proposito:
+        // la foto del SysAdmin se actualiza aparte (SysAdminService.UpdateMyProfile),
+        // no desde este formulario de contenido.
+        [Required]
+        public string PrimaryColor { get; set; } = string.Empty;
+
+        [Required]
+        public string BackgroundColor { get; set; } = string.Empty;
+
+        [Required]
+        public string AccentColor { get; set; } = string.Empty;
     }
 }

@@ -6,6 +6,5 @@ namespace GestionTurnos.Domain.Entities
 {
     public class SysAdminUser : User
     {
-
     }
 }

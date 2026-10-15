@@ -54,6 +54,21 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(await _staffService.GetAllGlobal());
         }
 
+        // Perfil del propio SysAdmin autenticado (identificado por el token, no por id en la URL).
+        [Authorize(Policy = "SysAdmin")]
+        [HttpGet("me")]
+        public async Task<ActionResult<SysAdminProfileResponse>> GetMyProfile()
+        {
+            return Ok(await _sysAdminService.GetMyProfile());
+        }
+
+        [Authorize(Policy = "SysAdmin")]
+        [HttpPut("me")]
+        public async Task<ActionResult<SysAdminProfileResponse>> UpdateMyProfile([FromBody] UpdateSysAdminProfileRequest request)
+        {
+            return Ok(await _sysAdminService.UpdateMyProfile(request));
+        }
+
         [Authorize(Policy = "SysAdmin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<GlobalStaffResponse>> GetById(Guid id)

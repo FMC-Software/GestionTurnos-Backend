@@ -31,7 +31,11 @@ namespace GestionTurnos.Application.Mapper
                 AboutTitleEs = content.AboutTitleEs,
                 AboutTitleEn = content.AboutTitleEn,
                 AboutDescriptionEs = content.AboutDescriptionEs,
-                AboutDescriptionEn = content.AboutDescriptionEn
+                AboutDescriptionEn = content.AboutDescriptionEn,
+                LinkPhoto = content.LinkPhoto,
+                PrimaryColor = content.PrimaryColor,
+                BackgroundColor = content.BackgroundColor,
+                AccentColor = content.AccentColor
             };
         }
 
@@ -58,6 +62,9 @@ namespace GestionTurnos.Application.Mapper
             content.AboutTitleEn = request.AboutTitleEn;
             content.AboutDescriptionEs = request.AboutDescriptionEs;
             content.AboutDescriptionEn = request.AboutDescriptionEn;
+            content.PrimaryColor = request.PrimaryColor;
+            content.BackgroundColor = request.BackgroundColor;
+            content.AccentColor = request.AccentColor;
             content.UpdateDateTime = DateTime.Now;
         }
     }

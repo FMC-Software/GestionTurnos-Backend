@@ -14,6 +14,9 @@ namespace GestionTurnos.Domain.Entities
         public StatusBusiness IsActive { get; set; } = StatusBusiness.Habilitado;
         public TypeBusiness TypeBusiness { get; set; }
 
+        // Color de marca mostrado en la pagina publica del negocio (url/nombreempresa).
+        public string Color { get; set; } = "#1a1a2e";
+
         // Propiedad de navegación inversa: Un negocio tiene muchas sucursales
         public virtual ICollection<Branch> Branches { get; set; } = new List<Branch>();
 

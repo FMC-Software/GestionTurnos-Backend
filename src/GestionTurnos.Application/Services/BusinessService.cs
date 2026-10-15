@@ -158,6 +158,7 @@ namespace GestionTurnos.Application.Services
                 Url = business.Url,
                 LogoUrl = business.UrlLogo ?? string.Empty,
                 Category = business.TypeBusiness,
+                Color = business.Color,
                 Branches = branchResponses
             };
         }

@@ -14,6 +14,10 @@ namespace GestionTurnos.Application.Abstraction
         Task<List<BusinessCardResponse>> GetBusinessCards();
 
         Task<BusinessDetailResponse> GetBusinessDetail(Guid businessId);
+
+        Task<SysAdminProfileResponse> GetMyProfile();
+
+        Task<SysAdminProfileResponse> UpdateMyProfile(UpdateSysAdminProfileRequest request);
     }
 }
 
