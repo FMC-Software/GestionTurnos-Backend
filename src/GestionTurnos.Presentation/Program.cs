@@ -153,7 +153,14 @@ builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TO
 
 var app = builder.Build();
 
-
+// Aplica migraciones pendientes al arrancar. Necesario para despliegues
+// (ej. docker-compose en servidor propio) que no tienen un paso de CI/CD
+// separado que corra "dotnet ef database update" antes de levantar la app.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<FMCTurnosDbContext>();
+    dbContext.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
