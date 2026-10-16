@@ -25,5 +25,18 @@
         public string AboutTitleEn { get; set; } = string.Empty;
         public string AboutDescriptionEs { get; set; } = string.Empty;
         public string AboutDescriptionEn { get; set; } = string.Empty;
+
+        // Foto de perfil del SysAdmin. Vive aca (en vez de en SysAdminUser)
+        // porque Users es TPH y agregar una columna propia para SysAdminUser
+        // ahi choca con el nombrado automatico de columnas que usa Staff
+        // (ver historial de AddLinkPhotoToSysAdminUser) — como de todos modos
+        // ya hay una sola fila singleton administrada por SysAdmin, reusamos
+        // esta tabla en vez de migrar Users.
+        public string LinkPhoto { get; set; } = string.Empty;
+
+        // Paleta de colores de la landing publica (Home.jsx y sus secciones).
+        public string PrimaryColor { get; set; } = "#1a1a2e";
+        public string BackgroundColor { get; set; } = "#F8F5F0";
+        public string AccentColor { get; set; } = "#e2ddd8";
     }
 }

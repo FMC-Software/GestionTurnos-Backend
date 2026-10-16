@@ -24,5 +24,9 @@ namespace GestionTurnos.Application.Response
         public string AboutTitleEn { get; set; } = string.Empty;
         public string AboutDescriptionEs { get; set; } = string.Empty;
         public string AboutDescriptionEn { get; set; } = string.Empty;
+        public string LinkPhoto { get; set; } = string.Empty;
+        public string PrimaryColor { get; set; } = string.Empty;
+        public string BackgroundColor { get; set; } = string.Empty;
+        public string AccentColor { get; set; } = string.Empty;
     }
 }

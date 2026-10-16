@@ -18,6 +18,7 @@ namespace GestionTurnos.Application.Response
         public string LogoUrl { get; set; } = string.Empty;
 
         public TypeBusiness Category { get; set; }
+        public string Color { get; set; } = string.Empty;
 
     }
 
@@ -29,6 +30,7 @@ namespace GestionTurnos.Application.Response
         public string LogoUrl { get; set; } = string.Empty;
         public TypeBusiness Category { get; set; }
         public bool IsActive { get; set; }
+        public string Color { get; set; } = string.Empty;
     }
 
     public class BusinessPublicEcosystemResponse
@@ -38,6 +40,7 @@ namespace GestionTurnos.Application.Response
         public string Url { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
         public TypeBusiness Category { get; set; }
+        public string Color { get; set; } = string.Empty;
         public List<BranchPublicResponse> Branches { get; set; } = new();
     }
 

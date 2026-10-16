@@ -144,7 +144,7 @@ builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TO
     options.AddPolicy("ReactPolicy", policy =>
     {
         policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:5173", "https://turnify.lat")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
@@ -153,7 +153,14 @@ builder.Services.AddCors(options => // NO LE DEN PELOTA A ESTO ES PARA PROBAR TO
 
 var app = builder.Build();
 
-
+// Aplica migraciones pendientes al arrancar. Necesario para despliegues
+// (ej. docker-compose en servidor propio) que no tienen un paso de CI/CD
+// separado que corra "dotnet ef database update" antes de levantar la app.
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<FMCTurnosDbContext>();
+    dbContext.Database.Migrate();
+}
 
 if (app.Environment.IsDevelopment())
 {
@@ -162,8 +169,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("ReactPolicy"); // NO LE DEN PELOTA A ESTO ES PARA PROBAR TODO EN EL FRONT Y BACK
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.UseHttpsRedirection();
-
+// Sin redirect a HTTPS: Cloudflare Tunnel ya termina HTTPS en el borde y le
+// habla al backend por HTTP plano (localhost:5189); redirigir acá rompia esas
+// requests (las mandaba a :7032, que no es accesible desde afuera).
 app.UseAuthentication();
 app.UseAuthorization();
 

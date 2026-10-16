@@ -63,5 +63,13 @@ namespace GestionTurnos.Application.Services
             await _landingContentRepository.Update(content);
             return content.ToResponse();
         }
+
+        public async Task UpdateLinkPhoto(string linkPhoto)
+        {
+            var content = await GetOrCreate();
+            content.LinkPhoto = linkPhoto;
+            content.UpdateDateTime = DateTime.Now;
+            await _landingContentRepository.Update(content);
+        }
     }
 }

@@ -1,0 +1,22 @@
+name: Deploy backend to self-hosted server
+
+on:
+  push:
+    branches:
+      - deploy-testing
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /srv/dev-disk-by-uuid-68232b37-9047-4117-9d93-62d5a60c3ce5/proyectos/turnify/backend
+          git fetch origin
+          git checkout deploy-testing
+          git pull origin deploy-testing
+
+      - name: Rebuild and restart backend container
+        run: |
+          cd /srv/dev-disk-by-uuid-68232b37-9047-4117-9d93-62d5a60c3ce5/compose/appdata/proyecto-turnify
+          docker compose up -d --build backend

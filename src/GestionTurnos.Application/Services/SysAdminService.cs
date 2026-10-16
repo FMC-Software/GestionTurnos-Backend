@@ -18,19 +18,25 @@ namespace GestionTurnos.Application.Services
         private readonly IBranchRepository _branchRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IBusinessSubscriptionRepository _subscriptionRepository;
+        private readonly ITenantProvider _tenantProvider;
+        private readonly ILandingContentService _landingContentService;
 
         public SysAdminService(
             ISysAdminRepository sysAdminRepository,
             IBusinessRepository businessRepository,
             IBranchRepository branchRepository,
             IStaffRepository staffRepository,
-            IBusinessSubscriptionRepository subscriptionRepository)
+            IBusinessSubscriptionRepository subscriptionRepository,
+            ITenantProvider tenantProvider,
+            ILandingContentService landingContentService)
         {
             _sysAdminRepository = sysAdminRepository;
             _businessRepository = businessRepository;
             _branchRepository = branchRepository;
             _staffRepository = staffRepository;
             _subscriptionRepository = subscriptionRepository;
+            _tenantProvider = tenantProvider;
+            _landingContentService = landingContentService;
         }
 
         public async Task<SysAdminUser?> GetByEmail(string email)
@@ -77,6 +83,55 @@ namespace GestionTurnos.Application.Services
                 ClientCount = stats.ClientCount,
                 AppointmentCount = stats.AppointmentCount,
                 Branches = branches.Select(b => b.ToBranchDetailResponse()).ToList()
+            };
+        }
+
+        private async Task<SysAdminUser> GetCurrentSysAdmin()
+        {
+            var userId = _tenantProvider.GetUserId()
+                ?? throw new ConflictException("No se encontró el usuario en el token.");
+
+            return await _sysAdminRepository.GetById(userId)
+                ?? throw new NotFoundException("Usuario no encontrado.");
+        }
+
+        public async Task<SysAdminProfileResponse> GetMyProfile()
+        {
+            var sysAdmin = await GetCurrentSysAdmin();
+            var landing = await _landingContentService.Get();
+            return new SysAdminProfileResponse
+            {
+                Id = sysAdmin.Id,
+                Name = sysAdmin.Name,
+                Email = sysAdmin.Email,
+                Phone = sysAdmin.Phone,
+                LinkPhoto = landing.LinkPhoto
+            };
+        }
+
+        public async Task<SysAdminProfileResponse> UpdateMyProfile(UpdateSysAdminProfileRequest request)
+        {
+            var sysAdmin = await GetCurrentSysAdmin();
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                sysAdmin.Name = request.Name;
+
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+                sysAdmin.Phone = request.Phone;
+
+            await _sysAdminRepository.Update(sysAdmin);
+
+            if (!string.IsNullOrWhiteSpace(request.LinkPhoto))
+                await _landingContentService.UpdateLinkPhoto(request.LinkPhoto);
+
+            var landing = await _landingContentService.Get();
+            return new SysAdminProfileResponse
+            {
+                Id = sysAdmin.Id,
+                Name = sysAdmin.Name,
+                Email = sysAdmin.Email,
+                Phone = sysAdmin.Phone,
+                LinkPhoto = landing.LinkPhoto
             };
         }
     }
