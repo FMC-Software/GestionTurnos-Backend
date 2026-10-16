@@ -76,7 +76,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(await _appointmentService.GetAppointmentsByBranchAndDate(day, branchId));
         }
 
-        [Authorize(Policy = Policies.Admin)]
+        [Authorize(Policy = Policies.AdminOrRecepcionista)]
         [HttpGet("/api/appointments/schedule")]
         public async Task<ActionResult<BranchAgendaResponse>> GetSchedule([FromQuery] Guid branchId, [FromQuery] DateTime date)
         {
