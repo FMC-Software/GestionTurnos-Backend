@@ -50,6 +50,9 @@ namespace GestionTurnos.Infrastructure.Migrations
                     b.Property<string>("Observation")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("OriginBranchId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Payment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

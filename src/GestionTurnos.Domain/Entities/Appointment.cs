@@ -41,6 +41,13 @@ namespace GestionTurnos.Domain.Entities
         public PaymentMethod Payment { get; set; } 
         public AppointmentStatus Status { get; set; }
 
+        // Sucursal donde se debe atender el turno cuando queda en PendingReassignment:
+        // el profesional pudo haber sido movido de sucursal, pero el turno no se mueve.
+        public Guid? OriginBranchId { get; set; }
+
+        [NotMapped]
+        public Guid EffectiveBranchId => OriginBranchId ?? Staff.BranchId;
+
         //[Column(TypeName = "decimal(18,2)")]
         public decimal TotalCost { get; set; }
     }

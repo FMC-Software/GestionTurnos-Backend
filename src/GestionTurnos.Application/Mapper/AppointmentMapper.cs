@@ -29,6 +29,43 @@ namespace GestionTurnos.Application.Mapper
             };
         }
 
+        public static PendingReassignmentResponse ToPendingReassignmentResponse(this Appointment appointment, string branchName)
+        {
+            return new PendingReassignmentResponse
+            {
+                Id = appointment.Id,
+
+                ClientName = appointment.ClientName,
+                StaffName = appointment.Staff.Name,
+                ServiceName = appointment.Service.Name,
+
+                Day = appointment.Day.ToString("yyyy-MM-dd"),
+                StartTime = appointment.StartTime.ToString(@"hh\:mm"),
+                EndTime = appointment.EndTime.ToString(@"hh\:mm"),
+
+                Observation = appointment.Observation,
+
+                Payment = appointment.Payment.ToString(),
+                Status = appointment.Status.ToString(),
+
+                TotalCost = appointment.TotalCost,
+
+                StaffId = appointment.StaffId,
+                StaffRol = appointment.Staff.Rol.ToString(),
+                StaffIsActive = appointment.Staff.IsActive,
+
+                BranchId = appointment.EffectiveBranchId,
+                BranchName = branchName,
+
+                ClientId = appointment.ClientId,
+                ClientEmail = appointment.Client?.Email ?? string.Empty,
+                ClientPhone = appointment.Client?.Phone ?? string.Empty,
+
+                ServiceId = appointment.ServiceId,
+                ServiceDuration = appointment.Service.Duration
+            };
+        }
+
         public static GlobalAppointmentResponse ToGlobalResponse(this Appointment appointment)
         {
             return new GlobalAppointmentResponse

@@ -330,13 +330,33 @@ namespace GestionTurnos.Application.Services
             return fullyLoaded.ToResponse();
         }
 
-        public async Task<List<AppointmentResponse>> GetPendingReassignments()
+        private bool IsReceptionist() =>
+            Enum.TryParse(_tenantProvider.GetUserRole(), out Rol role) && role == Rol.Recepcionista;
+
+        public async Task<List<PendingReassignmentResponse>> GetPendingReassignments()
         {
             var businessId = _tenantProvider.GetBusinessId()
                 ?? throw new ConflictException("No se encontró la empresa.");
 
             var appointments = await _appointmentRepository.GetPendingReassignmentByBusinessId(businessId);
-            return appointments.Select(a => a.ToResponse()).ToList();
+
+            // El recepcionista solo gestiona los turnos de su sucursal; el admin ve todo el negocio.
+            if (IsReceptionist())
+            {
+                var branchId = _tenantProvider.GetBranchId();
+                appointments = appointments.Where(a => a.EffectiveBranchId == branchId).ToList();
+            }
+
+            var branchNames = new Dictionary<Guid, string>();
+            foreach (var id in appointments.Select(a => a.EffectiveBranchId).Distinct())
+            {
+                var branch = await _branchRepository.GetById(id);
+                branchNames[id] = branch?.Name ?? string.Empty;
+            }
+
+            return appointments
+                .Select(a => a.ToPendingReassignmentResponse(branchNames[a.EffectiveBranchId]))
+                .ToList();
         }
 
         public async Task<AppointmentResponse> ReassignAppointment(Guid id, Guid newStaffId)
@@ -353,6 +373,9 @@ namespace GestionTurnos.Application.Services
             if (existing.Status != AppointmentStatus.PendingReassignment)
                 throw new ConflictException("El turno no está pendiente de reasignación.");
 
+            if (IsReceptionist() && existing.EffectiveBranchId != _tenantProvider.GetBranchId())
+                throw new NotFoundException("Turno no encontrado.");
+
             if (existing.Day.Date < DateTime.UtcNow.AddHours(-3).Date)
                 throw new ConflictException("No se puede reasignar un turno con fecha pasada.");
 
@@ -365,13 +388,15 @@ namespace GestionTurnos.Application.Services
             if (!newStaff.IsActive)
                 throw new ConflictException("El profesional seleccionado no está activo.");
 
-            if (newStaff.Id == existing.StaffId)
-                throw new ConflictException("Debe seleccionar un profesional distinto al original.");
+            if (newStaff.Rol == Rol.Recepcionista)
+                throw new ConflictException("Solo un Admin o un Profesional puede atender turnos.");
 
-            if (newStaff.BranchId != existing.Staff.BranchId)
+            var appointmentBranchId = existing.EffectiveBranchId;
+
+            if (newStaff.BranchId != appointmentBranchId)
                 throw new ConflictException("El profesional seleccionado no pertenece a la sucursal del turno.");
 
-            var endTime = await ValidateAppointmentWithinSchedule(newStaff.BranchId, existing.Day, existing.StartTime, existing.Service.Duration);
+            var endTime = await ValidateAppointmentWithinSchedule(appointmentBranchId, existing.Day, existing.StartTime, existing.Service.Duration);
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(newStaff.Id, existing.Day, existing.StartTime, endTime, id))
                 throw new ConflictException("El profesional ya tiene un turno asignado en ese horario.");
@@ -380,6 +405,7 @@ namespace GestionTurnos.Application.Services
             existing.Staff = newStaff;
             existing.EndTime = endTime;
             existing.Status = AppointmentStatus.Confirmed;
+            existing.OriginBranchId = null;
 
             await _appointmentRepository.Update(existing);
 

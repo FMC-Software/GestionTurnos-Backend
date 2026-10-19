@@ -18,7 +18,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<AppointmentResponse> GetById(Guid id);
         Task<AppointmentResponse> UpdateAppointment(Guid id, AppointmentRequest request);
         Task<AppointmentResponse> UpdateStatus(Guid id, GestionTurnos.Domain.Entities.AppointmentStatus newStatus);
-        Task<List<AppointmentResponse>> GetPendingReassignments();
+        Task<List<PendingReassignmentResponse>> GetPendingReassignments();
         Task<AppointmentResponse> ReassignAppointment(Guid id, Guid newStaffId);
         Task DeleteAppointment(Guid id);
 

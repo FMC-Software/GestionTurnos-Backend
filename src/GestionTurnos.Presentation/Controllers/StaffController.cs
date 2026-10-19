@@ -27,6 +27,20 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(await _staffService.GetStaffByBranchId(branchId));
         }
 
+        [Authorize(Policy = Policies.RecepcionistaOrProfesional)]
+        [HttpGet("me")]
+        public async Task<ActionResult<StaffsResponse>> GetMyProfile()
+        {
+            return Ok(await _staffService.GetMyProfile());
+        }
+
+        [Authorize(Policy = Policies.RecepcionistaOrProfesional)]
+        [HttpPut("me")]
+        public async Task<ActionResult<StaffsResponse>> UpdateMyProfile([FromBody] UpdateMyStaffProfileRequest request)
+        {
+            return Ok(await _staffService.UpdateMyProfile(request));
+        }
+
         [Authorize(Policy = Policies.Admin)]
         [HttpGet("Business/Staffs")]
         public async Task<ActionResult<List<StaffsResponse>>> GetStaffOfBusiness()

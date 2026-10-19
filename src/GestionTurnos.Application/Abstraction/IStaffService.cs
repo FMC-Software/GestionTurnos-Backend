@@ -23,5 +23,9 @@ namespace GestionTurnos.Application.Abstraction
         Task<StaffsResponse> GetAdminOfCurrentBusiness();
 
         Task<StaffsResponse> UpdateStaffByEmail(UpdateStaffRequest request);
+
+        Task<StaffsResponse> GetMyProfile();
+
+        Task<StaffsResponse> UpdateMyProfile(UpdateMyStaffProfileRequest request);
     }
 }
