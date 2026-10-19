@@ -45,6 +45,7 @@ namespace GestionTurnos.Application.Services
                 var futureAppointments = await _appointmentRepository.GetFutureActiveByStaffId(staff.Id, today);
                 foreach (var appointment in futureAppointments)
                 {
+                    appointment.OriginBranchId = staff.BranchId;
                     appointment.Status = AppointmentStatus.PendingReassignment;
                     await _appointmentRepository.Update(appointment);
                 }

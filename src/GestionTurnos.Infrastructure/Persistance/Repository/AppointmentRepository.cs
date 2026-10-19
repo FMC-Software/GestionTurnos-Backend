@@ -90,7 +90,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             return await _dbSet
                 .Include(a => a.Client)
-                .Include(a => a.Staff)
+                .Include(a => a.Staff).ThenInclude(s => s.Branch)
                 .Include(a => a.Service)
                 .Where(a => !a.IsDeleted &&
                             a.Status == AppointmentStatus.PendingReassignment &&

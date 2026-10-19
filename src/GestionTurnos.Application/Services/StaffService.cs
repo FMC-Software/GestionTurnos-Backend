@@ -14,9 +14,13 @@ namespace GestionTurnos.Application.Services
         private readonly IStaffRepository _staffRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IBusinessSubscriptionService _businessSubscriptionService;
+        private readonly IAppointmentRepository _appointmentRepository;
+        private readonly IBranchRepository _branchRepository;
 
-        public StaffService(IStaffRepository staffRepository, ITenantProvider tenantProvider, IBusinessSubscriptionService businessSubscriptionService)
+        public StaffService(IStaffRepository staffRepository, ITenantProvider tenantProvider, IBusinessSubscriptionService businessSubscriptionService, IAppointmentRepository appointmentRepository, IBranchRepository branchRepository)
         {
+            _branchRepository = branchRepository;
+            _appointmentRepository = appointmentRepository;
             _staffRepository = staffRepository;
             _tenantProvider = tenantProvider;
             _businessSubscriptionService = businessSubscriptionService;
@@ -70,6 +74,28 @@ namespace GestionTurnos.Application.Services
             var existingStaff = await _staffRepository.GetById(idStaff)
                 ?? throw new ConflictException("Usuario no encontrado.");
 
+            var branchChanged = request.BranchId.HasValue && request.BranchId.Value != existingStaff.BranchId;
+            if (branchChanged)
+            {
+                var newBranch = await _branchRepository.GetById(request.BranchId!.Value);
+                if (newBranch == null || newBranch.BusinessId != existingStaff.BusinessId)
+                    throw new ConflictException("La sucursal seleccionada no existe.");
+            }
+
+            // Un recepcionista no atiende, y un profesional que cambia de sucursal deja de estar en la sucursal
+            // de sus turnos: en ambos casos sus turnos futuros quedan para reasignar en la sucursal original.
+            // Primero los turnos: si falla a mitad de camino, el staff no cambia y se puede reintentar.
+            if ((existingStaff.Rol == Rol.Profesional && request.Rol == Rol.Recepcionista) || branchChanged)
+            {
+                var today = DateTime.UtcNow.AddHours(-3).Date;
+                var futureAppointments = await _appointmentRepository.GetFutureActiveByStaffId(existingStaff.Id, today);
+                foreach (var appointment in futureAppointments)
+                {
+                    appointment.OriginBranchId = existingStaff.BranchId;
+                    appointment.Status = AppointmentStatus.PendingReassignment;
+                    await _appointmentRepository.Update(appointment);
+                }
+            }
 
             existingStaff.UpdateFromDto(request);
 
@@ -152,6 +178,48 @@ namespace GestionTurnos.Application.Services
 
             await _staffRepository.Update(existingStaff);
             return existingStaff.ToResponse();
+        }
+
+        private async Task<Staff> GetCurrentStaff()
+        {
+            var userId = _tenantProvider.GetUserId()
+                ?? throw new ConflictException("No se encontró el usuario en el token.");
+
+            return await _staffRepository.GetById(userId)
+                ?? throw new NotFoundException("Usuario no encontrado.");
+        }
+
+        public async Task<StaffsResponse> GetMyProfile()
+        {
+            var staff = await GetCurrentStaff();
+            return staff.ToResponse();
+        }
+
+        public async Task<StaffsResponse> UpdateMyProfile(UpdateMyStaffProfileRequest request)
+        {
+            var staff = await GetCurrentStaff();
+
+            if (!string.IsNullOrWhiteSpace(request.Email)
+                && !string.Equals(request.Email, staff.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var emailOwner = await _staffRepository.GetByEmailGlobal(request.Email);
+                if (emailOwner != null && emailOwner.Id != staff.Id)
+                    throw new ConflictException("Ya existe un usuario con ese correo electrónico.");
+
+                staff.Email = request.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                staff.Name = request.Name;
+
+            if (!string.IsNullOrWhiteSpace(request.Phone))
+                staff.Phone = request.Phone;
+
+            if (!string.IsNullOrWhiteSpace(request.LinkPhoto))
+                staff.LinkPhoto = request.LinkPhoto;
+
+            await _staffRepository.Update(staff);
+            return staff.ToResponse();
         }
 
         public async Task<StaffsResponse> GetAdminOfCurrentBusiness()
