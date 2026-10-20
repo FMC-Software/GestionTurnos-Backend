@@ -15,8 +15,9 @@ namespace GestionTurnos.Application.Request
         [MinLength(3, ErrorMessage = "La contraseña debe ser mayor a 3 dígitos")]
         public required string Password { get; set; } = string.Empty;
 
+        // Sin regex fijo a un pais: el frontend ya valida formato con libphonenumber-js
+        // (selector de pais + numero), asi que cualquier pais es valido aca.
         [Phone]
-        [RegularExpression(@"^\+54(9)?[0-9]{10}$", ErrorMessage = "Debe ser un número argentino válido (ej: +5493415551234).")]
         public required string AdminPhone { get; set; } = string.Empty;
         public string? LinkPhoto { get; set; } = string.Empty;
 
@@ -26,7 +27,6 @@ namespace GestionTurnos.Application.Request
         public required string City { get; set; } = string.Empty;
 
         [Phone]
-        [RegularExpression(@"^\+54(9)?[0-9]{10}$", ErrorMessage = "Debe ser un número argentino válido (ej: +5493415551234).")]
         public required string BranchPhone { get; set; }
 
         public Plan? Plan { get; set; } = null;
