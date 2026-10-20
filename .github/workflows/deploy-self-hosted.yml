@@ -14,7 +14,7 @@ jobs:
           cd /srv/dev-disk-by-uuid-68232b37-9047-4117-9d93-62d5a60c3ce5/proyectos/turnify/backend
           git fetch origin
           git checkout deploy-testing
-          git pull origin deploy-testing
+          git reset --hard origin/deploy-testing
 
       - name: Rebuild and restart backend container
         run: |
