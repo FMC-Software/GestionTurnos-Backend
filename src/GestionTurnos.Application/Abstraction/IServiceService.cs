@@ -10,6 +10,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<ServiceBusinessResponse> GetById(Guid id);
         Task<ServiceBusinessResponse> CreateService(ServiceRequest request);
         Task<ServiceBusinessResponse> UpdateService(ServiceRequest request, Guid id);
+        Task<ServiceBusinessResponse> ActivateService(Guid id);
         Task DeleteService(Guid id);
     }
 }

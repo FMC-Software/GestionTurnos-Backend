@@ -16,14 +16,16 @@ namespace GestionTurnos.Application.Services
         private readonly ITenantProvider _tenantProvider;
         private readonly IBusinessService _businessService;
         private readonly IBusinessSubscriptionService _businessSubscriptionService;
+        private readonly IStaffRepository _staffRepository;
 
-        public BranchService(IBranchRepository branchRepository, ITenantProvider tenantProvider, IScheduleService scheduleService, IBusinessService businessService, IBusinessSubscriptionService businessSubscriptionService)
+        public BranchService(IBranchRepository branchRepository, ITenantProvider tenantProvider, IScheduleService scheduleService, IBusinessService businessService, IBusinessSubscriptionService businessSubscriptionService, IStaffRepository staffRepository)
         {
             _branchRepository = branchRepository;
             _tenantProvider = tenantProvider;
             _scheduleService = scheduleService;
             _businessService = businessService;
             _businessSubscriptionService = businessSubscriptionService;
+            _staffRepository = staffRepository;
         }
 
         public async Task<List<BranchResponse>> GetBranchesOfCurrentBusiness()
@@ -86,7 +88,7 @@ namespace GestionTurnos.Application.Services
             }
 
             var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
-            PlanLimitGuard.EnsureWithinLimit(businessBranches.Count, plan.MaxBranchesAllowed, "sucursales");
+            PlanLimitGuard.EnsureWithinLimit(businessBranches.Count(b => b.IsActive), plan.MaxBranchesAllowed, "sucursales");
 
             var newBranch = request.ToBranch(businessId);
 
@@ -134,6 +136,13 @@ namespace GestionTurnos.Application.Services
             {
                 throw new ConflictException("Ya existe una sucursal con ese nombre");
             }
+
+            if (request.IsActive == true && !existingBranch.IsActive)
+                await EnsureCanActivate(businessId);
+
+            if (request.IsActive == false && existingBranch.IsActive
+                && (await _staffRepository.GetByBusinessIdGlobal(businessId)).Any(s => s.Rol == Rol.Admin && s.BranchId == id))
+                throw new ConflictException("No se puede desactivar la sucursal del Admin.");
 
             existingBranch.UpdateFromRequest(request);
 
@@ -200,6 +209,37 @@ namespace GestionTurnos.Application.Services
                 ?? throw new ConflictException("Sucursal no encontrada.");
 
             return branch.ToInfoBranchResponse();
+        }
+
+        // Para el Admin del negocio: reactiva una sucursal propia respetando el limite del plan.
+        public async Task<BranchResponse> ActivateBranch(Guid id)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var branch = await _branchRepository.GetById(id)
+                ?? throw new ConflictException("Sucursal no encontrada.");
+
+            if (branch.BusinessId != businessId)
+                throw new ConflictException("La sucursal no pertenece a su negocio.");
+
+            if (branch.IsActive)
+                return branch.ToBranchResponse();
+
+            await EnsureCanActivate(businessId);
+
+            branch.IsActive = true;
+            branch.UpdateDateTime = DateTime.UtcNow;
+            await _branchRepository.Update(branch);
+            return branch.ToBranchResponse();
+        }
+
+        // Reactivar cuenta contra el cupo del plan igual que crear: no se puede superar MaxBranchesAllowed.
+        private async Task EnsureCanActivate(Guid businessId)
+        {
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            var activeCount = (await _branchRepository.GetByBusinessId(businessId)).Count(b => b.IsActive);
+            PlanLimitGuard.EnsureWithinLimit(activeCount, plan.MaxBranchesAllowed, "sucursales");
         }
 
         // Para SysAdmin: habilita/deshabilita cualquier sucursal de cualquier

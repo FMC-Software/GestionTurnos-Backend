@@ -202,10 +202,14 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El servicio no pertenece al negocio");
             }
 
-            if (service.IsDeleted)
+            if (service.IsDeleted || !service.IsActive)
             {
                 throw new ConflictException("El servicio no se encuentra disponible");
             }
+
+            var branch = await _branchRepository.GetById(request.BranchId);
+            if (branch == null || !branch.IsActive)
+                throw new ConflictException("La sucursal no se encuentra disponible.");
 
             var nowArgentina = DateTime.UtcNow.AddHours(-3);
             if(request.Day.Date < nowArgentina.Date)
@@ -299,6 +303,10 @@ namespace GestionTurnos.Application.Services
             // Obtener el servicio para sacar su duración
             var service = await _appointmentRepository.GetServiceById(request.ServiceId)
                 ?? throw new Exception("El servicio no fue encontrado.");
+
+            // Un turno existente puede conservar su servicio aunque se haya desactivado; solo se rechaza cambiar a uno inactivo.
+            if (!service.IsActive && existing.ServiceId != request.ServiceId)
+                throw new ConflictException("El servicio no se encuentra disponible");
 
             var endTime = await ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
 
