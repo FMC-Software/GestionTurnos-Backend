@@ -20,5 +20,8 @@ namespace GestionTurnos.Application.Request
 
         public Guid? BranchId { get; set; }
 
+        // null = no modificar el estado actual.
+        public bool? IsActive { get; set; }
+
     }
 }

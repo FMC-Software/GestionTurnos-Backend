@@ -105,11 +105,11 @@ namespace GestionTurnos.Application.Services
                 }).ToList(),
                 PlanUsage = new PlanUsageDto
                 {
-                    StaffCount = staff.Count,
+                    StaffCount = staff.Count(s => s.IsActive),
                     MaxStaffAllowed = plan.MaxStaffAllowed,
-                    BranchCount = branches.Count,
+                    BranchCount = branches.Count(b => b.IsActive),
                     MaxBranchesAllowed = plan.MaxBranchesAllowed,
-                    ServiceCount = services.Count,
+                    ServiceCount = services.Count(s => s.IsActive),
                     MaxServicesAllowed = plan.MaxServicesAllowed
                 }
             };
