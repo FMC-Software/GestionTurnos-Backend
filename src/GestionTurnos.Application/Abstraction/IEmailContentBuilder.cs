@@ -14,5 +14,6 @@ namespace GestionTurnos.Application.Abstraction
         EmailMessage BuildResetPassword(User user, string token);
         EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName,string businessName,string branchAddress, DateTime day, TimeSpan time);
         EmailMessage BuildAppointmentCancelledEmail(string clientEmail, string clientName, string businessName, string branchAddress, DateTime day, TimeSpan time);
+        EmailMessage BuildAppointmentReassignedEmail(string clientEmail, string clientName, string businessName, string branchAddress, string serviceName, DateTime day, TimeSpan time, string previousStaffName, string newStaffName);
     }
 }

@@ -11,6 +11,7 @@ namespace GestionTurnos.Application.Abstraction
         //se usa el task para que sea asincrono y no bloquee el hilo principal.
         Task SendAppointmentConfirmationAsync(AppointmentRequest request,string businessName,string  branchName);
         Task SendAppointmentCancelledAsync(Appointment appointment);
+        Task SendAppointmentReassignedAsync(Appointment appointment, string previousStaffName);
 
     }
 }

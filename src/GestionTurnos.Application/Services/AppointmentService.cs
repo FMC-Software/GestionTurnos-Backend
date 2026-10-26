@@ -267,6 +267,9 @@ namespace GestionTurnos.Application.Services
             var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
 
+            var previousStaffId = existing.StaffId;
+            var previousStaffName = existing.Staff.Name;
+
             // Obtener el Staff para derivar el BusinessId
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
@@ -326,6 +329,12 @@ namespace GestionTurnos.Application.Services
 
             var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            // Avisar solo si realmente cambió el profesional.
+            if (previousStaffId != request.StaffId)
+            {
+                await _appointmentNotificationService.SendAppointmentReassignedAsync(fullyLoaded, previousStaffName);
+            }
 
             return fullyLoaded.ToResponse();
         }
@@ -393,6 +402,10 @@ namespace GestionTurnos.Application.Services
 
             var appointmentBranchId = existing.EffectiveBranchId;
 
+            // Capturar el profesional original antes de reasignar.
+            var previousStaffId = existing.StaffId;
+            var previousStaffName = existing.Staff.Name;
+
             if (newStaff.BranchId != appointmentBranchId)
                 throw new ConflictException("El profesional seleccionado no pertenece a la sucursal del turno.");
 
@@ -411,6 +424,12 @@ namespace GestionTurnos.Application.Services
 
             var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            // Avisar solo si realmente cambió el profesional.
+            if (previousStaffId != newStaff.Id)
+            {
+                await _appointmentNotificationService.SendAppointmentReassignedAsync(fullyLoaded, previousStaffName);
+            }
 
             return fullyLoaded.ToResponse();
         }
