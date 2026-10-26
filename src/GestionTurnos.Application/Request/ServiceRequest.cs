@@ -7,6 +7,8 @@ namespace GestionTurnos.Application.Request
         public string Description { get; set; } = string.Empty;
         public int Duration { get; set; }
         public decimal Price { get; set; }
-        
+
+        // null = no modificar el estado actual.
+        public bool? IsActive { get; set; }
     }
 }

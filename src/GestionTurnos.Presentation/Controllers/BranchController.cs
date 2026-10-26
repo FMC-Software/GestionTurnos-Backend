@@ -87,6 +87,13 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [Authorize(Policy = Policies.Admin)]
+        [HttpPut("{id}/activate")]
+        public async Task<ActionResult<BranchResponse>> Activate([FromRoute] Guid id)
+        {
+            return Ok(await _branchService.ActivateBranch(id));
+        }
+
+        [Authorize(Policy = Policies.Admin)]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] Guid id)
         {

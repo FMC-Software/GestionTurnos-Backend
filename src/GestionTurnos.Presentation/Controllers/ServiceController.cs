@@ -50,6 +50,12 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok();
         }
 
+        [HttpPut("{id}/activate")]
+        public async Task<ActionResult<ServiceBusinessResponse>> ActivateService([FromRoute] Guid id)
+        {
+            return Ok(await _serviceService.ActivateService(id));
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteService([FromRoute] Guid id)
         {

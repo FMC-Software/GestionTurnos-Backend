@@ -103,6 +103,9 @@ namespace GestionTurnos.Infrastructure.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("DeleteDateTime")
                         .HasColumnType("datetime2");
 
@@ -530,6 +533,9 @@ namespace GestionTurnos.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime?>("DeleteDateTime")
                         .HasColumnType("datetime2");
 
@@ -539,6 +545,9 @@ namespace GestionTurnos.Infrastructure.Migrations
 
                     b.Property<int>("Duration")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");

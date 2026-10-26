@@ -17,7 +17,10 @@ namespace GestionTurnos.Domain.Entities
         public string? City { get; set; }
 
         // Permite ocultar la sucursal de la landing/booking publico sin borrarla.
+        // Tambien se pone en false cuando el plan del negocio no permite mas sucursales activas.
         public bool IsActive { get; set; } = true;
+
+        public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
 
         public ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
 

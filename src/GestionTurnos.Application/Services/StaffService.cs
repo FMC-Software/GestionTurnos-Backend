@@ -74,6 +74,12 @@ namespace GestionTurnos.Application.Services
             var existingStaff = await _staffRepository.GetById(idStaff)
                 ?? throw new ConflictException("Usuario no encontrado.");
 
+            if (request.IsActive == true && !existingStaff.IsActive)
+                await EnsureCanActivate(existingStaff.BusinessId);
+
+            if (request.IsActive == false && existingStaff.Rol == Rol.Admin)
+                throw new ConflictException("No se puede desactivar al Admin del negocio.");
+
             var branchChanged = request.BranchId.HasValue && request.BranchId.Value != existingStaff.BranchId;
             if (branchChanged)
             {
@@ -117,13 +123,19 @@ namespace GestionTurnos.Application.Services
             if (staff.IsActive)
                 return staff.ToResponse();
 
-            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
-            var activeCount = (await _staffRepository.GetAll()).Count(s => s.IsActive);
-            PlanLimitGuard.EnsureWithinLimit(activeCount, plan.MaxStaffAllowed, "personal");
+            await EnsureCanActivate(businessId);
 
             staff.IsActive = true;
             await _staffRepository.Update(staff);
             return staff.ToResponse();
+        }
+
+        // Reactivar cuenta contra el cupo del plan igual que crear: no se puede superar MaxStaffAllowed.
+        private async Task EnsureCanActivate(Guid businessId)
+        {
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            var activeCount = (await _staffRepository.GetAll()).Count(s => s.IsActive);
+            PlanLimitGuard.EnsureWithinLimit(activeCount, plan.MaxStaffAllowed, "personal");
         }
 
         public async Task DeleteStaff(Guid id)

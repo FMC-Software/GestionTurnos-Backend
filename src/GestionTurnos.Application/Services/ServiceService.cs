@@ -48,7 +48,7 @@ namespace GestionTurnos.Application.Services
         public async Task<List<ServiceResponse>> GetServicesByBusinessId(Guid businessId)
         {
             var services = await _serviceRepository.GetByBusinessId(businessId);
-            return services.Select(s => s.ToResponse()).ToList();
+            return services.Where(s => s.IsActive).Select(s => s.ToResponse()).ToList();
         }
 
         public async Task<ServiceBusinessResponse> GetById(Guid id)
@@ -68,7 +68,7 @@ namespace GestionTurnos.Application.Services
 
             var existingServices = await _serviceRepository.GetByBusinessId(businessId);
             var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
-            PlanLimitGuard.EnsureWithinLimit(existingServices.Count, plan.MaxServicesAllowed, "servicios");
+            PlanLimitGuard.EnsureWithinLimit(existingServices.Count(s => s.IsActive), plan.MaxServicesAllowed, "servicios");
 
             var newService = request.ToService(businessId);
 
@@ -85,13 +85,49 @@ namespace GestionTurnos.Application.Services
             var existingService = await _serviceRepository.GetById(id)
                 ?? throw new ConflictException("Servicio no encontrado.");
 
+            if (existingService.BusinessId != businessId)
+                throw new ConflictException("Servicio no encontrado.");
+
             await ValidateService(request, businessId, id);
+
+            if (request.IsActive == true && !existingService.IsActive)
+                await EnsureCanActivate(businessId);
 
             existingService.UpdateFromRequest(request);
 
             await _serviceRepository.Update(existingService);
 
             return existingService.ToServiceResponse();
+        }
+
+        public async Task<ServiceBusinessResponse> ActivateService(Guid id)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var service = await _serviceRepository.GetById(id)
+                ?? throw new ConflictException("Servicio no encontrado.");
+
+            if (service.BusinessId != businessId)
+                throw new ConflictException("Servicio no encontrado.");
+
+            if (service.IsActive)
+                return service.ToServiceResponse();
+
+            await EnsureCanActivate(businessId);
+
+            service.IsActive = true;
+            service.UpdateDateTime = DateTime.UtcNow;
+            await _serviceRepository.Update(service);
+            return service.ToServiceResponse();
+        }
+
+        // Reactivar cuenta contra el cupo del plan igual que crear: no se puede superar MaxServicesAllowed.
+        private async Task EnsureCanActivate(Guid businessId)
+        {
+            var plan = await _businessSubscriptionService.GetActivePlanForBusiness(businessId);
+            var activeCount = (await _serviceRepository.GetByBusinessId(businessId)).Count(s => s.IsActive);
+            PlanLimitGuard.EnsureWithinLimit(activeCount, plan.MaxServicesAllowed, "servicios");
         }
 
         public async Task DeleteService(Guid id)

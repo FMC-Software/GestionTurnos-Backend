@@ -36,6 +36,9 @@ namespace GestionTurnos.Application.Mapper
             if (request.Price > 0)
                 service.Price = request.Price;
 
+            if (request.IsActive.HasValue)
+                service.IsActive = request.IsActive.Value;
+
             service.UpdateDateTime = DateTime.UtcNow;
         }
 
@@ -49,7 +52,8 @@ namespace GestionTurnos.Application.Mapper
                 Categoria = service.Categoria,
                 Description = service.Description,
                 Duration = service.Duration,
-                Price = service.Price
+                Price = service.Price,
+                IsActive = service.IsActive
             };
         }
     }
