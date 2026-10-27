@@ -26,7 +26,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         }
         public async Task<Staff?> GetByEmailGlobal(string email)
         {
-            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && !s.IsDeleted);
+            return await _dbSet.FirstOrDefaultAsync(s => s.Email == email && !s.IsDeleted && s.IsActive);
         }
 
         public async Task<List<Staff>> GetByBranchId(Guid branchId)
