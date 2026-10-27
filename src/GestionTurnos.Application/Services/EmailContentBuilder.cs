@@ -92,5 +92,31 @@ namespace GestionTurnos.Application.Services
                         "
             };
         }
+
+        public EmailMessage BuildAppointmentReassignedEmail(string clientEmail, string clientName, string businessName, string branchAddress, string serviceName, DateTime day, TimeSpan time, string previousStaffName, string newStaffName)
+        {
+            string formattedDate = day.ToString("dd/MM/yyyy");
+            string formattedTime = time.ToString(@"hh\:mm");
+            return new EmailMessage
+            {
+                To = clientEmail,
+                Subject = $"{businessName} - Cambio de profesional en tu turno",
+                Body = $@"Hola {clientName},
+
+Te informamos que tu turno en {businessName} fue reasignado a otro profesional.
+
+Detalles del turno:
+- Servicio: {serviceName}
+- Profesional anterior: {previousStaffName}
+- Nuevo profesional: {newStaffName}
+- Sucursal: {branchAddress}
+- Fecha: {formattedDate}
+- Hora: {formattedTime}
+
+Si tenés alguna duda, contactanos con anticipación.
+
+¡Gracias por elegirnos!"
+            };
+        }
     }
 }

@@ -21,18 +21,22 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         public async Task SendEmailAsync(EmailMessage message)
         {
-            await SendAsync(message.To, message.Subject, string.Empty, message.Body);
+            await SendAsync(message.To, message.Subject, string.Empty, message.Body, message.Cc);
         }
 
-        public async Task SendAsync(string toEmail, string subject, string plainText, string htmlContent)
+        public async Task SendAsync(string toEmail, string subject, string plainText, string htmlContent, string? ccEmail = null)
         {
             var client = new SendGridClient(_apiKey);
             var from = new EmailAddress(_fromEmail, _fromName);
             var to = new EmailAddress(toEmail);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainText, htmlContent);
 
-            var response = await client.SendEmailAsync(msg);
+            if (!string.IsNullOrWhiteSpace(ccEmail))
+            {
+                msg.AddCc(new EmailAddress(ccEmail));
+            }
 
+            await client.SendEmailAsync(msg);
         }
     }
 }
