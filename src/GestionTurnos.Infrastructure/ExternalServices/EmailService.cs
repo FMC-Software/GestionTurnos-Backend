@@ -25,18 +25,22 @@ namespace GestionTurnos.Infrastructure.ExternalServices
                 ? message.HtmlBody
                 : message.Body.Replace("\n", "<br>");
 
-            await SendAsync(message.To, message.Subject, message.Body, htmlContent);
+            await SendAsync(message.To, message.Subject, message.Body, htmlContent, message.Cc);
         }
 
-        public async Task SendAsync(string toEmail, string subject, string plainText, string htmlContent)
+        public async Task SendAsync(string toEmail, string subject, string plainText, string htmlContent, string? ccEmail = null)
         {
             var client = new SendGridClient(_apiKey);
             var from = new EmailAddress(_fromEmail, _fromName);
             var to = new EmailAddress(toEmail);
             var msg = MailHelper.CreateSingleEmail(from, to, subject, plainText, htmlContent);
 
-            var response = await client.SendEmailAsync(msg);
+            if (!string.IsNullOrWhiteSpace(ccEmail))
+            {
+                msg.AddCc(new EmailAddress(ccEmail));
+            }
 
+            await client.SendEmailAsync(msg);
         }
     }
 }

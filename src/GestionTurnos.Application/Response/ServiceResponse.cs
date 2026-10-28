@@ -12,5 +12,6 @@ namespace GestionTurnos.Application.Response
         public int Duration { get; set; }
         public decimal Price { get; set; }
         public decimal? PriceUSD { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

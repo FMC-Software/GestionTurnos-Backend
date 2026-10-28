@@ -81,8 +81,11 @@ namespace GestionTurnos.Application.Mapper
 
             if (request.BranchId.HasValue)
                 entity.BranchId = request.BranchId.Value;
-                entity.Password = request.Password;
-           
+                // entity.Password = request.Password;
+
+            if (request.IsActive.HasValue)
+                entity.IsActive = request.IsActive.Value;
+
         }
     }
 }

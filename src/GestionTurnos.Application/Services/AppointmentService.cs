@@ -202,10 +202,14 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El servicio no pertenece al negocio");
             }
 
-            if (service.IsDeleted)
+            if (service.IsDeleted || !service.IsActive)
             {
                 throw new ConflictException("El servicio no se encuentra disponible");
             }
+
+            var branch = await _branchRepository.GetById(request.BranchId);
+            if (branch == null || !branch.IsActive)
+                throw new ConflictException("La sucursal no se encuentra disponible.");
 
             var nowArgentina = DateTime.UtcNow.AddHours(-3);
             if(request.Day.Date < nowArgentina.Date)
@@ -267,6 +271,9 @@ namespace GestionTurnos.Application.Services
             var existing = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Turno no encontrado.");
 
+            var previousStaffId = existing.StaffId;
+            var previousStaffName = existing.Staff.Name;
+
             // Obtener el Staff para derivar el BusinessId
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
@@ -300,6 +307,10 @@ namespace GestionTurnos.Application.Services
             var service = await _appointmentRepository.GetServiceById(request.ServiceId)
                 ?? throw new Exception("El servicio no fue encontrado.");
 
+            // Un turno existente puede conservar su servicio aunque se haya desactivado; solo se rechaza cambiar a uno inactivo.
+            if (!service.IsActive && existing.ServiceId != request.ServiceId)
+                throw new ConflictException("El servicio no se encuentra disponible");
+
             var endTime = await ValidateAppointmentWithinSchedule(request.BranchId, request.Day, request.StartTime, service.Duration);
 
             if (await _appointmentRepository.ExistsOverlappingAppointment(request.StaffId, request.Day, request.StartTime, endTime, id))
@@ -326,6 +337,12 @@ namespace GestionTurnos.Application.Services
 
             var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
+
+            // Avisar solo si realmente cambió el profesional.
+            if (previousStaffId != request.StaffId)
+            {
+                await _appointmentNotificationService.SendAppointmentReassignedAsync(fullyLoaded, previousStaffName);
+            }
 
             return fullyLoaded.ToResponse();
         }
@@ -393,6 +410,10 @@ namespace GestionTurnos.Application.Services
 
             var appointmentBranchId = existing.EffectiveBranchId;
 
+            // Capturar el profesional original antes de reasignar.
+            var previousStaffId = existing.StaffId;
+            var previousStaffName = existing.Staff.Name;
+
             if (newStaff.BranchId != appointmentBranchId)
                 throw new ConflictException("El profesional seleccionado no pertenece a la sucursal del turno.");
 
@@ -412,6 +433,12 @@ namespace GestionTurnos.Application.Services
             var fullyLoaded = await _appointmentRepository.GetById(id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
 
+            // Avisar solo si realmente cambió el profesional.
+            if (previousStaffId != newStaff.Id)
+            {
+                await _appointmentNotificationService.SendAppointmentReassignedAsync(fullyLoaded, previousStaffName);
+            }
+
             return fullyLoaded.ToResponse();
         }
 
@@ -430,13 +457,41 @@ namespace GestionTurnos.Application.Services
                 }
             }
 
+            return await SaveStatusAndNotify(existing, newStatus);
+        }
+
+        // Publico (AllowAnonymous): el cliente cancela su turno con el ID y el email con el que reservo.
+        public async Task<AppointmentResponse> CancelAppointmentByClient(Guid id, string email)
+        {
+            // Mismo mensaje si el turno no existe o el email no coincide, para no revelar si un ID existe.
+            var notFound = new ConflictException("No se encontró un turno con esos datos.");
+
+            var existing = await _appointmentRepository.GetById(id) ?? throw notFound;
+
+            if (!string.Equals(existing.Client.Email?.Trim(), email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                throw notFound;
+
+            if (existing.Status == AppointmentStatus.Cancelled)
+                throw new ConflictException("El turno ya fue cancelado.");
+
+            if (existing.Status == AppointmentStatus.Confirmed)
+                throw new ConflictException("El turno ya fue atendido y no puede cancelarse.");
+
+            if (existing.Day.Date + existing.StartTime <= DateTime.UtcNow.AddHours(-3))
+                throw new ConflictException("No se puede cancelar un turno que ya pasó.");
+
+            return await SaveStatusAndNotify(existing, AppointmentStatus.Cancelled);
+        }
+
+        private async Task<AppointmentResponse> SaveStatusAndNotify(Appointment existing, AppointmentStatus newStatus)
+        {
             var wasNotCancelled = existing.Status != AppointmentStatus.Cancelled;
 
             existing.Status = newStatus;
 
             await _appointmentRepository.Update(existing);
 
-            var fullyLoaded = await _appointmentRepository.GetById(id)
+            var fullyLoaded = await _appointmentRepository.GetById(existing.Id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
 
             if (newStatus == AppointmentStatus.Cancelled &&

@@ -14,9 +14,14 @@ namespace GestionTurnos.Application.Services
         private readonly IPlanService _planService;
         private readonly IStaffLimitEnforcer _staffLimitEnforcer;
 
-        public BusinessSubscriptionService(IBusinessSubscriptionRepository subscriptionRepository, IPlanService planService, IStaffLimitEnforcer staffLimitEnforcer)
+        private readonly IServiceLimitEnforcer _serviceLimitEnforcer;
+        private readonly IBranchLimitEnforcer _branchLimitEnforcer;
+
+        public BusinessSubscriptionService(IBusinessSubscriptionRepository subscriptionRepository, IPlanService planService, IStaffLimitEnforcer staffLimitEnforcer, IServiceLimitEnforcer serviceLimitEnforcer, IBranchLimitEnforcer branchLimitEnforcer)
         {
             _staffLimitEnforcer = staffLimitEnforcer;
+            _serviceLimitEnforcer = serviceLimitEnforcer;
+            _branchLimitEnforcer = branchLimitEnforcer;
             _subscriptionRepository = subscriptionRepository;
             _planService = planService;
         }
@@ -185,6 +190,8 @@ namespace GestionTurnos.Application.Services
             await _subscriptionRepository.Add(newSubscription);
 
             await _staffLimitEnforcer.ApplyStaffLimitAsync(businessId, newPlan);
+            await _serviceLimitEnforcer.ApplyServiceLimitAsync(businessId, newPlan);
+            await _branchLimitEnforcer.ApplyBranchLimitAsync(businessId, newPlan);
         }
     }
 }

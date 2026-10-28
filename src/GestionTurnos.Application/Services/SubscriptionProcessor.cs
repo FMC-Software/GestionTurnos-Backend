@@ -11,8 +11,13 @@ public class SubscriptionProcessor
     private readonly IPlanService _planService;
     private readonly IStaffLimitEnforcer _staffLimitEnforcer;
 
-    public SubscriptionProcessor(IBusinessSubscriptionRepository subRepo,IStaffRepository staffRepo,IEmailContentBuilder emailBuilder,IEmailService emailService,IPlanService planService,IStaffLimitEnforcer staffLimitEnforcer)
+    private readonly IServiceLimitEnforcer _serviceLimitEnforcer;
+    private readonly IBranchLimitEnforcer _branchLimitEnforcer;
+
+    public SubscriptionProcessor(IBusinessSubscriptionRepository subRepo,IStaffRepository staffRepo,IEmailContentBuilder emailBuilder,IEmailService emailService,IPlanService planService,IStaffLimitEnforcer staffLimitEnforcer,IServiceLimitEnforcer serviceLimitEnforcer,IBranchLimitEnforcer branchLimitEnforcer)
     {
+        _serviceLimitEnforcer = serviceLimitEnforcer;
+        _branchLimitEnforcer = branchLimitEnforcer;
         _subRepo = subRepo;
         _staffRepo = staffRepo;
         _emailBuilder = emailBuilder;
@@ -61,6 +66,8 @@ public class SubscriptionProcessor
                     Status = Status.Active
                 });
                 await _staffLimitEnforcer.ApplyStaffLimitAsync(sub.BusinessId, freePlan);
+                await _serviceLimitEnforcer.ApplyServiceLimitAsync(sub.BusinessId, freePlan);
+                await _branchLimitEnforcer.ApplyBranchLimitAsync(sub.BusinessId, freePlan);
 
                 var email = _emailBuilder.BuildExpiredEmail(businessAdmin.Email, sub.Business.Name);
                 await _emailService.SendEmailAsync(email);

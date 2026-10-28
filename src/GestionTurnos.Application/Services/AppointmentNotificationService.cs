@@ -37,6 +37,33 @@ namespace GestionTurnos.Application.Services
             }
         }
 
+        public async Task SendAppointmentReassignedAsync(Appointment appointment, string previousStaffName)
+        {
+            try
+            {
+                var emailMessage = _emailContentBuilder.BuildAppointmentReassignedEmail(
+                    appointment.Client.Email,
+                    appointment.Client.Name,
+                    appointment.Staff.Business.Name,
+                    appointment.Staff.Branch.Address,
+                    appointment.Service.Name,
+                    appointment.Day,
+                    appointment.StartTime,
+                    previousStaffName,
+                    appointment.Staff.Name
+                );
+
+                // Copia al nuevo profesional.
+                emailMessage.Cc = appointment.Staff.Email;
+
+                await _emailService.SendEmailAsync(emailMessage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error enviando email de reasignación: {ex.Message}");
+            }
+        }
+
         public async Task SendAppointmentConfirmationAsync(AppointmentRequest request, string businessName, string branchName, string staffName)
         {
 

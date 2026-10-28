@@ -34,6 +34,8 @@ builder.Services.AddScoped(typeof(BaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
 builder.Services.AddScoped<IStaffRepository, StaffRepository>();
 builder.Services.AddScoped<IStaffLimitEnforcer, StaffLimitEnforcer>();
+builder.Services.AddScoped<IServiceLimitEnforcer, ServiceLimitEnforcer>();
+builder.Services.AddScoped<IBranchLimitEnforcer, BranchLimitEnforcer>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<IPlanRepository, PlanRepository>();
