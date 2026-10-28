@@ -457,13 +457,41 @@ namespace GestionTurnos.Application.Services
                 }
             }
 
+            return await SaveStatusAndNotify(existing, newStatus);
+        }
+
+        // Publico (AllowAnonymous): el cliente cancela su turno con el ID y el email con el que reservo.
+        public async Task<AppointmentResponse> CancelAppointmentByClient(Guid id, string email)
+        {
+            // Mismo mensaje si el turno no existe o el email no coincide, para no revelar si un ID existe.
+            var notFound = new ConflictException("No se encontró un turno con esos datos.");
+
+            var existing = await _appointmentRepository.GetById(id) ?? throw notFound;
+
+            if (!string.Equals(existing.Client.Email?.Trim(), email?.Trim(), StringComparison.OrdinalIgnoreCase))
+                throw notFound;
+
+            if (existing.Status == AppointmentStatus.Cancelled)
+                throw new ConflictException("El turno ya fue cancelado.");
+
+            if (existing.Status == AppointmentStatus.Confirmed)
+                throw new ConflictException("El turno ya fue atendido y no puede cancelarse.");
+
+            if (existing.Day.Date + existing.StartTime <= DateTime.UtcNow.AddHours(-3))
+                throw new ConflictException("No se puede cancelar un turno que ya pasó.");
+
+            return await SaveStatusAndNotify(existing, AppointmentStatus.Cancelled);
+        }
+
+        private async Task<AppointmentResponse> SaveStatusAndNotify(Appointment existing, AppointmentStatus newStatus)
+        {
             var wasNotCancelled = existing.Status != AppointmentStatus.Cancelled;
 
             existing.Status = newStatus;
 
             await _appointmentRepository.Update(existing);
 
-            var fullyLoaded = await _appointmentRepository.GetById(id)
+            var fullyLoaded = await _appointmentRepository.GetById(existing.Id)
                 ?? throw new Exception("Error al recargar el turno actualizado.");
 
             if (newStatus == AppointmentStatus.Cancelled &&
