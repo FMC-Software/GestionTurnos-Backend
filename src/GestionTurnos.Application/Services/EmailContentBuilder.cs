@@ -51,24 +51,43 @@ namespace GestionTurnos.Application.Services
                         Equipo de FCM TurniFy"
             };
         }
-        public EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName, string businessName, string branchAddress, DateTime day, TimeSpan time)
+        public EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName, string businessName, string branchAddress, string staffName, DateTime day, TimeSpan time)
         {
             string formattedDate = day.ToString("dd/MM/yyyy");
             string formattedTime = time.ToString(@"hh\:mm");
+
+            var details = new[]
+            {
+                ("Negocio", businessName),
+                ("Dirección", branchAddress),
+                ("Atendido por", staffName),
+                ("Fecha", formattedDate),
+                ("Hora", formattedTime),
+            };
+
             return new EmailMessage
             {
                 To = clientEmail,
-                Subject = $"{businessName} - Confirmación de turno en {businessName}",
+                Subject = $"Turno confirmado en {businessName}",
                 Body = $@"Hola {clientName},
                         Te confirmamos que tu turno en {businessName} ha sido reservado exitosamente.
                         Detalles de tu turno:
                         - Negocio: {businessName}
                         - Dirección: {branchAddress}
+                        - Atendido por: {staffName}
                         - Fecha: {formattedDate}
                         - Hora: {formattedTime}
                         Si necesitas modificar o cancelar tu turno, por favor contáctanos con anticipación.
                         ¡Gracias por elegirnos!
-                        "
+                        ",
+                HtmlBody = BuildAppointmentEmailHtml(
+                    headerColor: "#2563eb",
+                    headerText: "Turno confirmado",
+                    clientName: clientName,
+                    introText: $"Te confirmamos que tu turno en <strong>{businessName}</strong> fue reservado exitosamente.",
+                    details: details,
+                    footerText: "Si necesitás modificar o cancelar tu turno, contactanos con anticipación.",
+                    businessName: businessName)
             };
         }
 
@@ -76,10 +95,19 @@ namespace GestionTurnos.Application.Services
         {
             string formattedDate = day.ToString("dd/MM/yyyy");
             string formattedTime = time.ToString(@"hh\:mm");
+
+            var details = new[]
+            {
+                ("Negocio", businessName),
+                ("Dirección", branchAddress),
+                ("Fecha", formattedDate),
+                ("Hora", formattedTime),
+            };
+
             return new EmailMessage
             {
                 To = clientEmail,
-                Subject = $"{businessName} - Turno cancelado",
+                Subject = $"Turno cancelado en {businessName}",
                 Body = $@"Hola {clientName},
                         Lamentablemente tu turno en {businessName} ha sido cancelado.
                         Detalles del turno cancelado:
@@ -89,7 +117,15 @@ namespace GestionTurnos.Application.Services
                         - Hora: {formattedTime}
                         Podés pedir otro turno con anticipación cuando quieras.
                         ¡Te esperamos!
-                        "
+                        ",
+                HtmlBody = BuildAppointmentEmailHtml(
+                    headerColor: "#dc2626",
+                    headerText: "Turno cancelado",
+                    clientName: clientName,
+                    introText: $"Lamentablemente tu turno en <strong>{businessName}</strong> fue cancelado.",
+                    details: details,
+                    footerText: "Podés pedir otro turno con anticipación cuando quieras.",
+                    businessName: businessName)
             };
         }
 
@@ -97,6 +133,17 @@ namespace GestionTurnos.Application.Services
         {
             string formattedDate = day.ToString("dd/MM/yyyy");
             string formattedTime = time.ToString(@"hh\:mm");
+
+            var details = new[]
+            {
+                ("Servicio", serviceName),
+                ("Profesional anterior", previousStaffName),
+                ("Nuevo profesional", newStaffName),
+                ("Sucursal", branchAddress),
+                ("Fecha", formattedDate),
+                ("Hora", formattedTime),
+            };
+
             return new EmailMessage
             {
                 To = clientEmail,
@@ -115,8 +162,72 @@ Detalles del turno:
 
 Si tenés alguna duda, contactanos con anticipación.
 
-¡Gracias por elegirnos!"
+¡Gracias por elegirnos!",
+                HtmlBody = BuildAppointmentEmailHtml(
+                    headerColor: "#2563eb",
+                    headerText: "Cambio de profesional",
+                    clientName: clientName,
+                    introText: $"Te informamos que tu turno en <strong>{businessName}</strong> fue reasignado a otro profesional.",
+                    details: details,
+                    footerText: "Si tenés alguna duda, contactanos con anticipación.",
+                    businessName: businessName)
             };
+        }
+
+        private static string BuildAppointmentEmailHtml(
+            string headerColor,
+            string headerText,
+            string clientName,
+            string introText,
+            (string Label, string Value)[] details,
+            string footerText,
+            string businessName)
+        {
+            var rows = new StringBuilder();
+            for (int i = 0; i < details.Length; i++)
+            {
+                var borderTop = i == 0 ? string.Empty : "border-top:1px solid #e5e7eb;";
+                rows.Append($@"
+                    <tr>
+                        <td style=""padding:12px 16px;font-size:14px;color:#6b7280;width:140px;{borderTop}"">{details[i].Label}</td>
+                        <td style=""padding:12px 16px;font-size:14px;color:#111827;font-weight:600;{borderTop}"">{details[i].Value}</td>
+                    </tr>");
+            }
+
+            return $@"
+<!DOCTYPE html>
+<html lang=""es"">
+<body style=""margin:0;padding:0;background-color:#f4f5f7;font-family:Segoe UI, Arial, sans-serif;"">
+  <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background-color:#f4f5f7;padding:24px 0;"">
+    <tr>
+      <td align=""center"">
+        <table role=""presentation"" width=""480"" cellpadding=""0"" cellspacing=""0"" style=""background-color:#ffffff;border-radius:8px;overflow:hidden;"">
+          <tr>
+            <td style=""background-color:{headerColor};padding:24px 32px;"">
+              <span style=""color:#ffffff;font-size:20px;font-weight:600;"">{headerText}</span>
+            </td>
+          </tr>
+          <tr>
+            <td style=""padding:32px;"">
+              <p style=""margin:0 0 16px;font-size:16px;color:#1f2937;"">Hola <strong>{clientName}</strong>,</p>
+              <p style=""margin:0 0 24px;font-size:15px;color:#374151;line-height:1.5;"">{introText}</p>
+              <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""border:1px solid #e5e7eb;border-radius:6px;"">
+                {rows}
+              </table>
+              <p style=""margin:24px 0 0;font-size:13px;color:#6b7280;line-height:1.5;"">{footerText}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style=""background-color:#f9fafb;padding:16px 32px;text-align:center;"">
+              <span style=""font-size:12px;color:#9ca3af;"">{businessName}</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>";
         }
     }
 }

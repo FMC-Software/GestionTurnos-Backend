@@ -10,5 +10,6 @@ namespace GestionTurnos.Application.Response
         public string? Cc { get; set; }
         public string Subject { get; set; } = string.Empty;
         public string Body { get; set; } = string.Empty;
+        public string HtmlBody { get; set; } = string.Empty;
     }
 }

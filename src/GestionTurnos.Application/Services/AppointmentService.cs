@@ -260,7 +260,7 @@ namespace GestionTurnos.Application.Services
 
             //ACA se manda el email para avisar TURNO
             await _appointmentNotificationService.SendAppointmentConfirmationAsync(request, staff.Business.Name,
-                staff.Branch.Address);
+                staff.Branch.Address, staff.Name);
 
             //
             return fullyLoaded.ToResponse();

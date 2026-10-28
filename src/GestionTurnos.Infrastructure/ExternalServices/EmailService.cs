@@ -11,7 +11,7 @@ namespace GestionTurnos.Infrastructure.ExternalServices
     public class EmailService : IEmailService
     {
         private readonly string _apiKey;
-        private readonly string _fromEmail = "SuricataMR@gmail.com";
+        private readonly string _fromEmail = "turnifyfmc@gmail.com";
         private readonly string _fromName = "Gestion Turnos";
 
         public EmailService(IConfiguration configuration)
@@ -21,7 +21,11 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
         public async Task SendEmailAsync(EmailMessage message)
         {
-            await SendAsync(message.To, message.Subject, string.Empty, message.Body, message.Cc);
+            var htmlContent = !string.IsNullOrEmpty(message.HtmlBody)
+                ? message.HtmlBody
+                : message.Body.Replace("\n", "<br>");
+
+            await SendAsync(message.To, message.Subject, message.Body, htmlContent, message.Cc);
         }
 
         public async Task SendAsync(string toEmail, string subject, string plainText, string htmlContent, string? ccEmail = null)
