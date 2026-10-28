@@ -29,7 +29,7 @@ namespace GestionTurnos.Application.Services
             };
         }
 
-        public EmailMessage BuildResetPassword(User user, string token)
+        public EmailMessage BuildResetPassword(User user, string resetUrl)
         {
             return new EmailMessage
             {
@@ -41,7 +41,7 @@ namespace GestionTurnos.Application.Services
 
                         Para crear una nueva contraseña, haz clic en el siguiente enlace:
 
-                        https://www.FCMTurniFy.com/reset-password?token={token}
+                        {resetUrl}
 
                         Por motivos de seguridad, este enlace tiene una validez limitada y solo puede utilizarse una vez.
 

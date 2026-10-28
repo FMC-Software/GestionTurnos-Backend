@@ -156,7 +156,10 @@ namespace GestionTurnos.Infrastructure.ExternalServices
 
            var  Token = GenerateTokerForgotPassword(user);
 
-           var emailMessage = _emailContentBuilder.BuildResetPassword(user,Token);
+           var resetPasswordBaseUrl = _configuration["Frontend:ResetPasswordUrl"] ?? "http://localhost:5173/reset-password";
+           var resetUrl = $"{resetPasswordBaseUrl}?token={Token}";
+
+           var emailMessage = _emailContentBuilder.BuildResetPassword(user, resetUrl);
 
             await _emailService.SendEmailAsync(emailMessage);
 
