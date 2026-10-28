@@ -37,16 +37,17 @@ namespace GestionTurnos.Application.Services
             }
         }
 
-        public async Task SendAppointmentConfirmationAsync(AppointmentRequest request, string businessName, string branchName)
+        public async Task SendAppointmentConfirmationAsync(AppointmentRequest request, string businessName, string branchName, string staffName)
         {
-            
-            try 
+
+            try
             {
                 var emailMessage = _emailContentBuilder.BuildAppointmentConfirmationEmail(
                     request.ClientEmail,
                     request.ClientName,
                     businessName,
                     branchName,
+                    staffName,
                     request.Day,
                     request.StartTime
                 );
