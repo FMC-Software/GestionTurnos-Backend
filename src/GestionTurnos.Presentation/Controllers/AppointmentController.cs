@@ -129,6 +129,13 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
 
+        [AllowAnonymous]
+        [HttpPut("{id}/cancel")]
+        public async Task<ActionResult<AppointmentResponse>> Cancel(Guid id, [FromBody] CancelAppointmentRequest request)
+        {
+            return Ok(await _appointmentService.CancelAppointmentByClient(id, request.Email));
+        }
+
         [Authorize(Policy = Policies.AdminOrRecepcionista)]
         [HttpGet("pending-reassignment")]
         public async Task<ActionResult<List<PendingReassignmentResponse>>> GetPendingReassignments()
