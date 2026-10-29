@@ -38,5 +38,27 @@
         public string PrimaryColor { get; set; } = "#1a1a2e";
         public string BackgroundColor { get; set; } = "#F8F5F0";
         public string AccentColor { get; set; } = "#e2ddd8";
+
+        // Imagenes ilustrativas por rubro en la landing publica. Nullable a
+        // proposito: si no estan seteadas, el frontend sigue usando las
+        // imagenes locales (.webp bundleadas) como fallback.
+        public string? ImageUrlBarberia { get; set; }
+        public string? ImageUrlSpa { get; set; }
+        public string? ImageUrlPeluqueria { get; set; }
+        public string? ImageUrlEstetica { get; set; }
+        public string? ImageUrlMasajes { get; set; }
+        public string? ImageUrlTattoo { get; set; }
+
+        // Orden de los 6 rubros en la landing: lista separada por comas con los
+        // nombres de los campos ImageUrlX de arriba (ej. "ImageUrlSpa,ImageUrlBarberia,...").
+        // Se guarda y devuelve tal cual, sin validar — si viene null o con un
+        // valor inesperado, el frontend cae a su orden por defecto hardcodeado.
+        public string? BusinessTypesOrder { get; set; }
+
+        // Orden de las secciones de la landing debajo del Hero (que siempre va
+        // primero, fijo): lista separada por comas con "images","plans","about"
+        // en el orden elegido. Mismo criterio que BusinessTypesOrder: se guarda
+        // y devuelve tal cual, sin validar.
+        public string? SectionsOrder { get; set; }
     }
 }

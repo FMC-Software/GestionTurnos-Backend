@@ -69,5 +69,17 @@ namespace GestionTurnos.Application.Request
 
         [Required]
         public string AccentColor { get; set; } = string.Empty;
+
+        // Imagenes por rubro: opcionales, si vienen null/vacias el frontend
+        // usa su fallback local.
+        public string? ImageUrlBarberia { get; set; }
+        public string? ImageUrlSpa { get; set; }
+        public string? ImageUrlPeluqueria { get; set; }
+        public string? ImageUrlEstetica { get; set; }
+        public string? ImageUrlMasajes { get; set; }
+        public string? ImageUrlTattoo { get; set; }
+
+        public string? BusinessTypesOrder { get; set; }
+        public string? SectionsOrder { get; set; }
     }
 }

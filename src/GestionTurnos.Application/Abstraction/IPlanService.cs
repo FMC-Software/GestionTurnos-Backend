@@ -12,6 +12,7 @@ namespace GestionTurnos.Application.Abstraction
         Task<PlanResponse> Create(PlanRequest request);
         Task<PlanResponse> Update(PlanRequest request, Guid id);
         Task Delete(Guid id);
+        Task<List<PlanResponse>> ReorderPlans(List<Guid> planIds);
 
         Task<Plan> GetPlanOrDefault(Guid? planId);
 

@@ -57,5 +57,10 @@ namespace GestionTurnos.Infrastructure.ExternalServices
         {
             return _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value;
         }
+
+        public string? GetUserName()
+        {
+            return _httpContextAccessor.HttpContext?.User?.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Name)?.Value;
+        }
     } 
 }

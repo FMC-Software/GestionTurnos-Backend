@@ -6,5 +6,6 @@ namespace GestionTurnos.Application.Abstraction.Infrastructure
         Guid? GetBranchId();
         Guid? GetUserId();
         string? GetUserRole();
+        string? GetUserName();
     }
 }

@@ -51,13 +51,15 @@ namespace GestionTurnos.Application.Services
                         Equipo de FCM TurniFy"
             };
         }
-        public EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName, string businessName, string branchAddress, string staffName, DateTime day, TimeSpan time)
+        public EmailMessage BuildAppointmentConfirmationEmail(string clientEmail, string clientName, string businessName, string branchAddress, string staffName, DateTime day, TimeSpan time, Guid appointmentId)
         {
             string formattedDate = day.ToString("dd/MM/yyyy");
             string formattedTime = time.ToString(@"hh\:mm");
+            string appointmentIdText = appointmentId.ToString();
 
             var details = new[]
             {
+                ("Código de turno", appointmentIdText),
                 ("Negocio", businessName),
                 ("Dirección", branchAddress),
                 ("Atendido por", staffName),
@@ -65,19 +67,23 @@ namespace GestionTurnos.Application.Services
                 ("Hora", formattedTime),
             };
 
+            // El codigo de turno es el dato que el cliente necesita para
+            // cancelar su turno desde la pagina publica del negocio (junto con
+            // el email con el que reservo), por eso va bien visible arriba de todo.
             return new EmailMessage
             {
                 To = clientEmail,
                 Subject = $"Turno confirmado en {businessName}",
                 Body = $@"Hola {clientName},
                         Te confirmamos que tu turno en {businessName} ha sido reservado exitosamente.
+                        Código de turno: {appointmentIdText}
                         Detalles de tu turno:
                         - Negocio: {businessName}
                         - Dirección: {branchAddress}
                         - Atendido por: {staffName}
                         - Fecha: {formattedDate}
                         - Hora: {formattedTime}
-                        Si necesitas modificar o cancelar tu turno, por favor contáctanos con anticipación.
+                        Si necesitas cancelar tu turno, vas a necesitar el código de arriba junto con el email con el que reservaste.
                         ¡Gracias por elegirnos!
                         ",
                 HtmlBody = BuildAppointmentEmailHtml(
@@ -86,7 +92,7 @@ namespace GestionTurnos.Application.Services
                     clientName: clientName,
                     introText: $"Te confirmamos que tu turno en <strong>{businessName}</strong> fue reservado exitosamente.",
                     details: details,
-                    footerText: "Si necesitás modificar o cancelar tu turno, contactanos con anticipación.",
+                    footerText: "Si necesitás cancelar tu turno, vas a necesitar el código de arriba junto con el email con el que reservaste.",
                     businessName: businessName)
             };
         }

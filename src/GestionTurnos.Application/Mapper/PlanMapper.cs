@@ -46,7 +46,8 @@ namespace GestionTurnos.Application.Mapper
                 IsActive = plan.IsActive,
                 MaxStaffAllowed = plan.MaxStaffAllowed,
                 MaxBranchesAllowed = plan.MaxBranchesAllowed,
-                MaxServicesAllowed = plan.MaxServicesAllowed
+                MaxServicesAllowed = plan.MaxServicesAllowed,
+                DisplayOrder = plan.DisplayOrder
             };
         }
     }
