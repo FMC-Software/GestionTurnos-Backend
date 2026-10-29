@@ -12,5 +12,6 @@ namespace GestionTurnos.Application.Response
         public int MaxStaffAllowed { get; set; }
         public int MaxBranchesAllowed { get; set; }
         public int MaxServicesAllowed { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

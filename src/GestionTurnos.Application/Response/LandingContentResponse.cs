@@ -28,5 +28,13 @@ namespace GestionTurnos.Application.Response
         public string PrimaryColor { get; set; } = string.Empty;
         public string BackgroundColor { get; set; } = string.Empty;
         public string AccentColor { get; set; } = string.Empty;
+        public string? ImageUrlBarberia { get; set; }
+        public string? ImageUrlSpa { get; set; }
+        public string? ImageUrlPeluqueria { get; set; }
+        public string? ImageUrlEstetica { get; set; }
+        public string? ImageUrlMasajes { get; set; }
+        public string? ImageUrlTattoo { get; set; }
+        public string? BusinessTypesOrder { get; set; }
+        public string? SectionsOrder { get; set; }
     }
 }

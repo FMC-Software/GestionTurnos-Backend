@@ -64,7 +64,7 @@ namespace GestionTurnos.Application.Services
             }
         }
 
-        public async Task SendAppointmentConfirmationAsync(AppointmentRequest request, string businessName, string branchName, string staffName)
+        public async Task SendAppointmentConfirmationAsync(AppointmentRequest request, string businessName, string branchName, string staffName, Guid appointmentId)
         {
 
             try
@@ -76,7 +76,8 @@ namespace GestionTurnos.Application.Services
                     branchName,
                     staffName,
                     request.Day,
-                    request.StartTime
+                    request.StartTime,
+                    appointmentId
                 );
 
                 await _emailService.SendEmailAsync(emailMessage);

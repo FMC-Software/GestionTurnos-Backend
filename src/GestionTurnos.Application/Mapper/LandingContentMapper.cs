@@ -35,7 +35,15 @@ namespace GestionTurnos.Application.Mapper
                 LinkPhoto = content.LinkPhoto,
                 PrimaryColor = content.PrimaryColor,
                 BackgroundColor = content.BackgroundColor,
-                AccentColor = content.AccentColor
+                AccentColor = content.AccentColor,
+                ImageUrlBarberia = content.ImageUrlBarberia,
+                ImageUrlSpa = content.ImageUrlSpa,
+                ImageUrlPeluqueria = content.ImageUrlPeluqueria,
+                ImageUrlEstetica = content.ImageUrlEstetica,
+                ImageUrlMasajes = content.ImageUrlMasajes,
+                ImageUrlTattoo = content.ImageUrlTattoo,
+                BusinessTypesOrder = content.BusinessTypesOrder,
+                SectionsOrder = content.SectionsOrder
             };
         }
 
@@ -65,6 +73,14 @@ namespace GestionTurnos.Application.Mapper
             content.PrimaryColor = request.PrimaryColor;
             content.BackgroundColor = request.BackgroundColor;
             content.AccentColor = request.AccentColor;
+            content.ImageUrlBarberia = request.ImageUrlBarberia;
+            content.ImageUrlSpa = request.ImageUrlSpa;
+            content.ImageUrlPeluqueria = request.ImageUrlPeluqueria;
+            content.ImageUrlEstetica = request.ImageUrlEstetica;
+            content.ImageUrlMasajes = request.ImageUrlMasajes;
+            content.ImageUrlTattoo = request.ImageUrlTattoo;
+            content.BusinessTypesOrder = request.BusinessTypesOrder;
+            content.SectionsOrder = request.SectionsOrder;
             content.UpdateDateTime = DateTime.Now;
         }
     }

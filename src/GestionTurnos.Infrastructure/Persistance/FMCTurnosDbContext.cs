@@ -26,6 +26,9 @@ namespace GestionTurnos.Infrastructure.Persistence
         public DbSet<Schedule> Schedules { get; set; } = null!;
         public DbSet<PaymentOrder> PaymentOrders { get; set; } = null!;
         public DbSet<LandingContent> LandingContents { get; set; } = null!;
+        public DbSet<HelpContent> HelpContents { get; set; } = null!;
+        public DbSet<Faq> Faqs { get; set; } = null!;
+        public DbSet<BugReport> BugReports { get; set; } = null!;
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {

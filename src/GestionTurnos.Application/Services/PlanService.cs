@@ -23,6 +23,8 @@ namespace GestionTurnos.Application.Services
         {
             var plans = await _planRepository.GetAllGlobal();
             return plans
+                .OrderBy(p => p.DisplayOrder)
+                .ThenBy(p => p.Name)
                 .Select(p => p.ToPlanResponse())
                 .ToList();
         }
@@ -32,6 +34,8 @@ namespace GestionTurnos.Application.Services
             var plans = await _planRepository.GetAllGlobal();
             return plans
                 .Where(p => p.IsActive)
+                .OrderBy(p => p.DisplayOrder)
+                .ThenBy(p => p.Name)
                 .Select(p => p.ToPlanResponse())
                 .ToList();
         }
@@ -130,6 +134,30 @@ namespace GestionTurnos.Application.Services
 
             return await _planRepository.GetById(planId.Value)
                 ?? throw new ConflictException("El plan especificado no existe");
+        }
+
+        // Reordena todos los planes de una: el i-esimo id de la lista queda
+        // con DisplayOrder = i. Pensado para un drag-and-drop en el panel de
+        // SysAdmin, que manda la lista completa reordenada de una sola vez.
+        public async Task<List<PlanResponse>> ReorderPlans(List<Guid> planIds)
+        {
+            var allPlans = await _planRepository.GetAllGlobal();
+            var plansById = allPlans.ToDictionary(p => p.Id);
+
+            var missingIds = planIds.Where(id => !plansById.ContainsKey(id)).ToList();
+            if (missingIds.Count > 0)
+            {
+                throw new ConflictException($"No se encontraron los siguientes planes: {string.Join(", ", missingIds)}");
+            }
+
+            for (int i = 0; i < planIds.Count; i++)
+            {
+                var plan = plansById[planIds[i]];
+                plan.DisplayOrder = i;
+                await _planRepository.Update(plan);
+            }
+
+            return await GetAll();
         }
 
         public async Task<Plan> GetActivePlan(Guid planId)

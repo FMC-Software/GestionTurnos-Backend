@@ -23,6 +23,11 @@ namespace GestionTurnos.Domain.Entities
         public int MaxBranchesAllowed { get; set; } = -1;
         public int MaxServicesAllowed { get; set; } = -1;
 
+        // Orden de aparicion en la landing publica (PlansSection) y en el panel
+        // de SysAdmin. Se administra aparte via PUT /api/Plan/reorder, no por
+        // el PUT/POST normal de edicion del plan.
+        public int DisplayOrder { get; set; } = 0;
+
         // Propiedad de navegación inversa
         public virtual ICollection<BusinessSubscription> Subscriptions { get; set; } = new List<BusinessSubscription>();
     }

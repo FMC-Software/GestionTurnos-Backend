@@ -33,7 +33,7 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(plans);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<ActionResult<PlanResponse>> GetById([FromRoute] Guid id)
         {
             var plan = await _planService.GetById(id);
@@ -47,14 +47,24 @@ namespace GestionTurnos.Presentation.Controllers
             return CreatedAtAction(nameof(GetById), new { id = newPlan.Id }, newPlan);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<ActionResult<PlanResponse>> Update([FromBody] PlanRequest request, [FromRoute] Guid id)
         {
             var updatedPlan = await _planService.Update(request, id);
             return Ok(updatedPlan);
         }
 
-        [HttpDelete("{id}")]
+        // Reordena todos los planes de una (drag-and-drop en el panel de
+        // SysAdmin). Separado del PUT de edicion normal para no obligar al
+        // frontend a resandar el PlanRequest completo solo para cambiar el orden.
+        [HttpPut("reorder")]
+        public async Task<ActionResult<List<PlanResponse>>> Reorder([FromBody] PlanReorderRequest request)
+        {
+            var plans = await _planService.ReorderPlans(request.PlanIds);
+            return Ok(plans);
+        }
+
+        [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete([FromRoute] Guid id)
         {
             await _planService.Delete(id);
