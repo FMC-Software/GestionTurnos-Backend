@@ -253,6 +253,9 @@ namespace GestionTurnos.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("PendingPlanId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("PlanId")
                         .HasColumnType("uniqueidentifier");
 
@@ -269,6 +272,8 @@ namespace GestionTurnos.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessId");
+
+                    b.HasIndex("PendingPlanId");
 
                     b.HasIndex("PlanId");
 
@@ -789,6 +794,9 @@ namespace GestionTurnos.Infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsBookable")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LinkPhoto")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -857,6 +865,11 @@ namespace GestionTurnos.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("GestionTurnos.Domain.Entities.Plan", "PendingPlan")
+                        .WithMany()
+                        .HasForeignKey("PendingPlanId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("GestionTurnos.Domain.Entities.Plan", "Plan")
                         .WithMany("Subscriptions")
                         .HasForeignKey("PlanId")
@@ -864,6 +877,8 @@ namespace GestionTurnos.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Business");
+
+                    b.Navigation("PendingPlan");
 
                     b.Navigation("Plan");
                 });

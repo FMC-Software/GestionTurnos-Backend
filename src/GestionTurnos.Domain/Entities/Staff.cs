@@ -27,6 +27,10 @@ namespace GestionTurnos.Domain.Entities
         // False cuando el plan del negocio no permite mas personal activo. No se reactiva automaticamente.
         public bool IsActive { get; set; } = true;
 
+        // False cuando el staff no debe aparecer en el listado publico ni aceptar turnos de clientes
+        // (ej: el Admin que solo administra). No afecta login ni su agenda interna.
+        public bool IsBookable { get; set; } = true;
+
         public DateTime CreatedDateTime { get; set; } = DateTime.UtcNow;
 
         // Propiedad de navegación inversa: Un profesional tiene muchos turnos

@@ -27,6 +27,8 @@ namespace GestionTurnos.Application.Mapper
                 BusinessName = subscription.Business?.Name ?? string.Empty,
                 PlanId = subscription.PlanId,
                 PlanName = subscription.Plan?.Name ?? string.Empty,
+                PendingPlanId = subscription.PendingPlanId,
+                PendingPlanName = subscription.PendingPlan?.Name,
                 StartDate = subscription.StartDate,
                 EndDate = subscription.EndDate,
                 Status = subscription.Status.ToString()

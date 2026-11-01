@@ -38,37 +38,57 @@ public class SubscriptionProcessor
             var businessAdmin = allStaff
                 .FirstOrDefault(s => s.BusinessId == sub.Business.Id && s.Rol == Rol.Admin);
 
-            if (businessAdmin == null)
-                continue; // salta esta suscripción, sigue con las demás
+            var now = DateTime.UtcNow;
+            var isFree = sub.Plan.Price <= 0;
 
-            if (sub.EndDate.AddDays(1) < DateTime.UtcNow)
-                continue;
-
-            if (sub.EndDate <= DateTime.UtcNow.AddDays(3) && sub.EndDate > DateTime.UtcNow )
+            // Aviso de proximo vencimiento (el Free Plan no vence, se renueva solo).
+            if (!isFree && businessAdmin != null && sub.EndDate <= now.AddDays(3) && sub.EndDate > now)
             {
                 var email = _emailBuilder.BuildVencimientoEmail(businessAdmin.Email, sub.Business.Name, 3);
                 await _emailService.SendEmailAsync(email);
             }
 
-            if (sub.EndDate <= DateTime.UtcNow)
+            if (sub.EndDate > now)
+                continue;
+
+            // Plan pendiente (downgrade programado), si sigue vigente.
+            Plan? pendingPlan = null;
+            if (sub.PendingPlanId.HasValue)
             {
-                sub.Status = Status.Expired;
+                try { pendingPlan = await _planService.GetActivePlan(sub.PendingPlanId.Value); }
+                catch { pendingPlan = null; }
+            }
+
+            // Free Plan sin cambio pendiente: se renueva en el lugar, sin vencer.
+            if (isFree && pendingPlan == null)
+            {
+                sub.StartDate = now;
+                sub.EndDate = now.AddDays(sub.Plan.DurationDays);
+                sub.PendingPlanId = null;
                 await _subRepo.UpdateAsync(sub);
+                continue;
+            }
 
-                // Al vencer, el negocio pasa al plan gratuito y se aplican sus limites de personal.
-                var freePlan = await _planService.GetPlanOrDefault(null);
-                await _subRepo.Add(new BusinessSubscription
-                {
-                    BusinessId = sub.BusinessId,
-                    PlanId = freePlan.Id,
-                    StartDate = DateTime.UtcNow,
-                    EndDate = DateTime.UtcNow.AddDays(freePlan.DurationDays),
-                    Status = Status.Active
-                });
-                await _staffLimitEnforcer.ApplyStaffLimitAsync(sub.BusinessId, freePlan);
-                await _serviceLimitEnforcer.ApplyServiceLimitAsync(sub.BusinessId, freePlan);
-                await _branchLimitEnforcer.ApplyBranchLimitAsync(sub.BusinessId, freePlan);
+            sub.Status = Status.Expired;
+            await _subRepo.UpdateAsync(sub);
 
+            // Al vencer, el negocio pasa al plan pendiente o, si no hay, al plan gratuito,
+            // y se aplican los limites de ese plan.
+            var targetPlan = pendingPlan ?? await _planService.GetPlanOrDefault(null);
+            await _subRepo.Add(new BusinessSubscription
+            {
+                BusinessId = sub.BusinessId,
+                PlanId = targetPlan.Id,
+                StartDate = now,
+                EndDate = now.AddDays(targetPlan.DurationDays),
+                Status = Status.Active
+            });
+            await _staffLimitEnforcer.ApplyStaffLimitAsync(sub.BusinessId, targetPlan);
+            await _serviceLimitEnforcer.ApplyServiceLimitAsync(sub.BusinessId, targetPlan);
+            await _branchLimitEnforcer.ApplyBranchLimitAsync(sub.BusinessId, targetPlan);
+
+            if (pendingPlan == null && businessAdmin != null)
+            {
                 var email = _emailBuilder.BuildExpiredEmail(businessAdmin.Email, sub.Business.Name);
                 await _emailService.SendEmailAsync(email);
             }

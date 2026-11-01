@@ -120,6 +120,12 @@ namespace GestionTurnos.Infrastructure.Persistence
                 .HasForeignKey(bs => bs.PlanId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<BusinessSubscription>()
+                .HasOne(bs => bs.PendingPlan)
+                .WithMany()
+                .HasForeignKey(bs => bs.PendingPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Relaciones de Ordenes de Pago (MercadoPago)
             modelBuilder.Entity<PaymentOrder>()
                 .HasOne(po => po.Business)
