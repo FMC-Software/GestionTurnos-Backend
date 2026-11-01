@@ -174,6 +174,26 @@ namespace GestionTurnos.Application.Services
                 throw new ConflictException("El negocio ya posee este plan");
             }
 
+            if (currentSubscription.PendingPlanId == newPlan.Id)
+            {
+                throw new ConflictException("Ya hay un cambio programado a este plan");
+            }
+
+            // Downgrade: el negocio conserva el plan (y los dias ya pagados) hasta que
+            // venza la suscripcion; SubscriptionProcessor aplica el plan pendiente al vencer.
+            var isDowngrade = currentSubscription.Status == Status.Active
+                && currentSubscription.EndDate > DateTime.UtcNow
+                && currentSubscription.Plan != null
+                && newPlan.Price < currentSubscription.Plan.Price;
+
+            if (isDowngrade)
+            {
+                currentSubscription.PendingPlanId = newPlan.Id;
+                await _subscriptionRepository.Update(currentSubscription);
+                return;
+            }
+
+            currentSubscription.PendingPlanId = null;
             currentSubscription.Status = Status.Inactive;
 
             await _subscriptionRepository.Update(currentSubscription);
@@ -192,6 +212,20 @@ namespace GestionTurnos.Application.Services
             await _staffLimitEnforcer.ApplyStaffLimitAsync(businessId, newPlan);
             await _serviceLimitEnforcer.ApplyServiceLimitAsync(businessId, newPlan);
             await _branchLimitEnforcer.ApplyBranchLimitAsync(businessId, newPlan);
+        }
+
+        public async Task CancelPendingPlanChange(Guid businessId)
+        {
+            var subscription = await GetCurrentSubscriptionEntity(businessId);
+
+            if (subscription.PendingPlanId == null)
+            {
+                throw new ConflictException("El negocio no tiene un cambio de plan programado");
+            }
+
+            subscription.PendingPlanId = null;
+            subscription.PendingPlan = null;
+            await _subscriptionRepository.Update(subscription);
         }
     }
 }

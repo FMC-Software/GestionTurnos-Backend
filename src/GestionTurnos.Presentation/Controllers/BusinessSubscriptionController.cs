@@ -94,6 +94,18 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
 
+        // Cancela el cambio de plan programado (downgrade) del negocio autenticado.
+        [Authorize(Policy = Policies.Admin)]
+        [HttpDelete("my/pending-plan")]
+        public async Task<ActionResult<BusinessSubscriptionResponse>> CancelPendingPlanChange()
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontro el negocio en el token");
+
+            await _subscriptionService.CancelPendingPlanChange(businessId);
+            return Ok(await _subscriptionService.GetCurrentSubscription(businessId));
+        }
+
         //Desactiva una suscripcion
         [Authorize(Policy = Policies.SysAdmin)]
         [HttpDelete("{id}")]

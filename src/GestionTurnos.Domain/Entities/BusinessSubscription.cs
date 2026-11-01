@@ -19,6 +19,9 @@ namespace GestionTurnos.Domain.Entities
         public Guid PlanId { get; set; }
         public Plan Plan { get; set; } = null!;
 
+        // Plan al que pasara el negocio cuando finalice esta suscripcion (downgrade programado).
+        public Guid? PendingPlanId { get; set; }
+        public Plan? PendingPlan { get; set; }
 
 
         public DateTime StartDate { get; set; }

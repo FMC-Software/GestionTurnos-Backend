@@ -20,6 +20,8 @@ namespace GestionTurnos.Application.Abstraction
 
         Task ChangePlan(Guid businessId, Guid planId);
 
+        Task CancelPendingPlanChange(Guid businessId);
+
         Task<Plan> GetActivePlanForBusiness(Guid businessId);
 
         //void ChangePlan(Guid businessId, Guid newPlanId);

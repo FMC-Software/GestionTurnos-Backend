@@ -186,7 +186,7 @@ namespace GestionTurnos.Application.Services
             var staff = await _staffRepository.GetById(request.StaffId)
                 ?? throw new Exception("El profesional no fue encontrado.");
 
-            if (!staff.IsActive)
+            if (!staff.IsActive || !staff.IsBookable)
                 throw new ConflictException("El profesional seleccionado no está disponible.");
 
             // 2. Validar que el staff pertenece a la sucursal indicada
@@ -514,7 +514,7 @@ namespace GestionTurnos.Application.Services
         public async Task<List<AvailableSlotResponse>> GetAvailableSlots(Guid branchId, Guid staffId, Guid serviceId, DateTime date)
         {
             var staff = await _staffRepository.GetById(staffId);
-            if (staff == null || !staff.IsActive || staff.BranchId != branchId)
+            if (staff == null || !staff.IsActive || !staff.IsBookable || staff.BranchId != branchId)
             {
                 return new List<AvailableSlotResponse>();
             }

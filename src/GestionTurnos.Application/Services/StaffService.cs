@@ -169,7 +169,7 @@ namespace GestionTurnos.Application.Services
         {
             var staff = await _staffRepository.GetByBranchId(branchId);
             return staff
-                .Where(s => s.Rol == Rol.Admin || s.Rol == Rol.Profesional)
+                .Where(s => (s.Rol == Rol.Admin || s.Rol == Rol.Profesional) && s.IsBookable)
                 .Select(s => s.ToSummaryResponse())
                 .ToList();
         }
@@ -238,6 +238,15 @@ namespace GestionTurnos.Application.Services
         {
             var admin = await _staffRepository.GetAdminOfCurrentBusiness()
                 ?? throw new KeyNotFoundException("No se encontró un administrador para esta empresa.");
+            return admin.ToResponse();
+        }
+
+        public async Task<StaffsResponse> SetAdminBookable(bool isBookable)
+        {
+            var admin = await _staffRepository.GetAdminOfCurrentBusiness()
+                ?? throw new KeyNotFoundException("No se encontró un administrador para esta empresa.");
+            admin.IsBookable = isBookable;
+            await _staffRepository.Update(admin);
             return admin.ToResponse();
         }
     }

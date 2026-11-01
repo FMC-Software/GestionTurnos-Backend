@@ -63,6 +63,13 @@ namespace GestionTurnos.Presentation.Controllers
             return Ok(admin);
         }
 
+        [Authorize(Policy = Policies.Admin)]
+        [HttpPut("Business/Admin/bookable")]
+        public async Task<ActionResult<StaffsResponse>> SetAdminBookable([FromBody] SetBookableRequest request)
+        {
+            return Ok(await _staffService.SetAdminBookable(request.IsBookable));
+        }
+
         [Authorize(Policy = Policies.SysAdminOrAdmin)]
         [HttpPost]
         public async Task<ActionResult<StaffsResponse>> CreateStaff([FromBody] StaffRequest user)

@@ -34,6 +34,7 @@ namespace GestionTurnos.Application.Mapper
                 BranchId = entity.BranchId,
                 BranchName = entity.Branch?.Name ?? string.Empty,
                 IsActive = entity.IsActive,
+                IsBookable = entity.IsBookable,
             };
         }
 
@@ -68,6 +69,9 @@ namespace GestionTurnos.Application.Mapper
             if (!string.IsNullOrWhiteSpace(request.Name))
                 entity.Name = request.Name;
 
+            if (!string.IsNullOrWhiteSpace(request.Password))
+                entity.Password = request.Password;
+
             if (!string.IsNullOrWhiteSpace(request.Email))
                 entity.Email = request.Email;
 
@@ -81,7 +85,6 @@ namespace GestionTurnos.Application.Mapper
 
             if (request.BranchId.HasValue)
                 entity.BranchId = request.BranchId.Value;
-                // entity.Password = request.Password;
 
             if (request.IsActive.HasValue)
                 entity.IsActive = request.IsActive.Value;

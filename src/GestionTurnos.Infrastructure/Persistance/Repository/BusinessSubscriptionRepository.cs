@@ -15,6 +15,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
         {
             return await _dbSet
                 .Include(bs => bs.Business)
+                .Include(bs => bs.Plan)
                 .Where(bs => bs.Status == Status.Active)
                 .ToListAsync();
         }
@@ -30,6 +31,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
+                .Include(bs => bs.PendingPlan)
                 .Where(bs => !bs.IsDeleted)
                 .ToListAsync();
         }
@@ -39,6 +41,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
+                .Include(bs => bs.PendingPlan)
                 .FirstOrDefaultAsync(bs => bs.Id == id);
         }
 
@@ -47,6 +50,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
+                .Include(bs => bs.PendingPlan)
                 .Where(bs => bs.BusinessId == businessId && !bs.IsDeleted)
                 .ToListAsync();
         }
@@ -56,6 +60,7 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
             return await _dbSet
                 .Include(bs => bs.Business)
                 .Include(bs => bs.Plan)
+                .Include(bs => bs.PendingPlan)
                 .FirstOrDefaultAsync(bs =>
                     bs.BusinessId == businessId &&
                     bs.Status == Status.Active &&
