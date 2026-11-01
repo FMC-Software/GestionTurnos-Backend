@@ -603,7 +603,7 @@ namespace GestionTurnos.Application.Services
                     EndTime = schedule.EndTime.ToString(@"hh\:mm"),
                     SlotDurationMinutes = schedule.SlotDurationMinutes
                 },
-                Staff = staffList.Select(s => new StaffAgendaResponse
+                Staff = staffList.Where(s => s.Rol != Rol.Recepcionista).Select(s => new StaffAgendaResponse
                 {
                     StaffId = s.Id,
                     StaffName = s.Name,
