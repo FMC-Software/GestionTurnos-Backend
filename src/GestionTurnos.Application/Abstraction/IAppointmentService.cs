@@ -6,6 +6,7 @@ namespace GestionTurnos.Application.Abstraction
     public interface IAppointmentService
     {
         Task<List<AppointmentResponse>> GetAppointmentsOfCurrentBusiness();
+        Task<List<AppointmentResponse>> GetAppointmentsByClient(Guid clientId);
 
         Task<BusinessAppointmentStatsResponse> GetAppointmentStatsForCurrentBusiness();
         Task<List<AppointmentResponse>> GetAppointmentsOfMyBranch();

@@ -35,6 +35,13 @@ namespace GestionTurnos.Presentation.Controllers
         }
 
         [Authorize(Policy = Policies.Admin)]
+        [HttpGet("by-client/{clientId:guid}")]
+        public async Task<ActionResult<List<AppointmentResponse>>> GetByClient([FromRoute] Guid clientId)
+        {
+            return Ok(await _appointmentService.GetAppointmentsByClient(clientId));
+        }
+
+        [Authorize(Policy = Policies.Admin)]
         [HttpGet("stats")]
         public async Task<ActionResult<BusinessAppointmentStatsResponse>> GetStats()
         {

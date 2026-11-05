@@ -12,6 +12,7 @@ namespace GestionTurnos.Application.Mapper
             {
                 Id = appointment.Id,
 
+                ClientId = appointment.ClientId,
                 ClientName = appointment.ClientName,
                 StaffName = appointment.Staff.Name,
                 ServiceName = appointment.Service.Name,

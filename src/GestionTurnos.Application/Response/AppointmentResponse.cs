@@ -4,6 +4,7 @@ namespace GestionTurnos.Application.Response
     {
         public Guid Id { get; set; }
 
+        public Guid ClientId { get; set; }
         public string ClientName { get; set; } = string.Empty;
         public string StaffName { get; set; } = string.Empty;
         public string ServiceName { get; set; } = string.Empty;

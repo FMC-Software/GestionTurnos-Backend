@@ -45,6 +45,21 @@ namespace GestionTurnos.Infrastructure.Persistance.Repository
                 .ToListAsync();
         }
 
+        // Historial completo de un cliente puntual (para la ficha del cliente en
+        // Managment Business). Se filtra tambien por businessId para que un
+        // Admin no pueda ver turnos de un cliente de otro negocio.
+        public async Task<List<Appointment>> GetByClientId(Guid clientId, Guid businessId)
+        {
+            return await _dbSet
+                .Include(a => a.Client)
+                .Include(a => a.Staff)
+                .Include(a => a.Service)
+                .Where(a => !a.IsDeleted && a.ClientId == clientId && a.Staff.BusinessId == businessId)
+                .OrderByDescending(a => a.Day)
+                .ThenByDescending(a => a.StartTime)
+                .ToListAsync();
+        }
+
         public async Task<int> CountByBusinessId(Guid businessId) =>
             await _dbSet.CountAsync(a => !a.IsDeleted && a.Staff.BusinessId == businessId);
 
