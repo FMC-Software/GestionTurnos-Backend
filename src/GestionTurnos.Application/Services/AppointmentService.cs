@@ -82,6 +82,20 @@ namespace GestionTurnos.Application.Services
                 .ToList();
         }
 
+        // Historial completo de un cliente puntual, para su ficha en Managment
+        // Business. Se escopea por el negocio del Admin que pide, no por el
+        // clientId solo, asi no se puede ver el historial de un cliente ajeno.
+        public async Task<List<AppointmentResponse>> GetAppointmentsByClient(Guid clientId)
+        {
+            var businessId = _tenantProvider.GetBusinessId()
+                ?? throw new ConflictException("No se encontró la empresa.");
+
+            var appointments = await _appointmentRepository.GetByClientId(clientId, businessId);
+            return appointments
+                .Select(a => a.ToResponse())
+                .ToList();
+        }
+
         public async Task<BusinessAppointmentStatsResponse> GetAppointmentStatsForCurrentBusiness()
         {
             var businessId = _tenantProvider.GetBusinessId()

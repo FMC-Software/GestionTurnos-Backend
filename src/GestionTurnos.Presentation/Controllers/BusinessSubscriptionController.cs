@@ -94,6 +94,18 @@ namespace GestionTurnos.Presentation.Controllers
 
         }
 
+        // Corta el acceso pago de un negocio YA (fraude/impago detectado fuera del
+        // sistema): cancela la suscripcion actual y lo pasa a Free Plan de inmediato,
+        // sin esperar al EndDate.
+        [Authorize(Policy = Policies.SysAdmin)]
+        [HttpPost("business/{businessId}/cancel")]
+        public async Task<ActionResult<BusinessSubscriptionResponse>> CancelSubscription([FromRoute] Guid businessId)
+        {
+            await _subscriptionService.CancelSubscription(businessId);
+            var updated = await _subscriptionService.GetCurrentSubscription(businessId);
+            return Ok(updated);
+        }
+
         // Cancela el cambio de plan programado (downgrade) del negocio autenticado.
         [Authorize(Policy = Policies.Admin)]
         [HttpDelete("my/pending-plan")]

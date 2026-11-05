@@ -214,6 +214,46 @@ namespace GestionTurnos.Application.Services
             await _branchLimitEnforcer.ApplyBranchLimitAsync(businessId, newPlan);
         }
 
+        // Corta el acceso pago YA (caso fraude/impago detectado fuera del sistema),
+        // sin esperar al EndDate. Mismo efecto que SubscriptionProcessor al vencer
+        // naturalmente (cierra la actual, abre una nueva en Free Plan con sus
+        // limites aplicados), pero disparado ahora en vez de por el vencimiento.
+        public async Task CancelSubscription(Guid businessId)
+        {
+            var subscription = await _subscriptionRepository
+                .GetCurrentSubscription(businessId)
+                ?? await _subscriptionRepository.GetLatestByBusinessId(businessId)
+                ?? throw new NotFoundException("El negocio no posee suscripciones");
+
+            if (subscription.Status == Status.Cancelled)
+            {
+                throw new ConflictException("La suscripción ya está cancelada");
+            }
+
+            if (subscription.Plan.Price <= 0)
+            {
+                throw new ConflictException("El negocio ya está en el Free Plan, no hay suscripción paga para cancelar");
+            }
+
+            subscription.Status = Status.Cancelled;
+            subscription.PendingPlanId = null;
+            await _subscriptionRepository.Update(subscription);
+
+            var freePlan = await _planService.GetPlanOrDefault(null);
+            await _subscriptionRepository.Add(new BusinessSubscription
+            {
+                BusinessId = businessId,
+                PlanId = freePlan.Id,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(freePlan.DurationDays),
+                Status = Status.Active
+            });
+
+            await _staffLimitEnforcer.ApplyStaffLimitAsync(businessId, freePlan);
+            await _serviceLimitEnforcer.ApplyServiceLimitAsync(businessId, freePlan);
+            await _branchLimitEnforcer.ApplyBranchLimitAsync(businessId, freePlan);
+        }
+
         public async Task CancelPendingPlanChange(Guid businessId)
         {
             var subscription = await GetCurrentSubscriptionEntity(businessId);

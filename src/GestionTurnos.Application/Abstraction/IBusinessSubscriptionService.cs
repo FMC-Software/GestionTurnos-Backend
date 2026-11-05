@@ -19,6 +19,7 @@ namespace GestionTurnos.Application.Abstraction
         Task RenewSubscription(Guid businessId);
 
         Task ChangePlan(Guid businessId, Guid planId);
+        Task CancelSubscription(Guid businessId);
 
         Task CancelPendingPlanChange(Guid businessId);
 
